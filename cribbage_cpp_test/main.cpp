@@ -45,6 +45,27 @@ namespace {
 }
 
 int main(int argc, char *argv[]) {
+    //first some dumb noodles
+    char cardstr[3] = { 0,0,0 };
+
+    for(uint8_t card = 0; card < 52; card++) {
+        cardstring(card,cardstr,0);
+        printf("Card is %02d - rank: %2d suit: %d val: %2d str: %s\n",card,rank(card),suit(card),val(card),cardstr);
+    }
+
+    //try a shuffle!
+    uint8_t deck[52];
+    uint8_t decklen = 52;
+    my_srandom(9999);
+    shuffle(deck);
+    printf("Shuffled deck:\n");
+    for(auto i = 0; i< decklen; i++) {
+        cardstring(deck[i],cardstr,0);
+        printf("%2d = %s\n",deck[i],cardstr);
+    }
+
+
+    // real testing main starts here
     ::testing::InitGoogleTest();
     RUN_ALL_TESTS();
 }
