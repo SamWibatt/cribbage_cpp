@@ -6,6 +6,7 @@ Targeting embedded systems, so uses small containers like uint8_t at the risk of
 
 */
 
+#include <string.h>
 #include "cribbage_cpp.h"
 
 namespace cribbage_cpp {
@@ -114,11 +115,11 @@ namespace cribbage_cpp {
     //ARDUINO CAN'T DO NEW OR DELETE!
     //Could have it so that it takes a char * in and plunks down the characters at a specified index
     //let's go with that, and see how it works
-    const char valstr[] = "A234567890JQK";
+    const char rankstr[] = "A234567890JQK";
     const char suitstr[] = "hdcs";      //lower case to stand out from values better
 
     inline void cardstring(uint8_t card, char *deststr, uint8_t index) {
-        deststr[index] = valstr[rank(card)];
+        deststr[index] = rankstr[rank(card)];
         deststr[index+1] = suitstr[suit(card)];
     }
 
@@ -146,13 +147,34 @@ namespace cribbage_cpp {
     //    return (ranks.index(stru[0]) * 4) + (suits.index(stru[1]) if stru[1] in suits else suits2.index(stru[1]))
     //
     // FOR C++ version let's assume ranks and suits are in the appropriate case and suits are lowercase letters as in
-    // cardstring
+    // cardstring - or no, that's annoying
     // and do it the same way that it picks two characters out of a provided string
     inline uint8_t stringcard(char *srcstr, uint8_t index) {
         uint8_t card = 0;
-        switch srcstr[index] {
-        LEFT OFF HERE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        for(uint8_t i = 0; i < strlen(rankstr); i++) {
+            if (srcstr[index] == rankstr[i) {
+                card += i << 2; 
+                break;
+            }
         }
+        //if at this point is strlen(rankstr), the rank wasn't found
+        if (i == strlen(rankstr)) {
+            //how are errors handled? Let's say return illegal card value, 0xFF is a good choice
+            return 0xFF;
+        }
+        //then account for the suit
+        for(uint8_t i = 0; i < strlen(suitstr); i++) {
+            if (srcstr[index] == suitstr[i) {
+                card += i; 
+                break;
+            }
+        }
+        //if at this point is strlen(suitstr), the rank wasn't found
+        if (i == strlen(suitstr)) {
+            //how are errors handled? Let's say return illegal card value, 0xFF is a good choice
+            return 0xFF;
+        }
+        return card;
     }
 
 
