@@ -19,7 +19,7 @@ namespace cribbage_cpp {
     //this is copied from the arduino core random, I think, though maybe I should just write my own
     //was static, dunno if C++11 needs it in a namespace
     uint32_t next = 1;
-
+    
     int32_t do_random(uint32_t *ctx)
     {
         // * Compute x = (7^5 * x) mod (2^31 - 1)
@@ -74,6 +74,9 @@ namespace cribbage_cpp {
     }
 
     // card related stuff ------------------------------------------------------------------------------------------------
+    //this is a "global" to support the cut function
+    uint8_t tempdeck[52];
+
     // inlines moved to header
 
     //# shuffle returns a data structure containing parallel lists of card value (rank/suit combo 0..51) and flag
@@ -179,6 +182,38 @@ namespace cribbage_cpp {
 
     // C++ version will have pointer and length, operate in-place
     void cut(uint8_t *deck, uint8_t decklen, uint8_t index) {
-        //hey, write this
+        if (deck == nullptr || decklen < 2 || index < 1 || index > decklen-1) {
+            return;         //no effect if illegal index or degenerate deck
+        }
+        //let's just do a quick C type swappy
+        //is that possible? not really, since the sections of deck are typically not the same size
+        // fastest is to have a separate array, do copy from index -> end to 0->(decklen-index)ish in dest, then 0..index-1
+        // from src to (decklen-index)ish in dest.
+        // then copy the whole thing back to deck.
+        // cost of 52 bytes, which on anything bigger than a PIC is going to be nothing so don't worry about it
+        // speed is also not super critical bc cut is a relatively uncommon op
+        // I will make it a "global" to save some time, perhaps, or stack space, or whatever - tempdeck
+        // this is a rich field for off-by-ones, so let's think about it
+        // deck is A B C D E
+        // index is 2
+        // we want to end up with 
+        // C D E A B
+        // verify in python!
+        // yup
+        // >>> deck = ['A', 'B', 'C', 'D', 'E']
+        // >>> index = 2
+        // >>> deck[index:] + deck[:index]
+        // ['C', 'D', 'E', 'A', 'B']
+        // so decklen is 5, index = 2 - copy length of the first memcpy is then decklen-index: 5-2 = 3, CDE
+        // second one then has to start at deck[decklen-index], and the number of items is index
+        // verify on another:
+        // >>> deck = [ 1,2,3,4,5,6 ]
+        // >>> index = 2
+        // >>> deck[index:] + deck[:index]
+        // [3, 4, 5, 6, 1, 2]
+        // looks right
+        std::memcpy(tempdeck,&deck[index],decklen-index);
+        std::memcpy(&tempdeck[decklen-index],deck,index);
+        std::memcpy(deck,tempdeck,decklen);
     }
 }
