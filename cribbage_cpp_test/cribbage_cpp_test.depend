@@ -1,0 +1,9 @@
+# depslib dependency file v1.0
+1589987908 source:/home/sean/dev/cpp/cribbage_cpp/cribbage_cpp_test/main.cpp
+	<stdio.h>
+	"cribbage_cpp.h"
+	"gtest/gtest.h"
+
+1589985564 /home/sean/dev/cpp/cribbage_cpp/cribbage_cpp//cribbage_cpp.h
+	<cstdint>
+

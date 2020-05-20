@@ -45,7 +45,6 @@ namespace {
 }
 
 int main(int argc, char *argv[]) {
-    printf("Hovbart\n");
     ::testing::InitGoogleTest();
     RUN_ALL_TESTS();
 }

@@ -1,9 +1,20 @@
+/**
+
+cribbage_cpp - C++ implementation of cribbage utilities and scoring
+
+Targeting embedded systems, so uses small containers like uint8_t at the risk of loss of speed on larger machines
+
+*/
+
 #include "cribbage_cpp.h"
 
 namespace cribbage_cpp {
+
+    //Random number stuff ----------------------------------------------------------------------------------------------
+
+    //this is copied from the arduino core random, I think, though maybe I should just write my own
     //was static, dunno if C++11 needs it in a namespace
     uint32_t next = 1;
-
 
     int32_t do_random(uint32_t *ctx)
     {
@@ -57,4 +68,146 @@ namespace cribbage_cpp {
         // Truncated division is intentional
         return x/bin_size;
     }
+
+    // card related stuff ------------------------------------------------------------------------------------------------
+    // REIMPLEMENT ALL THIS PYTHON!
+    //# card handling routines -------------------------------------------------------------------------
+    //
+    // So for greatest speed, inline the tiny stuff? This is the sort of thing I'd think could be done with a macro
+    // in the old days. Indeed, this seems to be the preferred way; also sounds like class member functions are implicitly
+    // inline.
+    //def rank(self,card):
+    //    return card // 4
+    inline uint8_t rank(uint8_t card) {
+        return card >> 2;
+    }
+
+    //def val(self,card):
+    //    '''value, s.t. ace = 1, 2 = 2, ... 10 and face cards = 10'''
+    //    return self.rank(card)+1 if self.rank(card) < 10 else 10
+    inline uint8_t val(uint8_t card) {
+        return (rank(card)<10) ? rank(card) : 10;
+    }
+
+    //def suit(self,card):
+    //    return card % 4
+    inline uint8_t suit(uint8_t card) {
+        return card % 4;
+    }
+
+    //def cardstring(self,card):
+    //    '''card is a number from 0-51; card %4 is rank, where 0 = hearts, 1 = diamonds, 2 = clubs, 3 = spades.
+    //    card // 4 is rank, 0 = ace .. 12 = king
+    //    '''
+    //    if card not in range(0,52):
+    //        print("Illegal card value",card)
+    //        return None
+    //    return 'A234567890JQK'[self.rank(card)] + '♥♦♣♠'[self.suit(card)]
+    // CHANGING TO JUST USE HDCS instead of card suit characters bc unicode in C++ is still a PIA
+    //quick noodle with unicode string
+    //auto suitstr = u8"\u2660\u2665\u2663\u2666";
+    //printing as string works, char doesn't
+    //printf("Suits: %s, or %c %c %c %c\n",suitstr,suitstr[0],suitstr[1],suitstr[2],suitstr[3]);
+    //so... cardstr and strcard don't need to be super high performance, yes? They're for human
+    //convenience. So let's have them compile out if ... hm.
+    //they're important for unit testing
+    //ARDUINO CAN'T DO NEW OR DELETE!
+    //Could have it so that it takes a char * in and plunks down the characters at a specified index
+    //let's go with that, and see how it works
+    const char valstr[] = "A234567890JQK";
+    const char suitstr[] = "hdcs";      //lower case to stand out from values better
+
+    inline void cardstring(uint8_t card, char *deststr, uint8_t index) {
+        deststr[index] = valstr[rank(card)];
+        deststr[index+1] = suitstr[suit(card)];
+    }
+
+    //# this is mostly for debugging and unit testing
+    //def stringcard(self,strc):
+    //    '''strc is a 2 character code for a card. first character = rank, A234567890JQK, 2nd = suit, hdcs for heart diamond
+    //    club spade, case-insensitive, can also be ♥♦♣♠ '''
+    //    if strc is None:
+    //        return None
+    //    ranks = 'A234567890JQK'
+    //    suits = 'HDCS'
+    //    suits2 = '♥♦♣♠'
+    //    if len(strc) != 2:
+    //        print("ERROR: stringcard input must be 2 characters")
+    //        return None
+    //
+    //    stru = str.upper(strc)
+    //    if stru[0] not in ranks:
+    //        print("ERROR: rank",stru[0],"is not a legal rank from",ranks)
+    //        return None
+    //    if stru[1] not in suits and stru[1] not in suits2:
+    //        print("ERROR: suit",stru[1],"is not a legal suit from",suits,"or",suits2)
+    //        return None
+    //
+    //    return (ranks.index(stru[0]) * 4) + (suits.index(stru[1]) if stru[1] in suits else suits2.index(stru[1]))
+    //
+    // FOR C++ version let's assume ranks and suits are in the appropriate case and suits are lowercase letters as in
+    // cardstring
+    // and do it the same way that it picks two characters out of a provided string
+    inline uint8_t stringcard(char *srcstr, uint8_t index) {
+        uint8_t card = 0;
+        switch srcstr[index] {
+        LEFT OFF HERE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        }
+    }
+
+
+    //# shuffle returns a data structure containing parallel lists of card value (rank/suit combo 0..51) and flag
+    //# for whether it's been dealt.
+    //# this representation lets you walk through the deck sequentially (deal) but also fish cards out random-access (cut).
+    //# only... that's not really what cut is, is it? it takes a position in the deck and swaps the 'halves' of the deck!
+    //# that being the case, do we need the dealt-flag? the cribbage cut and turn is just swap halves, then deal a card.
+    //# shuffle implemented by generating 52 32-bit random numbers and scanning it to determine their order.
+    //# the LOL here is that this takes 208 bytes and I couldn't use it for vpok bc that's more RAM than a PIC 16F628 has.
+    //# on ardy it can be discarded once the ordering is redone.
+    //# Uno R3 / atmega328 has 2K ram, yes? Some taken by the arduino core but not lots
+    //def shuffle(self):
+    //    newdeck = {'order':[self.random() for i in range(0,52)],
+    //            'value':[-1 for i in range(0,52)]}
+    //    curmin = min(newdeck['order'])
+    //    # the arduino version will look quite different, searching instead of listbuilding
+    //    for val in range(0,52):
+    //        card = newdeck['order'].index(curmin)
+    //        newdeck['value'][card] = val
+    //        gtmin = list(filter(lambda x:x>curmin,newdeck['order']))
+    //        if len(gtmin) > 0:
+    //            curmin = min(gtmin)
+    //    return newdeck['value']
+    //
+    //# COULD ALSO TRY THE SHUFFLE WAY WHERE YOU JUST PICK TWO CARDS TO SWAP AND DO THAT A BUNCH OF TIMES.
+    //# THAT'S MORE THE TINY861 VERSION - how many times is enough, etc.
+    //# worry re later
+    //
+    //# deck is just an array now
+    //# let's just have the deck be an array and pull cards off of its front
+    //def deal_card(self,deck):
+    //    if deck is not None and len(deck) > 0:
+    //        card = deck[0]
+    //        deck = deck[1:]
+    //        return (deck,card)
+    //    return (None,None)
+    //
+    //# Cut will take an index into a deck which is assumed not to have any cards removed from it, plus an index.
+    //# then it swaps the halves. returns the cut deck.
+    //# weirdness is that cut (deck,0) returns deck unchanged. so, disallow 0?
+    //# ektully from sec 3.1 of the rules,
+    //# When cutting for the first deal of a game, the
+    //# first player shall remove no less than four cards
+    //# and not more than half the pack. The second
+    //# player shall remove no less than four cards and
+    //# shall leave at least four cards.
+    //# c. When cutting before each deal and for the starter
+    //# card, no less than four cards shall be taken from
+    //# the top and no less than four left on the bottom.
+    //# This will be enforced by the calls to the random number gettors below.
+    //def cut(self,deck,index):
+    //    if index >= 1 and index < len(deck):
+    //        return deck[index:] + deck[:index]
+    //    print("Illegal cut index",index,"- not doing cut")
+    //    return deck;
+
 }
