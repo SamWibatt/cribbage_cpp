@@ -7,6 +7,7 @@ Targeting embedded systems, so uses small containers like uint8_t at the risk of
 */
 
 #include <string.h>
+#include <array>
 #include "cribbage_cpp.h"
 
 namespace cribbage_cpp {
@@ -93,7 +94,7 @@ namespace cribbage_cpp {
     //def suit(self,card):
     //    return card % 4
     inline uint8_t suit(uint8_t card) {
-        return card % 4;
+        return card & 3;            //bc bitwise operators are more rad and might work better on tiny chips
     }
 
     //def cardstring(self,card):
@@ -203,7 +204,42 @@ namespace cribbage_cpp {
     //# COULD ALSO TRY THE SHUFFLE WAY WHERE YOU JUST PICK TWO CARDS TO SWAP AND DO THAT A BUNCH OF TIMES.
     //# THAT'S MORE THE TINY861 VERSION - how many times is enough, etc.
     //# worry re later
-    //
+                                         
+    class CardOrder {
+        uint32_t order;         // random number by which deck is sorted, see shuffle below
+        uint8_t card;           // card value 0..51
+    };
+                                         
+    // so for C++, what do we want to be able to do? If we're avoiding new and delete, hand in an array
+    // presumably initialized to illegal card values, or really it doesn't matter, we're trampling it anyway
+    void shuffle(char *deck) {
+        // we need an "order" array of 52 random numbers - could try a C++11 array!
+        //https://en.cppreference.com/w/cpp/container/array
+        //agog to see if arduino likes it
+        //or... could be an array of structures that have the random number and an index, then sort that by the order number,
+        //then copy out the indices as the card values
+        //can use std::sort https://en.cppreference.com/w/cpp/algorithm/sort
+        // template< class RandomIt, class Compare > void sort( RandomIt first, RandomIt last, Compare comp );
+        // sort using a lambda expression 
+        //std::sort(s.begin(), s.end(), [](int a, int b) {
+        //  return a > b;   
+        //});
+        //can also use stuff like ranged for loop!
+        // need to test soon on ardy, dunno if it supports this fanciness - I guess I could just make a sketch that sorts
+        // a bunch of numbers and returns that via serial()
+        // Looks like the usual sort implementation for C++ 11 is introsort, which is probably big codewise...? Let's try it
+        std::array<CardOrder, 52> tempdeck;
+        // std::for_each(nums.begin(), nums.end(), [](int &n){ n++; });
+        uint8_t j = 0;
+        std::for_each(tempdeck.begin(), tempdeck.end(), [&j](CardOrder &c){ c.order = my_random(); c.card = j++; });
+        std::sort(tempdeck.begin(), tempdeck.end(), [](CardOrder &a, CardOrder &b) {
+            return a.order < b.order;           //I think this does ascending sort - doesn't really matter tho which we do   
+        });
+        //old fashioned loop until I figure out how to do this better
+        for(auto i=0; i < 52; i++) deck[i] = tempdeck[i].card;
+    }
+                                         
+                                         
     //# deck is just an array now
     //# let's just have the deck be an array and pull cards off of its front
     //def deal_card(self,deck):
