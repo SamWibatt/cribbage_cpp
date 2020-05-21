@@ -61,8 +61,19 @@ int main(int argc, char *argv[]) {
     printf("Shuffled deck:\n");
     for(auto i = 0; i< decklen; i++) {
         cardstring(deck[i],cardstr,0);
-        printf("%2d = %s\n",deck[i],cardstr);
+        printf("%2d: %2d = %s\n",i,deck[i],cardstr);
     }
+
+    //try a cut!
+    for(auto j=0;j<10;j++) deck[j] = 10+j;
+    decklen = 10;
+    printf("Pre-cut deck: ");
+    for(auto j=0;j<10;j++) printf("%d, ",deck[j]);
+    printf("\n");
+    cut(deck,decklen,6);
+    printf("Post-cut deck: ");
+    for(auto j=0;j<10;j++) printf("%d, ",deck[j]);
+    printf("\n");
 
 
     // real testing main starts here

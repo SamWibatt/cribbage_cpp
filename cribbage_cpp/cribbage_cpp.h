@@ -125,7 +125,7 @@ namespace cribbage_cpp {
     }
 
     void shuffle(uint8_t *deck);
-    uint8_t deal_card(uint8_t *deck, uint8_t *pdecklen);
+    uint8_t deal_card(uint8_t **deck, uint8_t *pdecklen);
     void cut(uint8_t *deck, uint8_t decklen, uint8_t index);
 
 }

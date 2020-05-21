@@ -10,6 +10,7 @@ Targeting embedded systems, so uses small containers like uint8_t at the risk of
 #include <array>
 #include <algorithm>
 #include <cstring>
+#include <stdio.h>
 #include "cribbage_cpp.h"
 
 namespace cribbage_cpp {
@@ -19,7 +20,7 @@ namespace cribbage_cpp {
     //this is copied from the arduino core random, I think, though maybe I should just write my own
     //was static, dunno if C++11 needs it in a namespace
     uint32_t next = 1;
-    
+
     int32_t do_random(uint32_t *ctx)
     {
         // * Compute x = (7^5 * x) mod (2^31 - 1)
@@ -183,6 +184,7 @@ namespace cribbage_cpp {
     // C++ version will have pointer and length, operate in-place
     void cut(uint8_t *deck, uint8_t decklen, uint8_t index) {
         if (deck == nullptr || decklen < 2 || index < 1 || index > decklen-1) {
+            printf("Hey illegal deck or index\n");
             return;         //no effect if illegal index or degenerate deck
         }
         //let's just do a quick C type swappy
@@ -196,7 +198,7 @@ namespace cribbage_cpp {
         // this is a rich field for off-by-ones, so let's think about it
         // deck is A B C D E
         // index is 2
-        // we want to end up with 
+        // we want to end up with
         // C D E A B
         // verify in python!
         // yup
@@ -212,7 +214,7 @@ namespace cribbage_cpp {
         // >>> deck[index:] + deck[:index]
         // [3, 4, 5, 6, 1, 2]
         // looks right
-        std::memcpy(tempdeck,&deck[index],decklen-index);
+        std::memcpy(tempdeck,&(deck[index]),decklen-index);
         std::memcpy(&tempdeck[decklen-index],deck,index);
         std::memcpy(deck,tempdeck,decklen);
     }
