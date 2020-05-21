@@ -1,25 +1,6 @@
 /*
-  Blink
-
-  Turns an LED on for one second, then off for one second, repeatedly.
-
-  Most Arduinos have an on-board LED you can control. On the UNO, MEGA and ZERO
-  it is attached to digital pin 13, on MKR1000 on pin 6. LED_BUILTIN is set to
-  the correct LED pin independent of which board is used.
-  If you want to know what pin the on-board LED is connected to on your Arduino
-  model, check the Technical Specs of your board at:
-  https://www.arduino.cc/en/Main/Products
-
-  modified 8 May 2014
-  by Scott Fitzgerald
-  modified 2 Sep 2016
-  by Arturo Guadalupi
-  modified 8 Sep 2016
-  by Colby Newman
-
-  This example code is in the public domain.
-
-  http://www.arduino.cc/en/Tutorial/Blink
+ * cribbage_cpp - sketch to test that cribbage_cpp routines work on arduino target hardware
+ * Intended for SAMD21/51, might try with ESP32 too
 */
 
 #include <cstdint>
@@ -32,13 +13,29 @@ void setup() {
   // initialize digital pin LED_BUILTIN as an output.
   pinMode(LED_BUILTIN, OUTPUT);
 
+  //Initialize serial and wait for port to open:
+  Serial.begin(115200);
+  while (!Serial) {
+    ; // wait for serial port to connect. Needed for native USB port only
+  }
+
+  // prints title with ending line break
+  Serial.println("Hello and welcome to cribbage_cpp");
+
+
   // do some card stuff!
   uint8_t deck[52];
   my_srandom(9999);
   shuffle(deck);
 
   //then report all the cards out to serial
-  //WRITE THIS!
+  Serial.println("Shuffled cards from 9999 seed:");
+  for(auto j = 0; j < 52; j++) {
+    Serial.print(deck[j]);
+    if (((j+1)%13) == 0) Serial.println();
+    Serial.print(" ");
+  }
+  Serial.println();
 }
 
 // the loop function runs over and over again forever

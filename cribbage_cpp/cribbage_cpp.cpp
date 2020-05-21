@@ -134,9 +134,7 @@ namespace cribbage_cpp {
         // std::for_each(nums.begin(), nums.end(), [](int &n){ n++; });
         uint8_t j = 0;
         std::for_each(tempdeck.begin(), tempdeck.end(), [&j](CardOrder &c){ c.order = my_random(); c.card = j++; });
-        std::sort(tempdeck.begin(), tempdeck.end(), [](CardOrder &a, CardOrder &b) {
-            return a.order < b.order;           //I think this does ascending sort - doesn't really matter tho which we do
-        });
+        std::sort(tempdeck.begin(), tempdeck.end(), [](CardOrder &a, CardOrder &b) { return a.order < b.order; });
         //old fashioned loop until I figure out how to do this better
         for(auto i=0; i < 52; i++) deck[i] = tempdeck[i].card;
     }
