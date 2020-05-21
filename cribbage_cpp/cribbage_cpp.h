@@ -111,7 +111,7 @@ namespace cribbage_cpp {
         }
         //then account for the suit
         for(i = 0; i < strlen(suitstr); i++) {
-            if (srcstr[index] == suitstr[i]) {
+            if (srcstr[index+1] == suitstr[i]) {
                 card += i;
                 break;
             }
