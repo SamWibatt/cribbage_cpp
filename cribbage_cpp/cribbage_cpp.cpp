@@ -113,6 +113,11 @@ namespace cribbage_cpp {
     };
 
     // so for C++, what do we want to be able to do? If we're avoiding new and delete, hand in an array
+    // wait - the new and delete thing is outdated - http://arduino.land/FAQ/content/4/20/en/can-i-use-new-and-delete-with-arduino.html
+    // they do exist! But still, not a terrible idea to be careful with the heap on little chips. If I'm targeting
+    // I think they just weren't available for AVR, which I am prolly not going to support, however much I regret
+    // tried compiling this for ATMega1284 and it was all LOL no at one of the includes so drat
+    // SAMD / ESP32, I suppose I could back off on this a bit
     // presumably initialized to illegal card values, or really it doesn't matter, we're trampling it anyway
     void shuffle(uint8_t *deck) {
         // we need an "order" array of 52 random numbers - could try a C++11 array!
@@ -137,6 +142,10 @@ namespace cribbage_cpp {
         std::sort(tempdeck.begin(), tempdeck.end(), [](CardOrder &a, CardOrder &b) { return a.order < b.order; });
         //old fashioned loop until I figure out how to do this better
         for(auto i=0; i < 52; i++) deck[i] = tempdeck[i].card;
+        // might could do
+        // j = 0;
+        //std::for_each(tempdeck.begin(), tempdeck.end(), [&j,&deck](CardOrder &c){deck[j]=tempdeck[j++].card;}
+        //tho if I refactor away from all this uint8_t * stuff it might look a bit different
     }
 
 
