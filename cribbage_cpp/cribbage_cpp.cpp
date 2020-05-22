@@ -28,65 +28,51 @@ namespace cribbage_cpp {
     void v_srandom(uint32_t n) { nextvpok = n; }
     uint32_t v_random() { nextvpok = (1664525ul * nextvpok) + 1013904223ul; return nextvpok; }
 
-    /*
-    // OLD VERSION:
-    //this is copied from the arduino core random, I think, though maybe I should just write my own
-    //was static, dunno if C++11 needs it in a namespace
-    uint32_t next = 1;
+    // generating a number from 0..n, inclusive:
+    // this might be it. from @Ryan Reich:
+    // https://stackoverflow.com/questions/2509679/how-to-generate-a-random-integer-number-from-within-a-range
+    // which has this commentary and C code:
+    // All the answers so far are mathematically wrong. Returning rand() % N does not uniformly give a number in the
+    // range [0, N) unless N divides the length of the interval into which rand() returns (i.e. is a power of 2).
+    // Furthermore, one has no idea whether the moduli of rand() are independent: it's possible that they go
+    // 0, 1, 2, ..., which is uniform but not very random. The only assumption it seems reasonable to make is that
+    // rand() puts out a Poisson distribution: any two nonoverlapping subintervals of the same size are equally likely
+    // and independent. For a finite set of values, this implies a uniform distribution and also ensures that the values
+    // of rand() are nicely scattered.
+    //
+    // This means that the only correct way of changing the range of rand() is to divide it into boxes; for example, if
+    // RAND_MAX == 11 and you want a range of 1..6, you should assign {0,1} to 1, {2,3} to 2, and so on. These are
+    // disjoint, equally-sized intervals and thus are uniformly and independently distributed.
+    //
+    // The correct way is to use integer arithmetic.
+    // ---
+    //so, my randmax+1 DOES overflow the container, so we need a tweak.
+    //easy way is to make it so it doesn't, can just make it so the biggest value you can ask for is
+    //0x7FFF FFFF, and shift the random numbers down by 1. Then it's fine.
 
-    int32_t do_random(uint32_t *ctx)
-    {
-        // * Compute x = (7^5 * x) mod (2^31 - 1)
-        // * wihout overflowing 31 bits:
-        // *      (2^31 - 1) = 127773 * (7^5) + 2836
-        // * From "Random number generators: good ones are hard to find",
-        // * Park and Miller, Communications of the ACM, vol. 31, no. 10,
-        // * October 1988, p. 1195.
-        int32_t hi, lo, x;
-
-        x = *ctx;
-        // Can't be initialized with 0, so use another value.
-        if (x == 0)
-            x = 123459876L;
-        hi = x / 127773L;
-        lo = x % 127773L;
-        x = 16807L * lo - 2836L * hi;
-        if (x < 0)
-            x += 0x7fffffffL;
-        return ((*ctx = x) % ((uint32_t)RANDOM_MAX + 1));
-    }
-
-    int32_t my_random(void)
-    {
-        return do_random(&next);
-    }
-
-    void my_srandom(uint32_t seed)
-    {
-        next = seed;
-    }
-
-    // then this is from  @Ryan Reich:
-    // at https://stackoverflow.com/questions/2509679/how-to-generate-a-random-integer-number-from-within-a-range
+    // Returns uniformly distributed uint32_t in the closed interval [0, max]
     // Assumes 0 <= max <= RAND_MAX
-    // Returns in the closed interval [0, max]
-    int32_t random_at_most(int32_t max) {
+    uint32_t random_at_most(uint32_t max) {
+
+        //coupla special cases: 0 always gets 0
+        if (max == 0) return 0;
+        // anything bigger than random_max is an error, return all Fs
+        if (max > RANDOM_MAX) return RANDOM_ERROR;
+
+        // max <= RAND_MAX < ULONG_MAX, so max+1 is okay.
         uint32_t
-            // max <= RAND_MAX < ULONG_MAX, so this is okay.
-            num_bins = (uint32_t) max + 1,
-            num_rand = (uint32_t) RANDOM_MAX + 1,
+            num_bins = max + 1,
+            num_rand = RANDOM_MAX + 1,
             bin_size = num_rand / num_bins,
             defect   = num_rand % num_bins;
-        int32_t x;
-        do {
-            x = my_random();
-        }
+        uint32_t x;
         // This is carefully written not to overflow
-        while (num_rand - defect <= (uint32_t)x);
+        do {
+            x = v_random() >> 1;        // hardcoded to assume RANDOM_MAX of 0x7FFF FFFF
+        } while (num_rand - defect <= x);
         // Truncated division is intentional
         return x/bin_size;
     }
-    */
 
     // card related stuff ------------------------------------------------------------------------------------------------
 

@@ -18,6 +18,14 @@ namespace cribbage_cpp {
     void v_srandom(uint32_t n);
     uint32_t v_random();
 
+    // generating number evenly distributed bt 0 and max
+    // limiting max to RANDOM_MAX which, +1, must fit in the container uint32_t
+    // we're likely to be using it for tiny numbers but allow for up to 2 billion+, why not
+    // returns RANDOM_ERROR on illegal input
+    const uint32_t RANDOM_MAX = 0x7FFFFFFF;
+    const uint32_t RANDOM_ERROR = 0xFFFFFFFF;
+    uint32_t random_at_most(uint32_t max);
+
     /*
     // from python
     const uint32_t RANDOM_MAX (0x7FFFFFFF);

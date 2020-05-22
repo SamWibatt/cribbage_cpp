@@ -37,6 +37,21 @@ namespace {
         }
     }
 
+    //let's do ten million random_at_mosts and see if any wander out of bounds
+    //NOT CONCLUSIVE, just checks if the min and max are within the expected min-max range
+    //very suggestive, though, if ten million >> expected max
+    TEST(CribbageTest,RandomAtMost3333TenMReps) {
+        uint32_t maxy = 0, minny = 0xFFFFFFFF, expmin = 0, expmax = 3333;
+        for (auto j = 0; j < 10000000; j++) {
+            auto x = random_at_most(expmax);
+            if (x < minny) minny = x;
+            if (x > maxy) maxy = x;
+        }
+        //printf("Minny = %d, maxy = %d\n",minny, maxy);
+        EXPECT_LE(maxy,expmax);
+        EXPECT_GE(minny,expmin);
+    }
+
     // card basics tests ========================================================================================
 
     //test that card -> string -> card works for all cards
@@ -92,12 +107,6 @@ namespace {
 
 int main(int argc, char *argv[]) {
     //silly noodles
-    std::vector<uint8_t> deck(52);
-    v_srandom(9999);
-    shuffle(deck);
-    printf("{ ");
-    for(auto j = 0; j < 52; j++) printf("%d, ",deck[j]); printf("};\n");
-
 
     // real testing main starts here
     ::testing::InitGoogleTest();
