@@ -11,6 +11,7 @@ Targeting embedded systems, so uses small containers like uint8_t at the risk of
 #include <vector>
 #include <algorithm>
 #include <cstring>
+#include <string>
 #include <stdio.h>
 #include "cribbage_cpp.h"
 
@@ -76,37 +77,49 @@ namespace cribbage_cpp {
     }
 
     // card related stuff ------------------------------------------------------------------------------------------------
-    //this is a "global" to support the cut function
-    std::array<uint8_t,52> tempdeck;
 
-    // inlines moved to header
+    // these two functions are mostly for debugging and unit testing
+    // card is a number from 0-51; card %4 is rank, where 0 = hearts, 1 = diamonds, 2 = clubs, 3 = spades.
+    // card / 4 is rank, 0 = ace .. 12 = king
+    const std::string rankstr = "A234567890JQK";
+    const std::string suitstr = "hdcs";      //lower case to stand out from values better
 
-    //# shuffle returns a data structure containing parallel lists of card value (rank/suit combo 0..51) and flag
-    //# for whether it's been dealt.
-    //# this representation lets you walk through the deck sequentially (deal) but also fish cards out random-access (cut).
-    //# only... that's not really what cut is, is it? it takes a position in the deck and swaps the 'halves' of the deck!
-    //# that being the case, do we need the dealt-flag? the cribbage cut and turn is just swap halves, then deal a card.
-    //# shuffle implemented by generating 52 32-bit random numbers and scanning it to determine their order.
-    //# the LOL here is that this takes 208 bytes and I couldn't use it for vpok bc that's more RAM than a PIC 16F628 has.
-    //# on ardy it can be discarded once the ordering is redone.
-    //# Uno R3 / atmega328 has 2K ram, yes? Some taken by the arduino core but not lots
-    //def shuffle(self):
-    //    newdeck = {'order':[self.random() for i in range(0,52)],
-    //            'value':[-1 for i in range(0,52)]}
-    //    curmin = min(newdeck['order'])
-    //    # the arduino version will look quite different, searching instead of listbuilding
-    //    for val in range(0,52):
-    //        card = newdeck['order'].index(curmin)
-    //        newdeck['value'][card] = val
-    //        gtmin = list(filter(lambda x:x>curmin,newdeck['order']))
-    //        if len(gtmin) > 0:
-    //            curmin = min(gtmin)
-    //    return newdeck['value']
-    //
-    //# COULD ALSO TRY THE SHUFFLE WAY WHERE YOU JUST PICK TWO CARDS TO SWAP AND DO THAT A BUNCH OF TIMES.
-    //# THAT'S MORE THE TINY861 VERSION - how many times is enough, etc.
-    //# worry re later
+    //given a card, return the string e.g. 0 => Ah = ace of hearts
+    std::string cardstring(uint8_t card) {
+        if(card > 51) return std::string("ERROR");
+        std::string s(2,rankstr[rank(card)]);       // length 2 string, both chars are rank (dumb, but allocates and takes care of 1st char)
+        s[1] = suitstr[suit(card)];
+        return s;
+    }
 
+    // given a 2-character string, return corresponding card (or error if it doesn't conform to rank/suit possibilities
+    uint8_t stringcard(std::string srcstr) {
+        uint8_t card = 0;
+        uint8_t i;
+        for(i = 0; i < rankstr.size(); i++) {
+            if (srcstr[0] == rankstr[i]) {
+                card += i << 2;
+                break;
+            }
+        }
+        //if at this point is strlen(rankstr), the rank wasn't found
+        if (i == rankstr.size()) { return ERROR_CARD_VAL; }
+
+        //then account for the suit
+        for(i = 0; i < suitstr.size(); i++) {
+            if (srcstr[1] == suitstr[i]) {
+                card += i;
+                break;
+            }
+        }
+        //if at this point is strlen(suitstr), the rank wasn't found
+        if (i == suitstr.size()) { return ERROR_CARD_VAL; }
+        return card;
+    }
+
+    //deck-level functions! =============================================================================================
+
+    //support class for shuffling, see below
     class CardOrder {
         public:
             uint32_t order;         // random number by which deck is sorted, see shuffle below
@@ -118,12 +131,12 @@ namespace cribbage_cpp {
     // deck is the card members copied onto the end of the deck.
     // deck is not assumed to have any particular capacity but for best results, reserve 52.
     void shuffle(std::vector<uint8_t> &deck) {
-        std::array<CardOrder, 52> tempdeck;
+        std::array<CardOrder, 52> shufdeck;
         deck.clear();
         uint8_t j = 0;
-        std::for_each(tempdeck.begin(), tempdeck.end(), [&j](CardOrder &c){ c.order = my_random(); c.card = j++; });
-        std::sort(tempdeck.begin(), tempdeck.end(), [](CardOrder &a, CardOrder &b) { return a.order < b.order; });
-        std::for_each(tempdeck.begin(), tempdeck.end(), [&j,&deck](CardOrder &c) {deck.push_back(c.card);});
+        std::for_each(shufdeck.begin(), shufdeck.end(), [&j](CardOrder &c){ c.order = my_random(); c.card = j++; });
+        std::sort(shufdeck.begin(), shufdeck.end(), [](CardOrder &a, CardOrder &b) { return a.order < b.order; });
+        std::for_each(shufdeck.begin(), shufdeck.end(), [&j,&deck](CardOrder &c) {deck.push_back(c.card);});
     }
 
 
@@ -136,6 +149,9 @@ namespace cribbage_cpp {
         deck.pop_back();                // and get rid of it, shrinking the deck
         return card;
     }
+
+    //this is a "global" to support the cut function
+    std::array<uint8_t,52> tempdeck;
 
     // kind of weird bc I think of "index" as being from the "left" (beginning of array) and the deck deals from the "right" (end of array)
     void cut(std::vector<uint8_t> &deck, uint8_t index) {

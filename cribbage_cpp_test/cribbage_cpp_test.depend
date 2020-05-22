@@ -1,12 +1,12 @@
 # depslib dependency file v1.0
-1590114365 source:/home/sean/dev/cpp/cribbage_cpp/cribbage_cpp_test/main.cpp
+1590116085 source:/home/sean/dev/cpp/cribbage_cpp/cribbage_cpp_test/main.cpp
 	<stdio.h>
 	"cribbage_cpp.h"
 	"gtest/gtest.h"
 
-1590114317 /home/sean/dev/cpp/cribbage_cpp/cribbage_cpp//cribbage_cpp.h
+1590116320 /home/sean/dev/cpp/cribbage_cpp/cribbage_cpp//cribbage_cpp.h
 	<cstdint>
 	<vector>
 	<algorithm>
-	"string.h"
+	<string>
 

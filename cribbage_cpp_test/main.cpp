@@ -39,50 +39,16 @@ namespace {
 
     //test that card -> string -> card works for all cards
     TEST(CribbageTest,StrcardCardstrAllLegit) {
-        char cardstr[3] = { 0,0,0 };
+        std::string cardstr;
         uint8_t outcard;
 
         for(uint8_t card = 0; card < 52; card++) {
-            cardstring(card,cardstr,0);
-            outcard = stringcard(cardstr,0);
-            //printf("%2d => %s => %2d\n",card,cardstr,outcard);
+            cardstr = cardstring(card);
+            outcard = stringcard(cardstr);
+            //printf("%2d => %s => %2d\n",card,cardstr.c_str(),outcard);
             EXPECT_EQ(card,outcard);
         }
     }
-
-    // DO THIS: C++ version is a lot more restrictive than python one tho
-    //class StrcardTestAllLegit(unittest.TestCase):
-    //    def test_strcard_legit(self):
-    //        # test that all upper and lowercase variations of rank and suit match the expected card 0..51
-    //        pyb = pybbage.Pybbage()
-    //        ranks = 'A234567890JQK'
-    //        suits = 'HDCS'
-    //        suits2 = '♥♦♣♠'
-    //        numgood = 0
-    //        for j in range(0,52):
-    //            rankchar = ranks[j//4]
-    //            ranklchar = str.lower(rankchar)
-    //            suitchar = suits[j%4]
-    //            suitlchar = str.lower(suitchar)
-    //            suit2char = suits2[j%4]
-    //            if pyb.stringcard(rankchar+suitchar) == j and pyb.stringcard(rankchar+suit2char) == j and \
-    //                pyb.stringcard(ranklchar+suitchar) == j and pyb.stringcard(ranklchar+suit2char) == j and \
-    //                pyb.stringcard(ranklchar + suitlchar) == j and pyb.stringcard(rankchar+suitlchar) == j:
-    //                numgood += 1
-    //        self.assertEqual(numgood,52)
-
-    //DO THIS: adjusting suits2 to "hdcs"
-    //class CardstrTestAllLegit(unittest.TestCase):
-    //    def test_cardstr_legit(self):
-    //        pyb = pybbage.Pybbage()
-    //        # test that all values for card 0..51 get back the correct rank and suit
-    //        ranks = 'A234567890JQK'
-    //        suits2 = '♥♦♣♠'
-    //        numgood = 0
-    //        for j in range(0,52):
-    //            if pyb.cardstring(j) == ranks[pyb.rank(j)] + suits2[pyb.suit(j)]:
-    //                numgood += 1
-    //        self.assertEqual(numgood,52)
 
     // shuffle test for sameness with python implementation
     TEST(CribbageTest,ShuffleTestFrom9999) {
