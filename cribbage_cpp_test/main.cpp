@@ -35,6 +35,17 @@ namespace {
         }
     }
 
+    TEST(CribbageTest,VpokRandomFirst10From1337d00d) {
+        //vpok random! First 10 are
+        uint32_t vrandfirst[10] = { 0xC46EB208, 0xB3C52DC7, 0x661E907A, 0xB576E591, 0x3E1961BC,
+            0x0C05D1EB, 0xAA513E4E, 0x57003155, 0x8C6652B0, 0x35C3464F };
+        //which agree with my ancient PIC version!
+        v_srandom(0x1337d00d);
+        for(auto j=0;j<10;j++) {
+            EXPECT_EQ(v_random(),vrandfirst[j]);
+        }
+    }
+
     // card basics tests ========================================================================================
 
     //test that card -> string -> card works for all cards
@@ -90,6 +101,7 @@ namespace {
 }
 
 int main(int argc, char *argv[]) {
+    //silly noodles
 
 
     // real testing main starts here

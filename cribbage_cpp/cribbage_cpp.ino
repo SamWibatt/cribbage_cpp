@@ -32,6 +32,7 @@ void setup() {
   Serial.println("Shuffled cards from 9999 seed:");
   Serial.print(" ");
   for(auto j = 0; j < 52; j++) {
+    if (deck[j]<10) Serial.print(" ");    //gross way to do %2d print
     Serial.print(deck[j]); Serial.print("-"); Serial.print(cardstring(deck[j]).c_str()); Serial.print(" ");
     if (((j+1)%13) == 0) Serial.println();
     Serial.print(" ");

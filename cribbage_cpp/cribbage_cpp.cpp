@@ -19,6 +19,17 @@ namespace cribbage_cpp {
 
     //Random number stuff ----------------------------------------------------------------------------------------------
 
+    // for the vpok random
+    // VPOK VERSION:
+    // ; implements the classic 32-bit linear congruential random number generator (LCRNG) where
+    // ; Xn+1 =  (a Xn + c) mod m,     n > 0
+    // ; in this case a = 1664525, m = 2^32, c = 1013904223, period = 2^32.
+    uint32_t nextvpok = 1;
+    void v_srandom(uint32_t n) { nextvpok = n; }
+    uint32_t v_random() { nextvpok = (1664525ul * nextvpok) + 1013904223ul; return nextvpok; }
+
+
+    // OLD VERSION:
     //this is copied from the arduino core random, I think, though maybe I should just write my own
     //was static, dunno if C++11 needs it in a namespace
     uint32_t next = 1;
