@@ -18,12 +18,14 @@ namespace cribbage_cpp {
     void v_srandom(uint32_t n);
     uint32_t v_random();
 
+    /*
     // from python
     const uint32_t RANDOM_MAX (0x7FFFFFFF);
     int32_t do_random(uint32_t *ctx);
     int32_t my_random(void);
     void my_srandom(uint32_t seed);
     int32_t random_at_most(int32_t max);
+    */
 
     //card utilities --------------------------------------------------------------
     //value to return as a card if there is an error

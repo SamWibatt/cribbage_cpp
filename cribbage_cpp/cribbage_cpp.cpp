@@ -28,7 +28,7 @@ namespace cribbage_cpp {
     void v_srandom(uint32_t n) { nextvpok = n; }
     uint32_t v_random() { nextvpok = (1664525ul * nextvpok) + 1013904223ul; return nextvpok; }
 
-
+    /*
     // OLD VERSION:
     //this is copied from the arduino core random, I think, though maybe I should just write my own
     //was static, dunno if C++11 needs it in a namespace
@@ -86,6 +86,7 @@ namespace cribbage_cpp {
         // Truncated division is intentional
         return x/bin_size;
     }
+    */
 
     // card related stuff ------------------------------------------------------------------------------------------------
 
@@ -145,7 +146,7 @@ namespace cribbage_cpp {
         std::array<CardOrder, 52> shufdeck;
         deck.clear();
         uint8_t j = 0;
-        std::for_each(shufdeck.begin(), shufdeck.end(), [&j](CardOrder &c){ c.order = my_random(); c.card = j++; });
+        std::for_each(shufdeck.begin(), shufdeck.end(), [&j](CardOrder &c){ c.order = v_random(); c.card = j++; });
         std::sort(shufdeck.begin(), shufdeck.end(), [](CardOrder &a, CardOrder &b) { return a.order < b.order; });
         std::for_each(shufdeck.begin(), shufdeck.end(), [&j,&deck](CardOrder &c) {deck.push_back(c.card);});
     }
