@@ -2,6 +2,8 @@
 #define CRIBBAGE_CPP_H_INCLUDED
 
 #include <cstdint>
+#include <vector>
+#include <algorithm>
 #include "string.h"
 
 namespace cribbage_cpp {
@@ -124,9 +126,9 @@ namespace cribbage_cpp {
         return card;
     }
 
-    void shuffle(uint8_t *deck);
-    uint8_t deal_card(uint8_t **deck, uint8_t *pdecklen);
-    void cut(uint8_t *deck, uint8_t decklen, uint8_t index);
+    void shuffle(std::vector<uint8_t> &deck);
+    uint8_t deal_card(std::vector<uint8_t> &deck);
+    void cut(std::vector<uint8_t> &deck, uint8_t index);
 
 }
 

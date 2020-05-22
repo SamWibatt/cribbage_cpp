@@ -24,7 +24,7 @@ void setup() {
 
 
   // do some card stuff!
-  uint8_t deck[52];
+  std::vector<uint8_t> deck;
   my_srandom(9999);
   shuffle(deck);
 

@@ -90,20 +90,35 @@ namespace {
         uint8_t cardorder[52] = { 35, 39, 21, 3, 0, 34, 4, 40, 22, 50, 47, 29, 31, 1, 32, 8, 2,30, 37, 19, 5, 38, 6, 23,
             20, 15, 41, 44, 27, 26, 14, 28, 33, 10, 11, 49, 13, 46, 36, 25, 18, 45, 43, 12, 16, 24, 48, 51, 42, 7, 17, 9 };
         my_srandom(9999);
-        uint8_t deck[52];
-        uint8_t decklen = 52;
+        std::vector<uint8_t> deck(52);
         my_srandom(9999);
         shuffle(deck);
         for(auto j = 0; j < 52; j++) EXPECT_EQ(deck[j],cardorder[j]);
+        //however, we expect the DEAL to be from the right, so it'd go 9, 17, 7, 42, ...
+        //in fact let's unit test that
+    }
+
+    TEST(CribbageTest,Deal10FromShuf9999) {
+        uint8_t dealorder[10] = { 9, 17, 7, 42, 51, 48, 24, 16, 12, 43 };
+        my_srandom(9999);
+        std::vector<uint8_t> deck(52);
+        my_srandom(9999);
+        shuffle(deck);
+        for(auto j = 0; j < 10; j++) {
+            EXPECT_EQ(deal_card(deck),dealorder[j]);
+            EXPECT_EQ(deck.size(),52-(j+1));            //clunky but sort of readable, deck shrinks by 1 per card dealt
+        }
     }
 
     //test cut: 10 card deck from 10..19, cut at index 6
+    // but... now we count from the right? so index 6 is really 6 from the end
+    // python semantics are now consistent
     TEST(CribbageTest,DeckCutTest) {
-        uint8_t postcut_deck[10] = {16, 17, 18, 19, 10, 11, 12, 13, 14, 15};
-        uint8_t deck[52];
-        uint8_t decklen = 10;
-        for(auto j=0;j<10;j++) deck[j] = 10+j;
-        cut(deck,decklen,6);
+        uint8_t postcut_deck[10] = {14, 15, 16, 17, 18, 19, 10, 11, 12, 13 };
+        std::vector<uint8_t> deck;
+        deck.reserve(52);
+        for(auto j=0;j<10;j++) deck.push_back(10+j);
+        cut(deck,6);
         for(auto j=0;j<10;j++) EXPECT_EQ(deck[j],postcut_deck[j]);
    }
 }
