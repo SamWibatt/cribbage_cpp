@@ -1,12 +1,19 @@
 # depslib dependency file v1.0
-1590159904 source:/home/sean/dev/cpp/cribbage_cpp/cribbage_cpp_test/main.cpp
+1590190168 source:/home/sean/dev/cpp/cribbage_cpp/cribbage_cpp_test/main.cpp
 	<stdio.h>
 	"cribbage_cpp.h"
+	"card_utils.h"
 	"gtest/gtest.h"
 
-1590175150 /home/sean/dev/cpp/cribbage_cpp/cribbage_cpp//cribbage_cpp.h
+1590211309 /home/sean/dev/cpp/cribbage_cpp/cribbage_cpp//cribbage_cpp.h
+	"card_utils.h"
 	<cstdint>
+	<utility>
 	<vector>
+	<numeric>
 	<algorithm>
+
+1590202831 /home/sean/dev/cpp/cribbage_cpp/cribbage_cpp//card_utils.h
 	<string>
+	<vector>
 

@@ -39,6 +39,8 @@
 		<Compiler>
 			<Add option="-std=c++11" />
 		</Compiler>
+		<Unit filename="card_utils.cpp" />
+		<Unit filename="card_utils.h" />
 		<Unit filename="cribbage_cpp.cpp" />
 		<Unit filename="cribbage_cpp.h" />
 		<Extensions>
