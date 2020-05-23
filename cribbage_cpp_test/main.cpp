@@ -10,6 +10,7 @@
 #include "cribbage_cpp.h"
 #include "card_utils.h"
 #include "gtest/gtest.h"
+#include <iostream>
 
 using namespace cardutils;
 using namespace cribbage_cpp;
@@ -113,6 +114,34 @@ namespace {
 
 int main(int argc, char *argv[]) {
     //silly noodles
+    std::vector<uint8_t> hand;
+    hand.push_back(31);
+    hand.push_back(17);
+    hand.push_back(41);
+    hand.push_back(2);
+    uint8_t starter = 44;
+    printf("Hand: ");
+    std::for_each(hand.begin(),hand.end(),[](uint8_t c){printf("%d ",c);});
+    printf("Starter: %d\n",starter);
+    std::array<uint8_t,5> whole_hand;
+    std::array<uint8_t,5> whole_vals;
+    std::array<uint8_t,5> sorthand_ranks;
+    std::array<uint8_t,5> sorthand_suits;
+    Cribbage c;
+    //try a bunch of reps to see how long it takes - v. roughly 3 sec for ten million iterations, not great
+    //BUT in the context of a giant AI search or whatever, not terrible; minimax is unlikely to be doing that many
+    //at least if I limit the deepening
+    //for(auto j = 0; j < 10000000; j++)
+        c.prep_score_hand(hand, starter, whole_hand, whole_vals, sorthand_ranks, sorthand_suits );
+    printf("Whole Hand: ");
+    std::for_each(whole_hand.begin(),whole_hand.end(),[](uint8_t c){printf("%d ",c);});
+    printf("\nWhole Vals: ");
+    std::for_each(whole_vals.begin(),whole_vals.end(),[](uint8_t c){printf("%d ",c);});
+    printf("\nSortHand Ranks: ");
+    std::for_each(sorthand_ranks.begin(),sorthand_ranks.end(),[](uint8_t c){printf("%d ",c);});
+    printf("\nSortHand Suits: ");
+    std::for_each(sorthand_suits.begin(),sorthand_suits.end(),[](uint8_t c){printf("%d ",c);});
+    printf("\n");
 
     // real testing main starts here
     ::testing::InitGoogleTest();

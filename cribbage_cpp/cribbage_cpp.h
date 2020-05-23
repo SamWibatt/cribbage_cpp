@@ -4,6 +4,7 @@
 #include "card_utils.h"
 #include <cstdint>
 #include <utility>
+#include <array>
 #include <vector>
 #include <numeric>
 #include <algorithm>
@@ -113,12 +114,28 @@ namespace cribbage_cpp {
         // member functions ===================================================================================
         public:
 
+            // given a hand of cards and starter, creates arrays of
+            // * the "whole hand" = hand in order including starter at end,
+            // * values of the whole hand (for spotting fifteens)
+            // * ranks of the sorted whole hand (for spotting runs)
+            // * suits of the sorted whole hand (for spotting flushes)
+            void prep_score_hand(std::vector<uint8_t> &hand, uint8_t starter,
+                std::array<uint8_t,5> &whole_hand, std::array<uint8_t,5> &whole_vals,
+                std::array<uint8_t,5> &sorthand_ranks, std::array<uint8_t,5> &sorthand_suits );
+
 
             // given a hand of cards, starter card, and a score entry vector,
             // returns the total score for the hand
             // and fills the scores vector with the score entries for whatever the hand has in it,
             // empty if nothing
             uint8_t score_shew(std::vector<uint8_t> hand, uint8_t starter, std::vector<score_entry> &scores);
+
+            // occurs I might also write a score_shew_fast for when we're doing AI searches and don't need
+            // to do the layout.
+            // this would be more like just score fifteens, pairs, runs, flushes, nobs as tight as possible
+            // let's consider it and can unit test to make sure it gets the same retval as score_shew and
+            // run a billion iterations or so to see if it's faster
+            uint8_t score_shew_fast(std::vector<uint8_t> hand, uint8_t starter);
 
     };
 
