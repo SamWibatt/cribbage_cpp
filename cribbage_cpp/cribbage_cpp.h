@@ -45,27 +45,50 @@ namespace cribbage_cpp {
 
             // name and score for each of these
 
-            std::pair<std::string,uint8_t> scoreStringsNPoints[20] = {
-                std::pair<std::string,uint8_t>("nobs",1),                 // SCORE_NOBS = 0
-                std::pair<std::string,uint8_t>("go",1),                   // SCORE_GO = 1
-                std::pair<std::string,uint8_t>("fifteen",2),              // SCORE_FIFTEEN = 2
-                std::pair<std::string,uint8_t>("thirty-one",2),           // SCORE_THIRTYONE = 3
-                std::pair<std::string,uint8_t>("pair",2),                 // SCORE_PAIR = 4
-                std::pair<std::string,uint8_t>("heels",2),                // SCORE_HEELS = 5
-                std::pair<std::string,uint8_t>("run of 3",3),             // SCORE_RUN3 = 6
-                std::pair<std::string,uint8_t>("run of 4",4),             // SCORE_RUN4 = 7
-                std::pair<std::string,uint8_t>("two pair",4),             // SCORE_TWOPAIR = 8
-                std::pair<std::string,uint8_t>("flush",4),                // SCORE_FLUSH = 9
-                std::pair<std::string,uint8_t>("run of 5",5),             // SCORE_RUN5 = 10
-                std::pair<std::string,uint8_t>("5 card flush",5),         // SCORE_FLUSH5 = 11
-                std::pair<std::string,uint8_t>("run of 6",6),             // SCORE_RUN6 = 12
-                std::pair<std::string,uint8_t>("pair royal",6),           // SCORE_PAIRROYAL = 13
-                std::pair<std::string,uint8_t>("run of 7",7),             // SCORE_RUN7 = 14
-                std::pair<std::string,uint8_t>("double run of 3",8),      // SCORE_DBLRUN3 = 15
-                std::pair<std::string,uint8_t>("double run of 4",10),     // SCORE_DBLRUN4 = 16
-                std::pair<std::string,uint8_t>("4 of a kind",12),         // SCORE_4KIND = 17
-                std::pair<std::string,uint8_t>("triple run",15),          // SCORE_TRIPLERUN = 18
-                std::pair<std::string,uint8_t>("double double run",16)    // SCORE_DBLDBLRUN = 19
+            const uint8_t scorePoints[20] = {
+                1,                      // SCORE_NOBS = 0
+                1,                      // SCORE_GO = 1
+                2,                      // SCORE_FIFTEEN = 2
+                2,                      // SCORE_THIRTYONE = 3
+                2,                      // SCORE_PAIR = 4
+                2,                      // SCORE_HEELS = 5
+                3,                      // SCORE_RUN3 = 6
+                4,                      // SCORE_RUN4 = 7
+                4,                      // SCORE_TWOPAIR = 8
+                4,                      // SCORE_FLUSH = 9
+                5,                      // SCORE_RUN5 = 10
+                5,                      // SCORE_FLUSH5 = 11
+                6,                      // SCORE_RUN6 = 12
+                6,                      // SCORE_PAIRROYAL = 13
+                7,                      // SCORE_RUN7 = 14
+                8,                      // SCORE_DBLRUN3 = 15
+                10,                     // SCORE_DBLRUN4 = 16
+                12,                     // SCORE_4KIND = 17
+                15,                     // SCORE_TRIPLERUN = 18
+                16                      // SCORE_DBLDBLRUN = 19
+            };
+
+            const std::string scoreStrings[20] = {
+                "nobs",                 // SCORE_NOBS = 0
+                "go",                   // SCORE_GO = 1
+                "fifteen",              // SCORE_FIFTEEN = 2
+                "thirty-one",           // SCORE_THIRTYONE = 3
+                "pair",                 // SCORE_PAIR = 4
+                "heels",                // SCORE_HEELS = 5
+                "run of 3",             // SCORE_RUN3 = 6
+                "run of 4",             // SCORE_RUN4 = 7
+                "two pair",             // SCORE_TWOPAIR = 8
+                "flush",                // SCORE_FLUSH = 9
+                "run of 5",             // SCORE_RUN5 = 10
+                "5 card flush",         // SCORE_FLUSH5 = 11
+                "run of 6",             // SCORE_RUN6 = 12
+                "pair royal",           // SCORE_PAIRROYAL = 13
+                "run of 7",             // SCORE_RUN7 = 14
+                "double run of 3",      // SCORE_DBLRUN3 = 15
+                "double run of 4",      // SCORE_DBLRUN4 = 16
+                "4 of a kind",          // SCORE_4KIND = 17
+                "triple run",           // SCORE_TRIPLERUN = 18
+                "double double run"     // SCORE_DBLDBLRUN = 19
             };
 
             //here is the card and deck handling object
@@ -128,14 +151,8 @@ namespace cribbage_cpp {
             // returns the total score for the hand
             // and fills the scores vector with the score entries for whatever the hand has in it,
             // empty if nothing
-            uint8_t score_shew(std::vector<uint8_t> hand, uint8_t starter, std::vector<score_entry> &scores);
-
-            // occurs I might also write a score_shew_fast for when we're doing AI searches and don't need
-            // to do the layout.
-            // this would be more like just score fifteens, pairs, runs, flushes, nobs as tight as possible
-            // let's consider it and can unit test to make sure it gets the same retval as score_shew and
-            // run a billion iterations or so to see if it's faster
-            uint8_t score_shew_fast(std::vector<uint8_t> hand, uint8_t starter);
+            uint8_t score_shew(std::vector<uint8_t> hand, uint8_t starter,
+                std::vector<score_entry> *scores, bool build_list);
 
     };
 
