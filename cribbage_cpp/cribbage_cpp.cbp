@@ -14,7 +14,6 @@
 				<Option compiler="clang" />
 				<Option createDefFile="1" />
 				<Compiler>
-					<Add option="-Weverything" />
 					<Add option="-g" />
 					<Add option="-std=c++11" />
 				</Compiler>
@@ -28,7 +27,6 @@
 				<Option createDefFile="1" />
 				<Compiler>
 					<Add option="-O2" />
-					<Add option="-Weverything" />
 					<Add option="-std=c++11" />
 				</Compiler>
 				<Linker>
@@ -37,7 +35,9 @@
 			</Target>
 		</Build>
 		<Compiler>
+			<Add option="-Wall" />
 			<Add option="-std=c++11" />
+			<Add option="-Wnoc++98-compat" />
 		</Compiler>
 		<Unit filename="card_utils.cpp" />
 		<Unit filename="card_utils.h" />

@@ -35,9 +35,10 @@
 			</Target>
 		</Build>
 		<Compiler>
-			<Add option="-Weverything" />
+			<Add option="-Wall" />
 			<Add option="-std=c++11" />
 			<Add option="-fexceptions" />
+			<Add option="-Wnoc++98-compat" />
 			<Add directory="../cribbage_cpp/" />
 		</Compiler>
 		<Linker>

@@ -53,7 +53,8 @@ namespace cardutils {
             inline uint8_t rank(uint8_t card) { return card >> 2; }
 
             // card value, s.t. ace = 1, 2 = 2, ... 10 and face cards = 10
-            inline uint8_t val(uint8_t card) { return (rank(card)<10) ? rank(card) : 10; }
+            // the rank(card)+1 is bc for value we want 1-relative and rank is 0-relative
+            inline uint8_t val(uint8_t card) { return (rank(card)<10) ? rank(card)+1 : 10; }
 
             inline uint8_t suit(uint8_t card) { return card & 3; }
 

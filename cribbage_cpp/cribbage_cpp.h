@@ -17,7 +17,7 @@ namespace cribbage_cpp {
     class Cribbage {
         // global score list
         public:
-        const enum score_index : uint8_t {
+        enum score_index : uint8_t {
             SCORE_NOBS,          //  0. nobs - 1
             SCORE_GO,            //  1. go - 1
             SCORE_FIFTEEN,       //  2. fifteen - 2
@@ -93,6 +93,9 @@ namespace cribbage_cpp {
             //score
             //here is the card and deck handling object
             CardUtils cu;
+
+            //for readability, and if I want cu to be protected later
+            CardUtils &getCardUtils() { return cu; }
 
         // nested classes =====================================================================================
         public:

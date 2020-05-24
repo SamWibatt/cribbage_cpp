@@ -11,6 +11,7 @@
 #include "card_utils.h"
 #include "gtest/gtest.h"
 #include <iostream>
+#include <string>
 
 using namespace cardutils;
 using namespace cribbage_cpp;
@@ -110,6 +111,59 @@ namespace {
         c.cut(deck,6);
         for(auto j=0;j<10;j++) EXPECT_EQ(deck[j],postcut_deck[j]);
    }
+
+
+
+   // now for actual cribbage tests!
+   // let's make a fixture, bc we will want a Cribbage for each...?
+    //DO THIS: Write a helper to set up a hand/starter out of something like this,
+    //only just hand in all five cards, maybe return starter and create hand in
+    //a vector passed in by reference
+    //hand = [pyb.stringcard(x) for x in ['Qh', '0c', '9s', '3d']]
+    //starter = pyb.stringcard('5d')
+    //see if we can do that with a fixture
+
+    class CribbageTest : public ::testing::Test {
+        protected:
+
+        // data members
+        Cribbage cr;
+        uint32_t default_seed = 0x1337d00d;
+        std::vector<uint8_t> hand;
+        uint8_t starter;
+        std::vector<Cribbage::score_entry> scorelist;
+
+        //special helper function to create a hand - give it string reps of 5 cards
+        //and the first 4 become "hand" global and last becomes starter
+        void build_hand(std::string h1, std::string h2, std::string h3, std::string h4, std::string st) {
+            hand.clear();
+            hand.push_back(cr.getCardUtils().stringcard(h1));
+            hand.push_back(cr.getCardUtils().stringcard(h2));
+            hand.push_back(cr.getCardUtils().stringcard(h3));
+            hand.push_back(cr.getCardUtils().stringcard(h4));
+            starter = cr.getCardUtils().stringcard(st);
+        }
+
+        // setup initializes data members, runs BEFORE EVERY TEST
+        void SetUp() override {
+            cr.getCardUtils().v_srandom(default_seed);
+        }
+
+        // teardown cleans up after data members, runs AFTER EVERY TEST
+        void TearDown() override {
+
+        }
+
+    };
+
+
+   TEST_F(CribbageTest,T010_TwoCardFifteen) {
+        //all right! set up a hand that should have two two-card fifteens in it and score it! Expect a score of 4
+        //LATER will check for detailed results
+        build_hand("Qh", "0c", "9s", "3d","5d");
+        uint8_t handscore = cr.score_shew(hand,starter,&scorelist,false);
+        EXPECT_EQ(handscore,Cribbage::SCORE_FIFTEEN*2);
+   }
 }
 
 int main(int argc, char *argv[]) {
@@ -131,6 +185,8 @@ int main(int argc, char *argv[]) {
     //try a bunch of reps to see how long it takes - v. roughly 3 sec for ten million iterations, not great
     //BUT in the context of a giant AI search or whatever, not terrible; minimax is unlikely to be doing that many
     //at least if I limit the deepening
+    //oh wait that was on debug, how about release? pretty much insty
+    //printf("TEN MILLION!!!!\n");
     //for(auto j = 0; j < 10000000; j++)
         c.prep_score_hand(hand, starter, whole_hand, whole_vals, sorthand_nranks, whole_suits );
     printf("Whole Hand: ");
