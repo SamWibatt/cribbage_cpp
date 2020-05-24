@@ -118,29 +118,42 @@ int main(int argc, char *argv[]) {
     hand.push_back(31);
     hand.push_back(17);
     hand.push_back(41);
-    hand.push_back(2);
+    hand.push_back(51);
     uint8_t starter = 44;
     printf("Hand: ");
     std::for_each(hand.begin(),hand.end(),[](uint8_t c){printf("%d ",c);});
     printf("Starter: %d\n",starter);
     std::array<uint8_t,5> whole_hand;
     std::array<uint8_t,5> whole_vals;
-    std::array<uint8_t,5> sorthand_ranks;
-    std::array<uint8_t,5> sorthand_suits;
+    std::array<uint8_t,5> sorthand_nranks;
+    std::array<uint8_t,5> whole_suits;
     Cribbage c;
     //try a bunch of reps to see how long it takes - v. roughly 3 sec for ten million iterations, not great
     //BUT in the context of a giant AI search or whatever, not terrible; minimax is unlikely to be doing that many
     //at least if I limit the deepening
     //for(auto j = 0; j < 10000000; j++)
-        c.prep_score_hand(hand, starter, whole_hand, whole_vals, sorthand_ranks, sorthand_suits );
+        c.prep_score_hand(hand, starter, whole_hand, whole_vals, sorthand_nranks, whole_suits );
     printf("Whole Hand: ");
     std::for_each(whole_hand.begin(),whole_hand.end(),[](uint8_t c){printf("%d ",c);});
     printf("\nWhole Vals: ");
     std::for_each(whole_vals.begin(),whole_vals.end(),[](uint8_t c){printf("%d ",c);});
-    printf("\nSortHand Ranks: ");
-    std::for_each(sorthand_ranks.begin(),sorthand_ranks.end(),[](uint8_t c){printf("%d ",c);});
-    printf("\nSortHand Suits: ");
-    std::for_each(sorthand_suits.begin(),sorthand_suits.end(),[](uint8_t c){printf("%d ",c);});
+    printf("\nWhole Hand Suits: ");
+    std::for_each(whole_suits.begin(),whole_suits.end(),[](uint8_t c){printf("%d ",c);});
+    printf("\nSortHand NormRanks: ");
+    std::for_each(sorthand_nranks.begin(),sorthand_nranks.end(),[](uint8_t c){printf("%d ",c);});
+    printf("\n");
+
+    //4-carders
+    std::array<uint8_t,4> first4;
+    std::array<uint8_t,4> last4;
+    uint8_t firstlastrank = sorthand_nranks[1];     //first rank of last 4 cards
+    std::copy_n(sorthand_nranks.begin(),4,first4.begin());
+    std::transform(sorthand_nranks.begin() + 1,sorthand_nranks.end(),last4.begin(),
+        [firstlastrank](uint8_t rank) -> uint8_t { return rank - firstlastrank; });
+    printf("First 4 nranks: ");
+    std::for_each(first4.begin(),first4.end(),[](uint8_t c){printf("%d ",c);});
+    printf("\nLast 4 nranks, firstlastrank %d: ",firstlastrank);
+    std::for_each(last4.begin(),last4.end(),[](uint8_t c){printf("%d ",c);});
     printf("\n");
 
     // real testing main starts here

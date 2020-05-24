@@ -15,82 +15,82 @@ using namespace cardutils;
 namespace cribbage_cpp {
 
     class Cribbage {
+        // global score list
+        public:
+        const enum score_index : uint8_t {
+            SCORE_NOBS,          //  0. nobs - 1
+            SCORE_GO,            //  1. go - 1
+            SCORE_FIFTEEN,       //  2. fifteen - 2
+            SCORE_THIRTYONE,     //  3. thirty-one - 2
+            SCORE_PAIR,          //  4. pair - 2
+            SCORE_HEELS,         //  5. heels - 2
+            SCORE_RUN3,          //  6. run of 3 - 3
+            SCORE_RUN4,          //  7. run of 4 - 4
+            SCORE_TWOPAIR,       //  8. two pair - 4
+            SCORE_FLUSH,         //  9. flush - 4
+            SCORE_RUN5,          // 10. run of 5 - 5
+            SCORE_FLUSH5,        // 11. 5 card flush - 5
+            SCORE_RUN6,          // 12. run of 6 - 6
+            SCORE_PAIRROYAL,     // 13. pair royal - 6
+            SCORE_RUN7,          // 14. run of 7 - 7
+            SCORE_DBLRUN3,       // 15. double run of 3 - 8
+            SCORE_DBLRUN4,       // 16. double run of 4 - 10
+            SCORE_4KIND,         // 17. 4 of a kind
+            SCORE_TRIPLERUN,     // 18. triple run - 15
+            SCORE_DBLDBLRUN      // 19. double double run - 16
+        };
+
+        // name and score for each of these
+
+        const uint8_t scorePoints[20] = {
+            1,                      // SCORE_NOBS = 0
+            1,                      // SCORE_GO = 1
+            2,                      // SCORE_FIFTEEN = 2
+            2,                      // SCORE_THIRTYONE = 3
+            2,                      // SCORE_PAIR = 4
+            2,                      // SCORE_HEELS = 5
+            3,                      // SCORE_RUN3 = 6
+            4,                      // SCORE_RUN4 = 7
+            4,                      // SCORE_TWOPAIR = 8
+            4,                      // SCORE_FLUSH = 9
+            5,                      // SCORE_RUN5 = 10
+            5,                      // SCORE_FLUSH5 = 11
+            6,                      // SCORE_RUN6 = 12
+            6,                      // SCORE_PAIRROYAL = 13
+            7,                      // SCORE_RUN7 = 14
+            8,                      // SCORE_DBLRUN3 = 15
+            10,                     // SCORE_DBLRUN4 = 16
+            12,                     // SCORE_4KIND = 17
+            15,                     // SCORE_TRIPLERUN = 18
+            16                      // SCORE_DBLDBLRUN = 19
+        };
+
+        std::string scoreStrings[20] = {
+            "nobs",                 // SCORE_NOBS = 0
+            "go",                   // SCORE_GO = 1
+            "fifteen",              // SCORE_FIFTEEN = 2
+            "thirty-one",           // SCORE_THIRTYONE = 3
+            "pair",                 // SCORE_PAIR = 4
+            "heels",                // SCORE_HEELS = 5
+            "run of 3",             // SCORE_RUN3 = 6
+            "run of 4",             // SCORE_RUN4 = 7
+            "two pair",             // SCORE_TWOPAIR = 8
+            "flush",                // SCORE_FLUSH = 9
+            "run of 5",             // SCORE_RUN5 = 10
+            "5 card flush",         // SCORE_FLUSH5 = 11
+            "run of 6",             // SCORE_RUN6 = 12
+            "pair royal",           // SCORE_PAIRROYAL = 13
+            "run of 7",             // SCORE_RUN7 = 14
+            "double run of 3",      // SCORE_DBLRUN3 = 15
+            "double run of 4",      // SCORE_DBLRUN4 = 16
+            "4 of a kind",          // SCORE_4KIND = 17
+            "triple run",           // SCORE_TRIPLERUN = 18
+            "double double run"     // SCORE_DBLDBLRUN = 19
+        };
 
         // data members =======================================================================================
         public:
             //score
-            // global score list
-            enum score_index : uint8_t {
-                SCORE_NOBS,          //  0. nobs - 1
-                SCORE_GO,            //  1. go - 1
-                SCORE_FIFTEEN,       //  2. fifteen - 2
-                SCORE_THIRTYONE,     //  3. thirty-one - 2
-                SCORE_PAIR,          //  4. pair - 2
-                SCORE_HEELS,         //  5. heels - 2
-                SCORE_RUN3,          //  6. run of 3 - 3
-                SCORE_RUN4,          //  7. run of 4 - 4
-                SCORE_TWOPAIR,       //  8. two pair - 4
-                SCORE_FLUSH,         //  9. flush - 4
-                SCORE_RUN5,          // 10. run of 5 - 5
-                SCORE_FLUSH5,        // 11. 5 card flush - 5
-                SCORE_RUN6,          // 12. run of 6 - 6
-                SCORE_PAIRROYAL,     // 13. pair royal - 6
-                SCORE_RUN7,          // 14. run of 7 - 7
-                SCORE_DBLRUN3,       // 15. double run of 3 - 8
-                SCORE_DBLRUN4,       // 16. double run of 4 - 10
-                SCORE_4KIND,         // 17. 4 of a kind
-                SCORE_TRIPLERUN,     // 18. triple run - 15
-                SCORE_DBLDBLRUN      // 19. double double run - 16
-            };
-
-            // name and score for each of these
-
-            const uint8_t scorePoints[20] = {
-                1,                      // SCORE_NOBS = 0
-                1,                      // SCORE_GO = 1
-                2,                      // SCORE_FIFTEEN = 2
-                2,                      // SCORE_THIRTYONE = 3
-                2,                      // SCORE_PAIR = 4
-                2,                      // SCORE_HEELS = 5
-                3,                      // SCORE_RUN3 = 6
-                4,                      // SCORE_RUN4 = 7
-                4,                      // SCORE_TWOPAIR = 8
-                4,                      // SCORE_FLUSH = 9
-                5,                      // SCORE_RUN5 = 10
-                5,                      // SCORE_FLUSH5 = 11
-                6,                      // SCORE_RUN6 = 12
-                6,                      // SCORE_PAIRROYAL = 13
-                7,                      // SCORE_RUN7 = 14
-                8,                      // SCORE_DBLRUN3 = 15
-                10,                     // SCORE_DBLRUN4 = 16
-                12,                     // SCORE_4KIND = 17
-                15,                     // SCORE_TRIPLERUN = 18
-                16                      // SCORE_DBLDBLRUN = 19
-            };
-
-            const std::string scoreStrings[20] = {
-                "nobs",                 // SCORE_NOBS = 0
-                "go",                   // SCORE_GO = 1
-                "fifteen",              // SCORE_FIFTEEN = 2
-                "thirty-one",           // SCORE_THIRTYONE = 3
-                "pair",                 // SCORE_PAIR = 4
-                "heels",                // SCORE_HEELS = 5
-                "run of 3",             // SCORE_RUN3 = 6
-                "run of 4",             // SCORE_RUN4 = 7
-                "two pair",             // SCORE_TWOPAIR = 8
-                "flush",                // SCORE_FLUSH = 9
-                "run of 5",             // SCORE_RUN5 = 10
-                "5 card flush",         // SCORE_FLUSH5 = 11
-                "run of 6",             // SCORE_RUN6 = 12
-                "pair royal",           // SCORE_PAIRROYAL = 13
-                "run of 7",             // SCORE_RUN7 = 14
-                "double run of 3",      // SCORE_DBLRUN3 = 15
-                "double run of 4",      // SCORE_DBLRUN4 = 16
-                "4 of a kind",          // SCORE_4KIND = 17
-                "triple run",           // SCORE_TRIPLERUN = 18
-                "double double run"     // SCORE_DBLDBLRUN = 19
-            };
-
             //here is the card and deck handling object
             CardUtils cu;
 
@@ -140,11 +140,11 @@ namespace cribbage_cpp {
             // given a hand of cards and starter, creates arrays of
             // * the "whole hand" = hand in order including starter at end,
             // * values of the whole hand (for spotting fifteens)
-            // * ranks of the sorted whole hand (for spotting runs)
-            // * suits of the sorted whole hand (for spotting flushes)
+            // * normalized i.e. subtract off lowest, ranks of the sorted whole hand (for spotting runs)
+            // * suits of the unsorted whole hand (for spotting flushes)
             void prep_score_hand(std::vector<uint8_t> &hand, uint8_t starter,
                 std::array<uint8_t,5> &whole_hand, std::array<uint8_t,5> &whole_vals,
-                std::array<uint8_t,5> &sorthand_ranks, std::array<uint8_t,5> &sorthand_suits );
+                std::array<uint8_t,5> &sorthand_nranks, std::array<uint8_t,5> &whole_suits );
 
 
             // given a hand of cards, starter card, and a score entry vector,
