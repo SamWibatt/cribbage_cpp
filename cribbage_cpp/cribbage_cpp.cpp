@@ -48,8 +48,9 @@ namespace cribbage_cpp {
 
     }
 
+    const int NUM_FIVECARDERS = 11;     //bc for some reason I can't do .size() on the upcoming
 
-    const std::array<uint8_t,5> fivecard_patterns[11] = {
+    const std::array<uint8_t,5> fivecard_patterns[NUM_FIVECARDERS] = {
         {0, 1, 2, 3, 4},    // "run of 5"    //   5 = 5*1 per card
         {0, 0, 0, 1, 2},    // "triple run"    //  15 = 3*3 runs + 3*2 pairs
         {0, 1, 1, 1, 2},    // "triple run", 15],
@@ -64,7 +65,7 @@ namespace cribbage_cpp {
     };
 
     //scores parallel to the fivecard patterns
-    const uint8_t fivecard_scores[11] = {
+    const uint8_t fivecard_scores[NUM_FIVECARDERS] = {
         Cribbage::SCORE_RUN5,      //"run of 5"           #  5 = 5*1 per card
         Cribbage::SCORE_TRIPLERUN, //"triple run"        # 15 = 3*3 runs + 3*2 pairs
         Cribbage::SCORE_TRIPLERUN, //"triple run"
@@ -78,7 +79,9 @@ namespace cribbage_cpp {
         Cribbage::SCORE_DBLRUN4    //"double run of 4"
     };
 
-    const std::array<uint8_t,5> fourcard_patterns[4] = {
+    const int NUM_FOURCARDERS = 4;     //bc for some reason I can't do .size() on the upcoming
+
+    const std::array<uint8_t,4> fourcard_patterns[NUM_FOURCARDERS] = {
         {0, 1, 2, 3},    // "run of 4"    //   4 = 4*1 per card
         {0, 0, 1, 2},    // "double run of 3"
         (0, 1, 1, 2),    // "double run of 3"
@@ -86,7 +89,7 @@ namespace cribbage_cpp {
     };
 
     //scores parallel to the fourcard patterns
-    const uint8_t fourcard_scores[11] = {
+    const uint8_t fourcard_scores[NUM_FOURCARDERS] = {
         Cribbage::SCORE_RUN4,      //"run of 4"           #  4 = 4*1 per card
         Cribbage::SCORE_DBLRUN3,
         Cribbage::SCORE_DBLRUN3,
@@ -106,8 +109,8 @@ namespace cribbage_cpp {
         std::array<uint8_t,5> whole_hand;
         std::array<uint8_t,5> whole_vals;
         std::array<uint8_t,5> sorthand_nranks;
-        std::array<uint8_t,5> sorthand_suits;
-        prep_score_hand(hand, starter, whole_hand, whole_vals, sorthand_nranks, sorthand_suits );
+        std::array<uint8_t,5> whole_suits;
+        prep_score_hand(hand, starter, whole_hand, whole_vals, sorthand_nranks, whole_suits );
 
         uint totscore = 0;
 
@@ -134,7 +137,7 @@ namespace cribbage_cpp {
         bool fivecard_found = false;
         //pattern scores
         //dunno why fivecard_patterns.size() doesn't work, yoding 11
-        for (j = 0; j < 11; j++) {
+        for (j = 0; j < NUM_FIVECARDERS; j++) {
             if(sorthand_nranks == fivecard_patterns[j]) {
                 totscore += fivecard_scores[j];
                 fivecard_found = true;
@@ -144,22 +147,7 @@ namespace cribbage_cpp {
 
         //so, if a five carder matched, don't look for 4 or 3 card runs or pairs
         if (!fivecard_found) {
-
-            //ok, how to do the fourcards?
-            // *****************************************************************************************************
-            // *****************************************************************************************************
-            // *****************************************************************************************************
-            // TODO WRITE THIS
-            // TODO WRITE THIS
-            // TODO WRITE THIS
-            // TODO WRITE THIS
-            // Is there a way to not do == but do the relative thing
-            // for a first-4 it's easy enough bc it's 0-rel
-            // could calc first-4 and second-4, then even 1st-3, 2nd-3, 3rd-3
-            // why not, it's not much bytes
-            // *****************************************************************************************************
-            // *****************************************************************************************************
-            // *****************************************************************************************************
+            // but since one wasn't, first look for 4-carders
             bool fourcard_found = false;
 
             // 4 card patterns!
@@ -167,86 +155,105 @@ namespace cribbage_cpp {
             std::array<uint8_t,4> last4;
             uint8_t firstlastrank = sorthand_nranks[1];     //first rank of last 4 cards
             std::copy_n(sorthand_nranks.begin(),4,first4.begin());
-            std::transform(sorthand_nranks.begin() + 1,sorthand_nranks.end(),last4.begin(),
-                [firstlastrank](uint8_t rank) -> uint8_t { return rank - firstlastrank; });
 
-            // LEFT OFF HERE - do the 4-card pattern matches on first4 and last4 and figure out what that means
-            // LEFT OFF HERE - do the 4-card pattern matches on first4 and last4 and figure out what that means
-            // LEFT OFF HERE - do the 4-card pattern matches on first4 and last4 and figure out what that means
-            // LEFT OFF HERE - do the 4-card pattern matches on first4 and last4 and figure out what that means
-            // LEFT OFF HERE - do the 4-card pattern matches on first4 and last4 and figure out what that means
-            // LEFT OFF HERE - do the 4-card pattern matches on first4 and last4 and figure out what that means
-            // LEFT OFF HERE - do the 4-card pattern matches on first4 and last4 and figure out what that means
-            // LEFT OFF HERE - do the 4-card pattern matches on first4 and last4 and figure out what that means
+            //so, mimicking the python version, it assumes that if there's a match in the first 4, there won't be
+            //in the last 4. So we can defer building the second four
+            for (j = 0; j < NUM_FOURCARDERS; j++) {
+                if(first4 == fourcard_patterns[j]) {
+                    totscore += fourcard_scores[j];
+                    fourcard_found = true;
+                    break;
+                }
+            }
 
             if(!fourcard_found) {
-                //pairs
-                //so just compare every two cards' ranks and count a pair if they're equal
-                //can it be short-circuited? think re:
-                for(i=0;i<4;i++)
-                    for(j=i+1;j<5;j++)
-                        if (sorthand_nranks[i] == sorthand_nranks[j]) { totscore += scorePoints[SCORE_PAIR]; }
+                //build second four
+                std::transform(sorthand_nranks.begin() + 1,sorthand_nranks.end(),last4.begin(),
+                    [firstlastrank](uint8_t rank) -> uint8_t { return rank - firstlastrank; });
+
+                for (j = 0; j < NUM_FOURCARDERS; j++) {
+                    if(last4 == fourcard_patterns[j]) {
+                        totscore += fourcard_scores[j];
+                        fourcard_found = true;
+                        break;
+                    }
+                }
+
+                if(!fourcard_found) {
+                    //still no fourcarder found, look for runs of 3 and pairs
+                    /* python version of run spotter
+                    look for better efficiencies:
+                    re: nsrnks needing a sort ....won't they always be sorted? they do need normalizing.
+                    Is it the case that all we need to do is a sliding window of first 3, 2nd 3, 3rd 3?
+                    bc at this point we know that there aren't double or triple runs, which should be the
+                    only way there could be non-contiguous runs in the sorted ranks, yes?
+                    So let's try it that way
+
+
+                    for i in range(0, 3):
+                        for j in range(i + 1, 4):
+                            for k in range(j + 1, 5):
+                                # how do we look for a run? get the sorted of the 3 cards' ranks.
+                                nsrnks = sorted([self.rank(cards[i]),self.rank(cards[j]),self.rank(cards[k])])
+                                nsrnks = [x-min(nsrnks) for x in nsrnks]
+                                if nsrnks == [0,1,2]:
+                                    curscore += 3
+                                    #print(cardstring(cards[i]),cardstring(cards[j]),cardstring(cards[k]),"... run of 3 -",
+                                    #      curscore)
+                                    score_subsets.append([[i,j,k], self.SCORE_RUN3])
+                    */
+                    //don't need to construct or normalize anything! just check for ranks in order
+                    //should also be exclusive bc 0,1,2 as first 3 and 1,2,3 as 2nd would have been
+                    //caught as a run of 4
+                    for (j = 0; j < 2; j++) {
+                        if((sorthand_nranks[j] == sorthand_nranks[j+1] -1) &&
+                            (sorthand_nranks[j+1] == sorthand_nranks[j+2] -1)) {
+                            totscore += scorePoints[SCORE_RUN3];
+                            break;
+                        }
+                    }
+
+                    //pairs
+                    //so just compare every two cards' ranks and count a pair if they're equal
+                    //can it be short-circuited? think re:
+                    //could I use a permutation operator for this? Might be fun to try
+                    //but I think this is more concise
+                    for(i=0;i<4;i++)
+                        for(j=i+1;j<5;j++)
+                            if (sorthand_nranks[i] == sorthand_nranks[j]) { totscore += scorePoints[SCORE_PAIR]; }
+                }
             }
         }
-        /*
-        //runs
-        //short circuit by # pairs? maybs, think re:
-        //but if there is a run of 5, don't bother looking for any other runs
-        //let's try doing this w/o normalization
-        //would it help to save these off into variables? modern compiler should be smart enough to store them all
-        //itself? Might try later
-        if ((sorthand_nranks[0] == sorthand_nranks[1] -1) && (sorthand_nranks[1] == sorthand_nranks[2] -1) &&
-            (sorthand_nranks[2] == sorthand_nranks[3] -1) && (sorthand_nranks[3] == sorthand_nranks[4] -1) &&
-            (sorthand_nranks[4] == sorthand_nranks[5] -1)) {
-            totscore += scorePoints[SCORE_RUN5];
-        } else {
-            //********************************************************************************************************
-            //********************************************************************************************************
-            //********************************************************************************************************
-            // HEY THIS DOES NOT CAPTURE DOUBLE RUNS OF 4!
-            // MAYBE I SHOULD JUST DO PATTERN MATCH AFTER ALL
-            //********************************************************************************************************
-            //********************************************************************************************************
-            //********************************************************************************************************
 
-            //runs of 4
-            bool first4 = false, last4 = false;
-            if ((sorthand_nranks[0] == sorthand_nranks[1] -1) && (sorthand_nranks[1] == sorthand_nranks[2] -1) &&
-                (sorthand_nranks[2] == sorthand_nranks[3] -1) && (sorthand_nranks[3] == sorthand_nranks[4] -1)) {
-                totscore += scorePoints[SCORE_RUN4];
-                first4 = true;
-            } else if ((sorthand_nranks[1] == sorthand_nranks[2] -1) && (sorthand_nranks[2] == sorthand_nranks[3] -1) &&
-                       (sorthand_nranks[3] == sorthand_nranks[4] -1) && (sorthand_nranks[4] == sorthand_nranks[5] -1)) {
-                totscore += scorePoints[SCORE_RUN4];
-                last4 = true;
+        // ************************************************************************************************************
+        // ************************************************************************************************************
+        // ************************************************************************************************************
+        // so is there a permutationy way to handle runs that will let us avoid the sorting and normalization?
+        // worth considering but I think I'm prematurely optimizing enough
+        // ************************************************************************************************************
+        // ************************************************************************************************************
+        // ************************************************************************************************************
+
+        //flushes - only counts if all 4 cards in the hand have the same suit. Then if it's also
+        //the same suit as the starter, you get an extra point
+        if ((whole_suits[0] == whole_suits[1]) && (whole_suits[0] == whole_suits[2]) &&
+            (whole_suits[0] == whole_suits[3])) {
+                if (whole_suits[0] == whole_suits[4]) {
+                    totscore += SCORE_FLUSH5;
+                } else {
+                    totscore += SCORE_FLUSH;
+                }
             }
 
-
-            //********************************************************************************************************
-            //********************************************************************************************************
-            //********************************************************************************************************
-            // HEY THIS DOES NOT CAPTURE DOUBLE/TRIPLE RUNS OF 3!
-            // MAYBE I SHOULD JUST DO PATTERN MATCH AFTER ALL
-            //********************************************************************************************************
-            //********************************************************************************************************
-            //********************************************************************************************************
-            //runs of 3
-            //WHICH OF THEM ARE DISALLOWED BY RUNS OF 4?
-            //if first 4 cards are a run of 4, then 0 1 2 and 1 2 3 are out; 2 3 4 ok
-            if (first4 == false && (sorthand_nranks[0] == sorthand_nranks[1] -1) &&
-                (sorthand_nranks[1] == sorthand_nranks[2] -1) && (sorthand_nranks[2] == sorthand_nranks[3] -1)) {
-
+        //nobs: if starter is not a jack, and hand includes a jack with the same suit as starter
+        //jack is rank 10
+        if (cu.rank(whole_hand[4]) != 10) {
+            for(j = 0; j < 4; j++) {
+                if (whole_suits[j] == whole_suits[4] && cu.rank(whole_hand[j]) == 10) {
+                    totscore += SCORE_NOBS;
+                    break;
+                }
             }
-            //if second 4 cards are a run of 4, then 0 1 2 is ok but 1 2 3 and 2 3 4 are out
-            */
-        //}
-
-        //flushes
-
-        //nobs
-
-        if (build_list) {
-            //HERE will have the postprocessing to figure out the named scores
         }
 
         return totscore;
