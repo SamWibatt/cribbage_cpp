@@ -115,13 +115,7 @@ namespace {
 
 
    // now for actual cribbage tests!
-   // let's make a fixture, bc we will want a Cribbage for each...?
-    //DO THIS: Write a helper to set up a hand/starter out of something like this,
-    //only just hand in all five cards, maybe return starter and create hand in
-    //a vector passed in by reference
-    //hand = [pyb.stringcard(x) for x in ['Qh', '0c', '9s', '3d']]
-    //starter = pyb.stringcard('5d')
-    //see if we can do that with a fixture
+   // let's make a fixture, bc we will want a Cribbage for each as well as a hand and a starter and a score list
 
     class CribbageTest : public ::testing::Test {
         protected:
@@ -157,13 +151,125 @@ namespace {
     };
 
 
-   TEST_F(CribbageTest,T010_TwoCardFifteen) {
-        //all right! set up a hand that should have two two-card fifteens in it and score it! Expect a score of 4
-        //LATER will check for detailed results
+    //all right! set up a hand that should have no scoring combinations in it and score it! Expect a score of 0
+    TEST_F(CribbageTest,T000_Nothing) {
+        build_hand("Qh", "0c", "9s", "3d","4d");
+        //this should be the longest-running scoring case - let's try 10 million of them
+        //20963 ms debug, 1115 ms release - not bad!
+        uint8_t handscore;
+        //for(auto j=0;j<10000000;j++)
+            handscore = cr.score_shew(hand,starter,&scorelist,false);
+        EXPECT_EQ(handscore,0);
+    }
+
+    //all right! set up a hand that should have two two-card fifteens in it and score it! Expect a score of 4
+    //LATER will check for detailed results
+    TEST_F(CribbageTest,T010_TwoCardFifteen) {
         build_hand("Qh", "0c", "9s", "3d","5d");
         uint8_t handscore = cr.score_shew(hand,starter,&scorelist,false);
-        EXPECT_EQ(handscore,Cribbage::SCORE_FIFTEEN*2);
-   }
+        EXPECT_EQ(handscore,cr.scorePoints[Cribbage::SCORE_FIFTEEN]*2);
+    }
+
+    //should have two 3-card fifteens! Expect a score of 4
+    //LATER will check for detailed results
+    TEST_F(CribbageTest,T020_ThreeCardFifteen) {
+        build_hand("6h", "3c", "7s", "0d","2d");
+        uint8_t handscore = cr.score_shew(hand,starter,&scorelist,false);
+        EXPECT_EQ(handscore,cr.scorePoints[Cribbage::SCORE_FIFTEEN]*2);
+    }
+
+    //should have one 4-card fifteen in it! Expect a score of 2
+    //LATER will check for detailed results
+    TEST_F(CribbageTest,T030_FourCardFifteen) {
+        build_hand("Ah", "4c", "3s", "7d","6d");
+        uint8_t handscore = cr.score_shew(hand,starter,&scorelist,false);
+        EXPECT_EQ(handscore,cr.scorePoints[Cribbage::SCORE_FIFTEEN]);
+    }
+
+    //should have one 5-card fifteen and a run of 5 in it! Expect a score of 7
+    //LATER will check for detailed results
+    TEST_F(CribbageTest,T040_FiveCardFifteen) {
+        build_hand("Ah", "4c", "3s", "5d","2d");
+        uint8_t handscore = cr.score_shew(hand,starter,&scorelist,false);
+        EXPECT_EQ(handscore,cr.scorePoints[Cribbage::SCORE_FIFTEEN] + cr.scorePoints[Cribbage::SCORE_RUN5]);
+    }
+
+    //should have one pair in it! Expect a score of 2
+    //LATER will check for detailed results
+    TEST_F(CribbageTest,T050_OnePair) {
+        build_hand("Ah", "2c", "6s", "0d","Ad");
+        uint8_t handscore = cr.score_shew(hand,starter,&scorelist,false);
+        EXPECT_EQ(handscore,cr.scorePoints[Cribbage::SCORE_PAIR]);
+    }
+
+    //should have two pairs in it! Expect a score of 4
+    //LATER will check for detailed results
+    TEST_F(CribbageTest,T060_TwoPair) {
+        build_hand("Ah", "0c", "6s", "0d","Ad");
+        uint8_t handscore = cr.score_shew(hand,starter,&scorelist,false);
+        EXPECT_EQ(handscore,cr.scorePoints[Cribbage::SCORE_TWOPAIR]);
+    }
+
+    //should have a 3 of a kind in it! Expect a score of 6
+    //LATER will check for detailed results
+    // ... for how these are spotted, rank shouldn't matter, but still
+    //3 of a kind is the lowest rank
+    //Instead do tests re: where they are in the hand
+    TEST_F(CribbageTest,T070_ThreeOfAKindLow) {
+        build_hand("Ah", "Ac", "6s", "0d","Ad");
+        uint8_t handscore = cr.score_shew(hand,starter,&scorelist,false);
+        EXPECT_EQ(handscore,cr.scorePoints[Cribbage::SCORE_PAIRROYAL]);
+    }
+
+    //3 of a kind is the middle rank
+    TEST_F(CribbageTest,T073_ThreeOfAKindMid) {
+        build_hand("6s", "7c", "0h", "7h","7d");
+        uint8_t handscore = cr.score_shew(hand,starter,&scorelist,false);
+        EXPECT_EQ(handscore,cr.scorePoints[Cribbage::SCORE_PAIRROYAL]);
+    }
+
+    //3 of a kind is the highest rank
+    TEST_F(CribbageTest,T077_ThreeOfAKindHigh) {
+        build_hand("0d", "6s", "Kc", "Kh","Kd");
+        uint8_t handscore = cr.score_shew(hand,starter,&scorelist,false);
+        EXPECT_EQ(handscore,cr.scorePoints[Cribbage::SCORE_PAIRROYAL]);
+    }
+
+
+    //should have a 3 of a kind in it plus another pair! Expect a score of 8
+    //LATER will check for detailed results
+    TEST_F(CribbageTest,T080_ThreeOfAKindAndPairLow) {
+        build_hand("Ah", "Ac", "4s", "4d","Ad");
+        uint8_t handscore = cr.score_shew(hand,starter,&scorelist,false);
+        EXPECT_EQ(handscore,cr.scorePoints[Cribbage::SCORE_PAIRROYAL]+cr.scorePoints[Cribbage::SCORE_PAIR]);
+    }
+
+    //should have a 4 of a kind in it! Expect a score of 12
+    //LATER will check for detailed results
+    //this one tests if the 4 of a kind is the higher rank compared to the odd card out
+    //because of how the 4s of a kind are spotted, with patterns, this needs to be tested as well as if
+    //the 4 of a kind is the lower rank (see next test.)
+    TEST_F(CribbageTest,T090_FourOfAKindHigh) {
+        build_hand("4c", "Ac", "4s", "4h","4d");
+        uint8_t handscore = cr.score_shew(hand,starter,&scorelist,false);
+        EXPECT_EQ(handscore,cr.scorePoints[Cribbage::SCORE_4KIND]);
+    }
+
+    //lower rank compared to the odd card out
+    TEST_F(CribbageTest,T095_FourOfAKindLow) {
+        build_hand("4c", "Jc", "4s", "4h","4d");
+        uint8_t handscore = cr.score_shew(hand,starter,&scorelist,false);
+        EXPECT_EQ(handscore,cr.scorePoints[Cribbage::SCORE_4KIND]);
+    }
+
+    //NEXT UP: RUNS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! Be sure to test upper, mid, lower rank for 3 and 4 card runs
+    //NEXT UP: RUNS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! Be sure to test upper, mid, lower rank for 3 and 4 card runs
+    //NEXT UP: RUNS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! Be sure to test upper, mid, lower rank for 3 and 4 card runs
+    //NEXT UP: RUNS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! Be sure to test upper, mid, lower rank for 3 and 4 card runs
+    //NEXT UP: RUNS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! Be sure to test upper, mid, lower rank for 3 and 4 card runs
+    //NEXT UP: RUNS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! Be sure to test upper, mid, lower rank for 3 and 4 card runs
+    //NEXT UP: RUNS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! Be sure to test upper, mid, lower rank for 3 and 4 card runs
+
 }
 
 int main(int argc, char *argv[]) {

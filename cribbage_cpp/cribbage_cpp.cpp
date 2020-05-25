@@ -65,7 +65,7 @@ namespace cribbage_cpp {
     };
 
     //scores parallel to the fivecard patterns
-    const uint8_t fivecard_scores[NUM_FIVECARDERS] = {
+    const uint8_t fivecard_score_indices[NUM_FIVECARDERS] = {
         Cribbage::SCORE_RUN5,      //"run of 5"           #  5 = 5*1 per card
         Cribbage::SCORE_TRIPLERUN, //"triple run"        # 15 = 3*3 runs + 3*2 pairs
         Cribbage::SCORE_TRIPLERUN, //"triple run"
@@ -79,9 +79,10 @@ namespace cribbage_cpp {
         Cribbage::SCORE_DBLRUN4    //"double run of 4"
     };
 
-    const int NUM_FOURCARDERS = 4;     //bc for some reason I can't do .size() on the upcoming
+    const int NUM_FOURCARDERS = 5;     //bc for some reason I can't do .size() on the upcoming
 
     const std::array<uint8_t,4> fourcard_patterns[NUM_FOURCARDERS] = {
+        {0, 0, 0, 0},    // 4 of a kind
         {0, 1, 2, 3},    // "run of 4"    //   4 = 4*1 per card
         {0, 0, 1, 2},    // "double run of 3"
         (0, 1, 1, 2),    // "double run of 3"
@@ -89,7 +90,8 @@ namespace cribbage_cpp {
     };
 
     //scores parallel to the fourcard patterns
-    const uint8_t fourcard_scores[NUM_FOURCARDERS] = {
+    const uint8_t fourcard_score_indices[NUM_FOURCARDERS] = {
+        Cribbage::SCORE_4KIND,
         Cribbage::SCORE_RUN4,      //"run of 4"           #  4 = 4*1 per card
         Cribbage::SCORE_DBLRUN3,
         Cribbage::SCORE_DBLRUN3,
@@ -139,7 +141,7 @@ namespace cribbage_cpp {
         //dunno why fivecard_patterns.size() doesn't work, yoding 11
         for (j = 0; j < NUM_FIVECARDERS; j++) {
             if(sorthand_nranks == fivecard_patterns[j]) {
-                totscore += fivecard_scores[j];
+                totscore += scorePoints[fivecard_score_indices[j]];
                 fivecard_found = true;
                 break;
             }
@@ -160,7 +162,7 @@ namespace cribbage_cpp {
             //in the last 4. So we can defer building the second four
             for (j = 0; j < NUM_FOURCARDERS; j++) {
                 if(first4 == fourcard_patterns[j]) {
-                    totscore += fourcard_scores[j];
+                    totscore += scorePoints[fourcard_score_indices[j]];
                     fourcard_found = true;
                     break;
                 }
@@ -173,7 +175,7 @@ namespace cribbage_cpp {
 
                 for (j = 0; j < NUM_FOURCARDERS; j++) {
                     if(last4 == fourcard_patterns[j]) {
-                        totscore += fourcard_scores[j];
+                        totscore += scorePoints[fourcard_score_indices[j]];
                         fourcard_found = true;
                         break;
                     }
@@ -239,9 +241,9 @@ namespace cribbage_cpp {
         if ((whole_suits[0] == whole_suits[1]) && (whole_suits[0] == whole_suits[2]) &&
             (whole_suits[0] == whole_suits[3])) {
                 if (whole_suits[0] == whole_suits[4]) {
-                    totscore += SCORE_FLUSH5;
+                    totscore += scorePoints[SCORE_FLUSH5];
                 } else {
-                    totscore += SCORE_FLUSH;
+                    totscore += scorePoints[SCORE_FLUSH];
                 }
             }
 
@@ -250,7 +252,7 @@ namespace cribbage_cpp {
         if (cu.rank(whole_hand[4]) != 10) {
             for(j = 0; j < 4; j++) {
                 if (whole_suits[j] == whole_suits[4] && cu.rank(whole_hand[j]) == 10) {
-                    totscore += SCORE_NOBS;
+                    totscore += scorePoints[SCORE_NOBS];
                     break;
                 }
             }
