@@ -51,17 +51,17 @@ namespace cribbage_cpp {
     const int NUM_FIVECARDERS = 11;     //bc for some reason I can't do .size() on the upcoming
 
     const std::array<uint8_t,5> fivecard_patterns[NUM_FIVECARDERS] = {
-        {0, 1, 2, 3, 4},    // "run of 5"    //   5 = 5*1 per card
-        {0, 0, 0, 1, 2},    // "triple run"    //  15 = 3*3 runs + 3*2 pairs
-        {0, 1, 1, 1, 2},    // "triple run", 15],
-        {0, 1, 2, 2, 2},    // "triple run", 15],
-        {0, 0, 1, 1, 2},    // "double double run"    //  16 = 4*3 runs + 2*2 pairs
-        {0, 0, 1, 2, 2},    // "double double run", 16],
-        {0, 1, 1, 2, 2},    // "double double run", 16],
-        {0, 0, 1, 2, 3},    // "double run of 4"    //  10 = 2*4 runs + 1*2 pairs
-        {0, 1, 1, 2, 3},    // "double run of 4", 10],
-        {0, 1, 2, 2, 3},    // "double run of 4", 10],
-        {0, 1, 2, 3, 3},    // "double run of 4", 10]]
+        {{0, 1, 2, 3, 4}},    // "run of 5"    //   5 = 5*1 per card
+        {{0, 0, 0, 1, 2}},    // "triple run"    //  15 = 3*3 runs + 3*2 pairs
+        {{0, 1, 1, 1, 2}},    // "triple run", 15],
+        {{0, 1, 2, 2, 2}},    // "triple run", 15],
+        {{0, 0, 1, 1, 2}},    // "double double run"    //  16 = 4*3 runs + 2*2 pairs
+        {{0, 0, 1, 2, 2}},    // "double double run", 16],
+        {{0, 1, 1, 2, 2}},    // "double double run", 16],
+        {{0, 0, 1, 2, 3}},    // "double run of 4"    //  10 = 2*4 runs + 1*2 pairs
+        {{0, 1, 1, 2, 3}},    // "double run of 4", 10],
+        {{0, 1, 2, 2, 3}},    // "double run of 4", 10],
+        {{0, 1, 2, 3, 3}},    // "double run of 4", 10]]
     };
 
     //scores parallel to the fivecard patterns
@@ -82,11 +82,11 @@ namespace cribbage_cpp {
     const int NUM_FOURCARDERS = 5;     //bc for some reason I can't do .size() on the upcoming
 
     const std::array<uint8_t,4> fourcard_patterns[NUM_FOURCARDERS] = {
-        {0, 0, 0, 0},    // 4 of a kind
-        {0, 1, 2, 3},    // "run of 4"    //   4 = 4*1 per card
-        {0, 0, 1, 2},    // "double run of 3"
-        (0, 1, 1, 2),    // "double run of 3"
-        (0, 1, 2, 2),    // "double run of 3"
+        {{0, 0, 0, 0}},    // 4 of a kind
+        {{0, 1, 2, 3}},    // "run of 4"    //   4 = 4*1 per card
+        {{0, 0, 1, 2}},    // "double run of 3"
+        {{0, 1, 1, 2}},    // "double run of 3"
+        {{0, 1, 2, 2}}    // "double run of 3"
     };
 
     //scores parallel to the fourcard patterns
@@ -237,7 +237,7 @@ namespace cribbage_cpp {
         // ************************************************************************************************************
 
         //flushes - only counts if all 4 cards in the hand have the same suit. Then if it's also
-        //the same suit as the starter, you get an extra point
+        //the same suit as the starter (whole_hand[4])s, you get an extra point
         if ((whole_suits[0] == whole_suits[1]) && (whole_suits[0] == whole_suits[2]) &&
             (whole_suits[0] == whole_suits[3])) {
                 if (whole_suits[0] == whole_suits[4]) {
@@ -249,9 +249,9 @@ namespace cribbage_cpp {
 
         //nobs: if starter is not a jack, and hand includes a jack with the same suit as starter
         //jack is rank 10
-        if (cu.rank(whole_hand[4]) != 10) {
+        if (cu.rank(starter) != 10) {
             for(j = 0; j < 4; j++) {
-                if (whole_suits[j] == whole_suits[4] && cu.rank(whole_hand[j]) == 10) {
+                if (whole_suits[j] == cu.suit(starter) && cu.rank(whole_hand[j]) == 10) {
                     totscore += scorePoints[SCORE_NOBS];
                     break;
                 }
