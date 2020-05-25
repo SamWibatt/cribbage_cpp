@@ -262,13 +262,168 @@ namespace {
         EXPECT_EQ(handscore,cr.scorePoints[Cribbage::SCORE_4KIND]);
     }
 
-    //NEXT UP: RUNS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! Be sure to test upper, mid, lower rank for 3 and 4 card runs
-    //NEXT UP: RUNS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! Be sure to test upper, mid, lower rank for 3 and 4 card runs
-    //NEXT UP: RUNS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! Be sure to test upper, mid, lower rank for 3 and 4 card runs
-    //NEXT UP: RUNS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! Be sure to test upper, mid, lower rank for 3 and 4 card runs
-    //NEXT UP: RUNS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! Be sure to test upper, mid, lower rank for 3 and 4 card runs
-    //NEXT UP: RUNS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! Be sure to test upper, mid, lower rank for 3 and 4 card runs
-    //NEXT UP: RUNS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! Be sure to test upper, mid, lower rank for 3 and 4 card runs
+    //should have a run of 3 in it! Expect a score of 3
+    //LATER will check for detailed results
+    //this one tests if the run of 3 is the first 3 cards
+    //because of how the runs are spotted, with patterns, this needs to be tested as well as if
+    //the run of 3 is the second or third triplet
+    TEST_F(CribbageTest,T100_RunOfThreeLow) {
+        build_hand("8c", "9c", "0s", "Qh","Kd");
+        uint8_t handscore = cr.score_shew(hand,starter,&scorelist,false);
+        EXPECT_EQ(handscore,cr.scorePoints[Cribbage::SCORE_RUN3]);
+    }
+
+    TEST_F(CribbageTest,T103_RunOfThreeMid) {
+        build_hand("Ac", "9c", "0s", "Jh","Kd");
+        uint8_t handscore = cr.score_shew(hand,starter,&scorelist,false);
+        EXPECT_EQ(handscore,cr.scorePoints[Cribbage::SCORE_RUN3]);
+    }
+
+    TEST_F(CribbageTest,T107_RunOfThreeHigh) {
+        build_hand("2c", "4c", "Js", "Qh","Kd");
+        uint8_t handscore = cr.score_shew(hand,starter,&scorelist,false);
+        EXPECT_EQ(handscore,cr.scorePoints[Cribbage::SCORE_RUN3]);
+    }
+
+    //should have a run of 4 in it! Expect a score of 8 bc there are a couple of 15s in there too
+    //LATER will check for detailed results
+    //this one tests if the run of 4 is the first 4 cards
+    //because of how the runs are spotted, with patterns, this needs to be tested as well as if
+    //the run of 4 is the second set of 4
+    TEST_F(CribbageTest,T110_RunOfFourLow) {
+        build_hand("Ac", "3c", "4s", "Qh","2d");
+        uint8_t handscore = cr.score_shew(hand,starter,&scorelist,false);
+        EXPECT_EQ(handscore,cr.scorePoints[Cribbage::SCORE_RUN4] + (2* cr.scorePoints[Cribbage::SCORE_FIFTEEN]));
+    }
+
+    TEST_F(CribbageTest,T120_RunOfFourHigh) {
+        build_hand("0c", "Jc", "Ks", "Qh","2d");
+        uint8_t handscore = cr.score_shew(hand,starter,&scorelist,false);
+        EXPECT_EQ(handscore,cr.scorePoints[Cribbage::SCORE_RUN4]);
+    }
+
+    //should have a run of 5 in it! Expect a score of 5
+    //LATER will check for detailed results
+    TEST_F(CribbageTest,T130_RunOfFive) {
+        build_hand("9c", "Kc", "Js", "Qh","0d");
+        uint8_t handscore = cr.score_shew(hand,starter,&scorelist,false);
+        EXPECT_EQ(handscore,cr.scorePoints[Cribbage::SCORE_RUN5]);
+    }
+
+
+    //# double run (3)
+    //class aShowTest140_RunOf3Dbl(unittest.TestCase):
+    //    def test_shewtest_run3dbl(self):
+    //        pyb = pybbage.Pybbage()
+    //        # todo should work in all orderings of hand and starter
+    //        print("Show double run of 3 ---------------------------------------------------------------------------------")
+    //        hand = [pyb.stringcard(x) for x in ['8c', '0c', '9s', 'Qh']]
+    //        starter = pyb.stringcard('0d')
+    //        print("hand",[pyb.cardstring(x) for x in hand],"starter",pyb.cardstring(starter))
+    //        (score,subsets) = pyb.score_shew(hand,starter)
+    //        pyb.render_score_subsets(hand, starter, subsets)        # DEBUG
+    //        self.assertEqual(score,8)
+    //
+    //# double run (4)
+    //class aShowTest150_RunOf4Dbl(unittest.TestCase):
+    //    def test_shewtest_run4dbl(self):
+    //        pyb = pybbage.Pybbage()
+    //        # todo should work in all orderings of hand and starter
+    //        print("Show double run of 4 ---------------------------------------------------------------------------------")
+    //        hand = [pyb.stringcard(x) for x in ['8c', '0c', '9s', 'jh']]
+    //        starter = pyb.stringcard('0d')
+    //        print("hand",[pyb.cardstring(x) for x in hand],"starter",pyb.cardstring(starter))
+    //        (score,subsets) = pyb.score_shew(hand,starter)
+    //        pyb.render_score_subsets(hand, starter, subsets)        # DEBUG
+    //        self.assertEqual(score,10)
+    //
+    //# double double run
+    //class aShowTest160_RunOf3DblDbl(unittest.TestCase):
+    //    def test_shewtest_run3dbldbl(self):
+    //        pyb = pybbage.Pybbage()
+    //        # todo should work in all orderings of hand and starter
+    //        print("Show double double run of 3 --------------------------------------------------------------------------")
+    //        hand = [pyb.stringcard(x) for x in ['8c', '0c', '9s', '9h']]
+    //        starter = pyb.stringcard('0d')
+    //        print("hand",[pyb.cardstring(x) for x in hand],"starter",pyb.cardstring(starter))
+    //        (score,subsets) = pyb.score_shew(hand,starter)
+    //        pyb.render_score_subsets(hand, starter, subsets)        # DEBUG
+    //        self.assertEqual(score,16)
+    //
+    //# triple run
+    //class aShowTest170_RunOf3Triple(unittest.TestCase):
+    //    def test_shewtest_run3triple(self):
+    //        pyb = pybbage.Pybbage()
+    //        # todo should work in all orderings of hand and starter
+    //        print("Show triple run of 3 ---------------------------------------------------------------------------------")
+    //        hand = [pyb.stringcard(x) for x in ['6h', '6c', '5s', '6d']]
+    //        starter = pyb.stringcard('7c')
+    //        print("hand",[pyb.cardstring(x) for x in hand],"starter",pyb.cardstring(starter))
+    //        (score,subsets) = pyb.score_shew(hand,starter)
+    //        pyb.render_score_subsets(hand, starter, subsets)        # DEBUG
+    //        self.assertEqual(score,15)
+    //
+    //# 4 card flush
+    //class aShowTest180_4CardFlush(unittest.TestCase):
+    //    def test_shewtest_4cardflush(self):
+    //        pyb = pybbage.Pybbage()
+    //        # todo should work in all orderings of hand, keep starter same
+    //        print("Show 4 card flush ------------------------------------------------------------------------------------")
+    //        hand = [pyb.stringcard(x) for x in ['4c', '3c', 'jc', '7c']]
+    //        starter = pyb.stringcard('9h')
+    //        print("hand",[pyb.cardstring(x) for x in hand],"starter",pyb.cardstring(starter))
+    //        (score,subsets) = pyb.score_shew(hand,starter)
+    //        pyb.render_score_subsets(hand, starter, subsets)        # DEBUG
+    //        self.assertEqual(score,4)
+    //
+    //# 5 card flush
+    //class aShowTest190_5CardFlush(unittest.TestCase):
+    //    def test_shewtest_5cardflush(self):
+    //        pyb = pybbage.Pybbage()
+    //        # todo should work in all orderings of hand and starter
+    //        print("Show 5 card flush ------------------------------------------------------------------------------------")
+    //        hand = [pyb.stringcard(x) for x in ['4c', '3c', 'qc', '7c']]
+    //        starter = pyb.stringcard('9c')
+    //        print("hand",[pyb.cardstring(x) for x in hand],"starter",pyb.cardstring(starter))
+    //        (score,subsets) = pyb.score_shew(hand,starter)
+    //        pyb.render_score_subsets(hand, starter, subsets)        # DEBUG
+    //        self.assertEqual(score,5)
+    //
+    //# not 4 card flush bc the 4 incl starter
+    //class aShowTest200_Not4CardFlush(unittest.TestCase):
+    //    def test_shewtest_not4cardflush(self):
+    //        pyb = pybbage.Pybbage()
+    //        # todo should work in all orderings of hand, keep starter same
+    //        print("Show Not 4 card flush bc 4 cards incl starter --------------------------------------------------------")
+    //        hand = [pyb.stringcard(x) for x in ['4c', '3c', 'kc', '7h']]
+    //        starter = pyb.stringcard('9c')
+    //        print("hand",[pyb.cardstring(x) for x in hand],"starter",pyb.cardstring(starter))
+    //        (score,subsets) = pyb.score_shew(hand,starter)
+    //        pyb.render_score_subsets(hand, starter, subsets)        # DEBUG
+    //        self.assertEqual(score,0)
+    //
+    //# nobs
+    //class aShowTest210_Nobs(unittest.TestCase):
+    //    def test_shewtest_nobs(self):
+    //        pyb = pybbage.Pybbage()
+    //        # todo should work in all orderings of hand, jack must be in hand, starter w suit of j
+    //        print("Show nobs --------------------------------------------------------------------------------------------")
+    //        hand = [pyb.stringcard(x) for x in ['Qh', 'Jd', '9s', '3d']]
+    //        starter = pyb.stringcard('4d')
+    //        print("hand",[pyb.cardstring(x) for x in hand],"starter",pyb.cardstring(starter))
+    //        (score,subsets) = pyb.score_shew(hand,starter)
+    //        pyb.render_score_subsets(hand, starter, subsets)        # DEBUG
+    //        self.assertEqual(score,1)
+    //
+
+    //should have a 29 hand in it! Expect a score of 29
+    //LATER will check for detailed results
+    TEST_F(CribbageTest,T220_Twentynine) {
+        build_hand("5c", "5d", "Jh", "5s","5h");
+        uint8_t handscore = cr.score_shew(hand,starter,&scorelist,false);
+        EXPECT_EQ(handscore,(cr.scorePoints[Cribbage::SCORE_FIFTEEN] * 8) +
+            cr.scorePoints[Cribbage::SCORE_4KIND] + cr.scorePoints[Cribbage::SCORE_NOBS]);
+    }
 
 }
 

@@ -207,7 +207,7 @@ namespace cribbage_cpp {
                     //don't need to construct or normalize anything! just check for ranks in order
                     //should also be exclusive bc 0,1,2 as first 3 and 1,2,3 as 2nd would have been
                     //caught as a run of 4
-                    for (j = 0; j < 2; j++) {
+                    for (j = 0; j < 3; j++) {
                         if((sorthand_nranks[j] == sorthand_nranks[j+1] -1) &&
                             (sorthand_nranks[j+1] == sorthand_nranks[j+2] -1)) {
                             totscore += scorePoints[SCORE_RUN3];
