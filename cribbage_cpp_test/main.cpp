@@ -153,6 +153,22 @@ namespace {
             if(starter == cr.getCardUtils().ERROR_CARD_VAL) printf("WARNING: starter is illegal string '%s'\n",st.c_str());
         }
 
+        void render_scorelist() {
+            uint8_t mask;
+            printf("score list: -----------------\n");
+            for (Cribbage::score_entry se : scorelist) {
+                for(auto j = 0,mask = 0x01; j < 5; j++, mask <<= 1)
+                    if(se.part_cards & mask)
+                        if(j<4)
+                            printf("%s ",cr.getCardUtils().cardstring(hand[j]).c_str());
+                        else
+                            printf("%s ",cr.getCardUtils().cardstring(starter).c_str());
+                    else printf("-- ");
+
+                printf(" %s\n",cr.scoreStrings[se.score_index].c_str());
+            }
+        }
+
         // setup initializes data members, runs BEFORE EVERY TEST
         void SetUp() override {
             cr.getCardUtils().v_srandom(default_seed);
@@ -178,6 +194,7 @@ namespace {
         //for(auto j=0;j<10000000;j++)
             handscore = cr.score_shew(hand,starter,&scorelist,build_scorelists);
         EXPECT_EQ(handscore,0);
+        if(build_scorelists) render_scorelist();
     }
 
     //all right! set up a hand that should have two two-card fifteens in it and score it! Expect a score of 4
@@ -186,6 +203,7 @@ namespace {
         build_hand("Qh", "0c", "9s", "3d","5d");
         uint8_t handscore = cr.score_shew(hand,starter,&scorelist,build_scorelists);
         EXPECT_EQ(handscore,cr.scorePoints[Cribbage::SCORE_FIFTEEN]*2);
+        if(build_scorelists) render_scorelist();
     }
 
     //should have two 3-card fifteens! Expect a score of 4
@@ -194,6 +212,7 @@ namespace {
         build_hand("6h", "3c", "7s", "0d","2d");
         uint8_t handscore = cr.score_shew(hand,starter,&scorelist,build_scorelists);
         EXPECT_EQ(handscore,cr.scorePoints[Cribbage::SCORE_FIFTEEN]*2);
+        if(build_scorelists) render_scorelist();
     }
 
     //should have one 4-card fifteen in it! Expect a score of 2
@@ -202,6 +221,7 @@ namespace {
         build_hand("Ah", "4c", "3s", "7d","6d");
         uint8_t handscore = cr.score_shew(hand,starter,&scorelist,build_scorelists);
         EXPECT_EQ(handscore,cr.scorePoints[Cribbage::SCORE_FIFTEEN]);
+        if(build_scorelists) render_scorelist();
     }
 
     //should have one 5-card fifteen and a run of 5 in it! Expect a score of 7
@@ -210,6 +230,7 @@ namespace {
         build_hand("Ah", "4c", "3s", "5d","2d");
         uint8_t handscore = cr.score_shew(hand,starter,&scorelist,build_scorelists);
         EXPECT_EQ(handscore,cr.scorePoints[Cribbage::SCORE_FIFTEEN] + cr.scorePoints[Cribbage::SCORE_RUN5]);
+        if(build_scorelists) render_scorelist();
     }
 
     //should have one pair in it! Expect a score of 2
@@ -218,6 +239,7 @@ namespace {
         build_hand("Ah", "2c", "6s", "0d","Ad");
         uint8_t handscore = cr.score_shew(hand,starter,&scorelist,build_scorelists);
         EXPECT_EQ(handscore,cr.scorePoints[Cribbage::SCORE_PAIR]);
+        if(build_scorelists) render_scorelist();
     }
 
     //should have two pairs in it! Expect a score of 4
@@ -226,6 +248,7 @@ namespace {
         build_hand("Ah", "0c", "6s", "0d","Ad");
         uint8_t handscore = cr.score_shew(hand,starter,&scorelist,build_scorelists);
         EXPECT_EQ(handscore,cr.scorePoints[Cribbage::SCORE_TWOPAIR]);
+        if(build_scorelists) render_scorelist();
     }
 
     //should have a 3 of a kind in it! Expect a score of 6
@@ -237,6 +260,7 @@ namespace {
         build_hand("Ah", "Ac", "6s", "0d","Ad");
         uint8_t handscore = cr.score_shew(hand,starter,&scorelist,build_scorelists);
         EXPECT_EQ(handscore,cr.scorePoints[Cribbage::SCORE_PAIRROYAL]);
+        if(build_scorelists) render_scorelist();
     }
 
     //3 of a kind is the middle rank
@@ -244,6 +268,7 @@ namespace {
         build_hand("6s", "7c", "0h", "7h","7d");
         uint8_t handscore = cr.score_shew(hand,starter,&scorelist,build_scorelists);
         EXPECT_EQ(handscore,cr.scorePoints[Cribbage::SCORE_PAIRROYAL]);
+        if(build_scorelists) render_scorelist();
     }
 
     //3 of a kind is the highest rank
@@ -251,6 +276,7 @@ namespace {
         build_hand("0d", "6s", "Kc", "Kh","Kd");
         uint8_t handscore = cr.score_shew(hand,starter,&scorelist,build_scorelists);
         EXPECT_EQ(handscore,cr.scorePoints[Cribbage::SCORE_PAIRROYAL]);
+        if(build_scorelists) render_scorelist();
     }
 
 
@@ -260,12 +286,14 @@ namespace {
         build_hand("Ah", "Ac", "4s", "4d","Ad");
         uint8_t handscore = cr.score_shew(hand,starter,&scorelist,build_scorelists);
         EXPECT_EQ(handscore,cr.scorePoints[Cribbage::SCORE_PAIRROYAL]+cr.scorePoints[Cribbage::SCORE_PAIR]);
+        if(build_scorelists) render_scorelist();
     }
 
     TEST_F(CribbageTest,T085_ThreeOfAKindAndPairHigh) {
         build_hand("Kh", "Kc", "4s", "4d","Kd");
         uint8_t handscore = cr.score_shew(hand,starter,&scorelist,build_scorelists);
         EXPECT_EQ(handscore,cr.scorePoints[Cribbage::SCORE_PAIRROYAL]+cr.scorePoints[Cribbage::SCORE_PAIR]);
+        if(build_scorelists) render_scorelist();
     }
 
     //should have a 4 of a kind in it! Expect a score of 12
@@ -277,6 +305,7 @@ namespace {
         build_hand("4c", "Ac", "4s", "4h","4d");
         uint8_t handscore = cr.score_shew(hand,starter,&scorelist,build_scorelists);
         EXPECT_EQ(handscore,cr.scorePoints[Cribbage::SCORE_4KIND]);
+        if(build_scorelists) render_scorelist();
     }
 
     //lower rank compared to the odd card out
@@ -284,6 +313,7 @@ namespace {
         build_hand("4c", "Jc", "4s", "4h","4d");
         uint8_t handscore = cr.score_shew(hand,starter,&scorelist,build_scorelists);
         EXPECT_EQ(handscore,cr.scorePoints[Cribbage::SCORE_4KIND]);
+        if(build_scorelists) render_scorelist();
     }
 
     //should have a run of 3 in it! Expect a score of 3
@@ -295,18 +325,21 @@ namespace {
         build_hand("8c", "9c", "0s", "Qh","Kd");
         uint8_t handscore = cr.score_shew(hand,starter,&scorelist,build_scorelists);
         EXPECT_EQ(handscore,cr.scorePoints[Cribbage::SCORE_RUN3]);
+        if(build_scorelists) render_scorelist();
     }
 
     TEST_F(CribbageTest,T103_RunOfThreeMid) {
         build_hand("Ac", "9c", "0s", "Jh","Kd");
         uint8_t handscore = cr.score_shew(hand,starter,&scorelist,build_scorelists);
         EXPECT_EQ(handscore,cr.scorePoints[Cribbage::SCORE_RUN3]);
+        if(build_scorelists) render_scorelist();
     }
 
     TEST_F(CribbageTest,T107_RunOfThreeHigh) {
         build_hand("2c", "4c", "Js", "Qh","Kd");
         uint8_t handscore = cr.score_shew(hand,starter,&scorelist,build_scorelists);
         EXPECT_EQ(handscore,cr.scorePoints[Cribbage::SCORE_RUN3]);
+        if(build_scorelists) render_scorelist();
     }
 
     //should have a run of 4 in it! Expect a score of 8 bc there are a couple of 15s in there too
@@ -318,12 +351,14 @@ namespace {
         build_hand("Ac", "3c", "4s", "Qh","2d");
         uint8_t handscore = cr.score_shew(hand,starter,&scorelist,build_scorelists);
         EXPECT_EQ(handscore,cr.scorePoints[Cribbage::SCORE_RUN4] + (2* cr.scorePoints[Cribbage::SCORE_FIFTEEN]));
+        if(build_scorelists) render_scorelist();
     }
 
     TEST_F(CribbageTest,T120_RunOfFourHigh) {
         build_hand("0c", "Jc", "Ks", "Qh","2d");
         uint8_t handscore = cr.score_shew(hand,starter,&scorelist,build_scorelists);
         EXPECT_EQ(handscore,cr.scorePoints[Cribbage::SCORE_RUN4]);
+        if(build_scorelists) render_scorelist();
     }
 
     //should have a run of 5 in it! Expect a score of 5
@@ -332,6 +367,7 @@ namespace {
         build_hand("9c", "Kc", "Js", "Qh","0d");
         uint8_t handscore = cr.score_shew(hand,starter,&scorelist,build_scorelists);
         EXPECT_EQ(handscore,cr.scorePoints[Cribbage::SCORE_RUN5]);
+        if(build_scorelists) render_scorelist();
     }
 
     //should have a double run of 3 in it! Expect a score of 8
@@ -341,18 +377,21 @@ namespace {
         build_hand("8c", "8c", "9s", "Qh","0d");
         uint8_t handscore = cr.score_shew(hand,starter,&scorelist,build_scorelists);
         EXPECT_EQ(handscore,cr.scorePoints[Cribbage::SCORE_DBLRUN3]);
+        if(build_scorelists) render_scorelist();
     }
 
     TEST_F(CribbageTest,T143_DblRunThreeMid) {
         build_hand("8c", "9c", "9s", "Qh","0d");
         uint8_t handscore = cr.score_shew(hand,starter,&scorelist,build_scorelists);
         EXPECT_EQ(handscore,cr.scorePoints[Cribbage::SCORE_DBLRUN3]);
+        if(build_scorelists) render_scorelist();
     }
 
     TEST_F(CribbageTest,T147_DblRunThreeHigh) {
         build_hand("8c", "0c", "9s", "Qh","0d");
         uint8_t handscore = cr.score_shew(hand,starter,&scorelist,build_scorelists);
         EXPECT_EQ(handscore,cr.scorePoints[Cribbage::SCORE_DBLRUN3]);
+        if(build_scorelists) render_scorelist();
     }
 
     //should have a double run of 3 in it! Expect a score of 10
@@ -362,24 +401,28 @@ namespace {
         build_hand("8c", "8s", "9s", "Jh","0d");
         uint8_t handscore = cr.score_shew(hand,starter,&scorelist,build_scorelists);
         EXPECT_EQ(handscore,cr.scorePoints[Cribbage::SCORE_DBLRUN4]);
+        if(build_scorelists) render_scorelist();
     }
 
     TEST_F(CribbageTest,T153_DblRunFourLowmid) {
         build_hand("8c", "9c", "9s", "Jh","0d");
         uint8_t handscore = cr.score_shew(hand,starter,&scorelist,build_scorelists);
         EXPECT_EQ(handscore,cr.scorePoints[Cribbage::SCORE_DBLRUN4]);
+        if(build_scorelists) render_scorelist();
     }
 
     TEST_F(CribbageTest,T155_DblRunFourHighmid) {
         build_hand("8c", "0c", "9s", "Jh","0d");
         uint8_t handscore = cr.score_shew(hand,starter,&scorelist,build_scorelists);
         EXPECT_EQ(handscore,cr.scorePoints[Cribbage::SCORE_DBLRUN4]);
+        if(build_scorelists) render_scorelist();
     }
 
     TEST_F(CribbageTest,T157_DblRunFourHigh) {
         build_hand("8c", "Jc", "9s", "Jh","0d");
         uint8_t handscore = cr.score_shew(hand,starter,&scorelist,build_scorelists);
         EXPECT_EQ(handscore,cr.scorePoints[Cribbage::SCORE_DBLRUN4]);
+        if(build_scorelists) render_scorelist();
     }
 
 
@@ -390,18 +433,21 @@ namespace {
         build_hand("8c", "8s", "0s", "0h","9d");
         uint8_t handscore = cr.score_shew(hand,starter,&scorelist,build_scorelists);
         EXPECT_EQ(handscore,cr.scorePoints[Cribbage::SCORE_DBLDBLRUN]);
+        if(build_scorelists) render_scorelist();
     }
 
     TEST_F(CribbageTest,T163_DblDblRunLowMid) {
         build_hand("8c", "9d", "9s", "0h","8d");
         uint8_t handscore = cr.score_shew(hand,starter,&scorelist,build_scorelists);
         EXPECT_EQ(handscore,cr.scorePoints[Cribbage::SCORE_DBLDBLRUN]);
+        if(build_scorelists) render_scorelist();
     }
 
     TEST_F(CribbageTest,T160_DblDblRunMidHigh) {
         build_hand("8c", "9h", "9s", "0h","0d");
         uint8_t handscore = cr.score_shew(hand,starter,&scorelist,build_scorelists);
         EXPECT_EQ(handscore,cr.scorePoints[Cribbage::SCORE_DBLDBLRUN]);
+        if(build_scorelists) render_scorelist();
     }
 
     //should have a triple run of 3 in it! Expect a score of 15
@@ -411,18 +457,21 @@ namespace {
         build_hand("9h", "9c", "0s", "Js","9d");
         uint8_t handscore = cr.score_shew(hand,starter,&scorelist,build_scorelists);
         EXPECT_EQ(handscore,cr.scorePoints[Cribbage::SCORE_TRIPLERUN]);
+        if(build_scorelists) render_scorelist();
     }
 
     TEST_F(CribbageTest,T173_TripleRunMid) {
         build_hand("0h", "0c", "9s", "0d","Jc");
         uint8_t handscore = cr.score_shew(hand,starter,&scorelist,build_scorelists);
         EXPECT_EQ(handscore,cr.scorePoints[Cribbage::SCORE_TRIPLERUN]);
+        if(build_scorelists) render_scorelist();
     }
 
     TEST_F(CribbageTest,T177_TripleRunHigh) {
         build_hand("6h", "7h", "5s", "7d","7c");
         uint8_t handscore = cr.score_shew(hand,starter,&scorelist,build_scorelists);
         EXPECT_EQ(handscore,cr.scorePoints[Cribbage::SCORE_TRIPLERUN]);
+        if(build_scorelists) render_scorelist();
     }
 
     //should have a 4 card flush in it! Expect a score of 4
@@ -431,6 +480,7 @@ namespace {
         build_hand("4c", "3c", "Jc", "7c","9h");
         uint8_t handscore = cr.score_shew(hand,starter,&scorelist,build_scorelists);
         EXPECT_EQ(handscore,cr.scorePoints[Cribbage::SCORE_FLUSH]);
+        if(build_scorelists) render_scorelist();
     }
 
     //should have a 5 card flush in it! Expect a score of 5
@@ -439,6 +489,7 @@ namespace {
         build_hand("4c", "3c", "Qc", "7c","9c");
         uint8_t handscore = cr.score_shew(hand,starter,&scorelist,build_scorelists);
         EXPECT_EQ(handscore,cr.scorePoints[Cribbage::SCORE_FLUSH5]);
+        if(build_scorelists) render_scorelist();
     }
 
     //should NOT have a 4 card flush in it! bc the 4 cards include starter Expect a score of 0
@@ -447,6 +498,7 @@ namespace {
         build_hand("4c", "3c", "Kc", "7h","9c");
         uint8_t handscore = cr.score_shew(hand,starter,&scorelist,build_scorelists);
         EXPECT_EQ(handscore,0);
+        if(build_scorelists) render_scorelist();
     }
 
     //should have nobs in it! Expect a score of 1
@@ -455,6 +507,7 @@ namespace {
         build_hand("Qh", "Jd", "9s", "3d","4d");
         uint8_t handscore = cr.score_shew(hand,starter,&scorelist,build_scorelists);
         EXPECT_EQ(handscore,cr.scorePoints[Cribbage::SCORE_NOBS]);
+        if(build_scorelists) render_scorelist();
     }
 
 
@@ -470,6 +523,7 @@ namespace {
             handscore = cr.score_shew(hand,starter,&scorelist,build_scorelists);
         EXPECT_EQ(handscore,(cr.scorePoints[Cribbage::SCORE_FIFTEEN] * 8) +
             cr.scorePoints[Cribbage::SCORE_4KIND] + cr.scorePoints[Cribbage::SCORE_NOBS]);
+        if(build_scorelists) render_scorelist();
     }
 
     //Here trying to find the worst case hand for scoring time. Current guess, 5 5 5 j j with a nobs
@@ -488,6 +542,7 @@ namespace {
             handscore = cr.score_shew(hand,starter,&scorelist,build_scorelists);
         EXPECT_EQ(handscore,(cr.scorePoints[Cribbage::SCORE_FIFTEEN] * 7) +
             cr.scorePoints[Cribbage::SCORE_PAIRROYAL] + cr.scorePoints[Cribbage::SCORE_PAIR] + cr.scorePoints[Cribbage::SCORE_NOBS]);
+        if(build_scorelists) render_scorelist();
     }
 
 }
