@@ -108,21 +108,19 @@ namespace cribbage_cpp {
                     uint8_t score_index = 0xFF;
 
                     //copy ctor - do you still need these?
+                    /* this seems to get in a fight with other ctors
                     score_entry(score_entry &other) {
                         part_cards = other.part_cards;
                         score_index = other.score_index;
                     }
+                    */
                     // ctor for when you know the participating-card mask and score index
-                    score_entry(uint8_t pc,uint8_t sci) {
-                        part_cards = pc;
-                        score_index = sci;
-                    }
+                    score_entry(uint8_t pc,uint8_t sci) : part_cards(pc), score_index(sci) {}
+
                     // ctor for when you know the score index but will be filling in
                     // participating cards with the settors below
-                    score_entry(uint8_t sci) {
-                        part_cards = 0;
-                        score_index = sci;
-                    }
+                    score_entry(uint8_t sci) : part_cards(0), score_index(sci) {}
+
                     // query for whether card 0..4 is involved in the score
                     bool is_card_involved(uint8_t index) {
                         if (index > 4) return false;

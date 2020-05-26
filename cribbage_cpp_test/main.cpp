@@ -134,6 +134,7 @@ namespace {
         std::vector<uint8_t> hand;
         uint8_t starter;
         std::vector<Cribbage::score_entry> scorelist;
+        bool build_scorelists = true;      //FOR SPEED TESTING WITH OR WITHOUT BUILDING SCORELISTS
 
         //special helper function to create a hand - give it string reps of 5 cards
         //and the first 4 become "hand" global and last becomes starter
@@ -155,6 +156,9 @@ namespace {
         // setup initializes data members, runs BEFORE EVERY TEST
         void SetUp() override {
             cr.getCardUtils().v_srandom(default_seed);
+            //I think the longest possible list of scores is for 29: eight fifteens + 4 of a kind + nobs?
+            //VERIFY
+            scorelist.reserve(10);
         }
 
         // teardown cleans up after data members, runs AFTER EVERY TEST
@@ -172,7 +176,7 @@ namespace {
         //20963 ms debug, 1115 ms release - not bad!
         uint8_t handscore;
         //for(auto j=0;j<10000000;j++)
-            handscore = cr.score_shew(hand,starter,&scorelist,false);
+            handscore = cr.score_shew(hand,starter,&scorelist,build_scorelists);
         EXPECT_EQ(handscore,0);
     }
 
@@ -180,7 +184,7 @@ namespace {
     //LATER will check for detailed results
     TEST_F(CribbageTest,T010_TwoCardFifteen) {
         build_hand("Qh", "0c", "9s", "3d","5d");
-        uint8_t handscore = cr.score_shew(hand,starter,&scorelist,false);
+        uint8_t handscore = cr.score_shew(hand,starter,&scorelist,build_scorelists);
         EXPECT_EQ(handscore,cr.scorePoints[Cribbage::SCORE_FIFTEEN]*2);
     }
 
@@ -188,7 +192,7 @@ namespace {
     //LATER will check for detailed results
     TEST_F(CribbageTest,T020_ThreeCardFifteen) {
         build_hand("6h", "3c", "7s", "0d","2d");
-        uint8_t handscore = cr.score_shew(hand,starter,&scorelist,false);
+        uint8_t handscore = cr.score_shew(hand,starter,&scorelist,build_scorelists);
         EXPECT_EQ(handscore,cr.scorePoints[Cribbage::SCORE_FIFTEEN]*2);
     }
 
@@ -196,7 +200,7 @@ namespace {
     //LATER will check for detailed results
     TEST_F(CribbageTest,T030_FourCardFifteen) {
         build_hand("Ah", "4c", "3s", "7d","6d");
-        uint8_t handscore = cr.score_shew(hand,starter,&scorelist,false);
+        uint8_t handscore = cr.score_shew(hand,starter,&scorelist,build_scorelists);
         EXPECT_EQ(handscore,cr.scorePoints[Cribbage::SCORE_FIFTEEN]);
     }
 
@@ -204,7 +208,7 @@ namespace {
     //LATER will check for detailed results
     TEST_F(CribbageTest,T040_FiveCardFifteen) {
         build_hand("Ah", "4c", "3s", "5d","2d");
-        uint8_t handscore = cr.score_shew(hand,starter,&scorelist,false);
+        uint8_t handscore = cr.score_shew(hand,starter,&scorelist,build_scorelists);
         EXPECT_EQ(handscore,cr.scorePoints[Cribbage::SCORE_FIFTEEN] + cr.scorePoints[Cribbage::SCORE_RUN5]);
     }
 
@@ -212,7 +216,7 @@ namespace {
     //LATER will check for detailed results
     TEST_F(CribbageTest,T050_OnePair) {
         build_hand("Ah", "2c", "6s", "0d","Ad");
-        uint8_t handscore = cr.score_shew(hand,starter,&scorelist,false);
+        uint8_t handscore = cr.score_shew(hand,starter,&scorelist,build_scorelists);
         EXPECT_EQ(handscore,cr.scorePoints[Cribbage::SCORE_PAIR]);
     }
 
@@ -220,7 +224,7 @@ namespace {
     //LATER will check for detailed results
     TEST_F(CribbageTest,T060_TwoPair) {
         build_hand("Ah", "0c", "6s", "0d","Ad");
-        uint8_t handscore = cr.score_shew(hand,starter,&scorelist,false);
+        uint8_t handscore = cr.score_shew(hand,starter,&scorelist,build_scorelists);
         EXPECT_EQ(handscore,cr.scorePoints[Cribbage::SCORE_TWOPAIR]);
     }
 
@@ -231,21 +235,21 @@ namespace {
     //Instead do tests re: where they are in the hand
     TEST_F(CribbageTest,T070_ThreeOfAKindLow) {
         build_hand("Ah", "Ac", "6s", "0d","Ad");
-        uint8_t handscore = cr.score_shew(hand,starter,&scorelist,false);
+        uint8_t handscore = cr.score_shew(hand,starter,&scorelist,build_scorelists);
         EXPECT_EQ(handscore,cr.scorePoints[Cribbage::SCORE_PAIRROYAL]);
     }
 
     //3 of a kind is the middle rank
     TEST_F(CribbageTest,T073_ThreeOfAKindMid) {
         build_hand("6s", "7c", "0h", "7h","7d");
-        uint8_t handscore = cr.score_shew(hand,starter,&scorelist,false);
+        uint8_t handscore = cr.score_shew(hand,starter,&scorelist,build_scorelists);
         EXPECT_EQ(handscore,cr.scorePoints[Cribbage::SCORE_PAIRROYAL]);
     }
 
     //3 of a kind is the highest rank
     TEST_F(CribbageTest,T077_ThreeOfAKindHigh) {
         build_hand("0d", "6s", "Kc", "Kh","Kd");
-        uint8_t handscore = cr.score_shew(hand,starter,&scorelist,false);
+        uint8_t handscore = cr.score_shew(hand,starter,&scorelist,build_scorelists);
         EXPECT_EQ(handscore,cr.scorePoints[Cribbage::SCORE_PAIRROYAL]);
     }
 
@@ -254,13 +258,13 @@ namespace {
     //LATER will check for detailed results
     TEST_F(CribbageTest,T080_ThreeOfAKindAndPairLow) {
         build_hand("Ah", "Ac", "4s", "4d","Ad");
-        uint8_t handscore = cr.score_shew(hand,starter,&scorelist,false);
+        uint8_t handscore = cr.score_shew(hand,starter,&scorelist,build_scorelists);
         EXPECT_EQ(handscore,cr.scorePoints[Cribbage::SCORE_PAIRROYAL]+cr.scorePoints[Cribbage::SCORE_PAIR]);
     }
 
     TEST_F(CribbageTest,T085_ThreeOfAKindAndPairHigh) {
         build_hand("Kh", "Kc", "4s", "4d","Kd");
-        uint8_t handscore = cr.score_shew(hand,starter,&scorelist,false);
+        uint8_t handscore = cr.score_shew(hand,starter,&scorelist,build_scorelists);
         EXPECT_EQ(handscore,cr.scorePoints[Cribbage::SCORE_PAIRROYAL]+cr.scorePoints[Cribbage::SCORE_PAIR]);
     }
 
@@ -271,14 +275,14 @@ namespace {
     //the 4 of a kind is the lower rank (see next test.)
     TEST_F(CribbageTest,T090_FourOfAKindHigh) {
         build_hand("4c", "Ac", "4s", "4h","4d");
-        uint8_t handscore = cr.score_shew(hand,starter,&scorelist,false);
+        uint8_t handscore = cr.score_shew(hand,starter,&scorelist,build_scorelists);
         EXPECT_EQ(handscore,cr.scorePoints[Cribbage::SCORE_4KIND]);
     }
 
     //lower rank compared to the odd card out
     TEST_F(CribbageTest,T095_FourOfAKindLow) {
         build_hand("4c", "Jc", "4s", "4h","4d");
-        uint8_t handscore = cr.score_shew(hand,starter,&scorelist,false);
+        uint8_t handscore = cr.score_shew(hand,starter,&scorelist,build_scorelists);
         EXPECT_EQ(handscore,cr.scorePoints[Cribbage::SCORE_4KIND]);
     }
 
@@ -289,19 +293,19 @@ namespace {
     //the run of 3 is the second or third triplet
     TEST_F(CribbageTest,T100_RunOfThreeLow) {
         build_hand("8c", "9c", "0s", "Qh","Kd");
-        uint8_t handscore = cr.score_shew(hand,starter,&scorelist,false);
+        uint8_t handscore = cr.score_shew(hand,starter,&scorelist,build_scorelists);
         EXPECT_EQ(handscore,cr.scorePoints[Cribbage::SCORE_RUN3]);
     }
 
     TEST_F(CribbageTest,T103_RunOfThreeMid) {
         build_hand("Ac", "9c", "0s", "Jh","Kd");
-        uint8_t handscore = cr.score_shew(hand,starter,&scorelist,false);
+        uint8_t handscore = cr.score_shew(hand,starter,&scorelist,build_scorelists);
         EXPECT_EQ(handscore,cr.scorePoints[Cribbage::SCORE_RUN3]);
     }
 
     TEST_F(CribbageTest,T107_RunOfThreeHigh) {
         build_hand("2c", "4c", "Js", "Qh","Kd");
-        uint8_t handscore = cr.score_shew(hand,starter,&scorelist,false);
+        uint8_t handscore = cr.score_shew(hand,starter,&scorelist,build_scorelists);
         EXPECT_EQ(handscore,cr.scorePoints[Cribbage::SCORE_RUN3]);
     }
 
@@ -312,13 +316,13 @@ namespace {
     //the run of 4 is the second set of 4
     TEST_F(CribbageTest,T110_RunOfFourLow) {
         build_hand("Ac", "3c", "4s", "Qh","2d");
-        uint8_t handscore = cr.score_shew(hand,starter,&scorelist,false);
+        uint8_t handscore = cr.score_shew(hand,starter,&scorelist,build_scorelists);
         EXPECT_EQ(handscore,cr.scorePoints[Cribbage::SCORE_RUN4] + (2* cr.scorePoints[Cribbage::SCORE_FIFTEEN]));
     }
 
     TEST_F(CribbageTest,T120_RunOfFourHigh) {
         build_hand("0c", "Jc", "Ks", "Qh","2d");
-        uint8_t handscore = cr.score_shew(hand,starter,&scorelist,false);
+        uint8_t handscore = cr.score_shew(hand,starter,&scorelist,build_scorelists);
         EXPECT_EQ(handscore,cr.scorePoints[Cribbage::SCORE_RUN4]);
     }
 
@@ -326,7 +330,7 @@ namespace {
     //LATER will check for detailed results
     TEST_F(CribbageTest,T130_RunOfFive) {
         build_hand("9c", "Kc", "Js", "Qh","0d");
-        uint8_t handscore = cr.score_shew(hand,starter,&scorelist,false);
+        uint8_t handscore = cr.score_shew(hand,starter,&scorelist,build_scorelists);
         EXPECT_EQ(handscore,cr.scorePoints[Cribbage::SCORE_RUN5]);
     }
 
@@ -335,58 +339,46 @@ namespace {
     //LATER will check for detailed results
     TEST_F(CribbageTest,T140_DblRunThreeLow) {
         build_hand("8c", "8c", "9s", "Qh","0d");
-        uint8_t handscore = cr.score_shew(hand,starter,&scorelist,false);
+        uint8_t handscore = cr.score_shew(hand,starter,&scorelist,build_scorelists);
         EXPECT_EQ(handscore,cr.scorePoints[Cribbage::SCORE_DBLRUN3]);
     }
 
     TEST_F(CribbageTest,T143_DblRunThreeMid) {
         build_hand("8c", "9c", "9s", "Qh","0d");
-        uint8_t handscore = cr.score_shew(hand,starter,&scorelist,false);
+        uint8_t handscore = cr.score_shew(hand,starter,&scorelist,build_scorelists);
         EXPECT_EQ(handscore,cr.scorePoints[Cribbage::SCORE_DBLRUN3]);
     }
 
     TEST_F(CribbageTest,T147_DblRunThreeHigh) {
         build_hand("8c", "0c", "9s", "Qh","0d");
-        uint8_t handscore = cr.score_shew(hand,starter,&scorelist,false);
+        uint8_t handscore = cr.score_shew(hand,starter,&scorelist,build_scorelists);
         EXPECT_EQ(handscore,cr.scorePoints[Cribbage::SCORE_DBLRUN3]);
     }
 
-    //# double run (4)
-    //class aShowTest150_RunOf4Dbl(unittest.TestCase):
-    //    def test_shewtest_run4dbl(self):
-    //        pyb = pybbage.Pybbage()
-    //        # todo should work in all orderings of hand and starter
-    //        print("Show double run of 4 ---------------------------------------------------------------------------------")
-    //        hand = [pyb.stringcard(x) for x in ['8c', '0c', '9s', 'jh']]
-    //        starter = pyb.stringcard('0d')
-    //        print("hand",[pyb.cardstring(x) for x in hand],"starter",pyb.cardstring(starter))
-    //        (score,subsets) = pyb.score_shew(hand,starter)
-    //        pyb.render_score_subsets(hand, starter, subsets)        # DEBUG
-    //        self.assertEqual(score,10)
     //should have a double run of 3 in it! Expect a score of 10
     //this one checks for double run of 4 where the pair is the lowest rank
     //LATER will check for detailed results
     TEST_F(CribbageTest,T150_DblRunFourLowest) {
         build_hand("8c", "8s", "9s", "Jh","0d");
-        uint8_t handscore = cr.score_shew(hand,starter,&scorelist,false);
+        uint8_t handscore = cr.score_shew(hand,starter,&scorelist,build_scorelists);
         EXPECT_EQ(handscore,cr.scorePoints[Cribbage::SCORE_DBLRUN4]);
     }
 
     TEST_F(CribbageTest,T153_DblRunFourLowmid) {
         build_hand("8c", "9c", "9s", "Jh","0d");
-        uint8_t handscore = cr.score_shew(hand,starter,&scorelist,false);
+        uint8_t handscore = cr.score_shew(hand,starter,&scorelist,build_scorelists);
         EXPECT_EQ(handscore,cr.scorePoints[Cribbage::SCORE_DBLRUN4]);
     }
 
     TEST_F(CribbageTest,T155_DblRunFourHighmid) {
         build_hand("8c", "0c", "9s", "Jh","0d");
-        uint8_t handscore = cr.score_shew(hand,starter,&scorelist,false);
+        uint8_t handscore = cr.score_shew(hand,starter,&scorelist,build_scorelists);
         EXPECT_EQ(handscore,cr.scorePoints[Cribbage::SCORE_DBLRUN4]);
     }
 
     TEST_F(CribbageTest,T157_DblRunFourHigh) {
         build_hand("8c", "Jc", "9s", "Jh","0d");
-        uint8_t handscore = cr.score_shew(hand,starter,&scorelist,false);
+        uint8_t handscore = cr.score_shew(hand,starter,&scorelist,build_scorelists);
         EXPECT_EQ(handscore,cr.scorePoints[Cribbage::SCORE_DBLRUN4]);
     }
 
@@ -396,53 +388,40 @@ namespace {
     //LATER will check for detailed results
     TEST_F(CribbageTest,T160_DblDblRunLowHigh) {
         build_hand("8c", "8s", "0s", "0h","9d");
-        uint8_t handscore = cr.score_shew(hand,starter,&scorelist,false);
+        uint8_t handscore = cr.score_shew(hand,starter,&scorelist,build_scorelists);
         EXPECT_EQ(handscore,cr.scorePoints[Cribbage::SCORE_DBLDBLRUN]);
     }
 
     TEST_F(CribbageTest,T163_DblDblRunLowMid) {
         build_hand("8c", "9d", "9s", "0h","8d");
-        uint8_t handscore = cr.score_shew(hand,starter,&scorelist,false);
+        uint8_t handscore = cr.score_shew(hand,starter,&scorelist,build_scorelists);
         EXPECT_EQ(handscore,cr.scorePoints[Cribbage::SCORE_DBLDBLRUN]);
     }
 
     TEST_F(CribbageTest,T160_DblDblRunMidHigh) {
         build_hand("8c", "9h", "9s", "0h","0d");
-        uint8_t handscore = cr.score_shew(hand,starter,&scorelist,false);
+        uint8_t handscore = cr.score_shew(hand,starter,&scorelist,build_scorelists);
         EXPECT_EQ(handscore,cr.scorePoints[Cribbage::SCORE_DBLDBLRUN]);
     }
 
-
-    //# triple run
-    //class aShowTest170_RunOf3Triple(unittest.TestCase):
-    //    def test_shewtest_run3triple(self):
-    //        pyb = pybbage.Pybbage()
-    //        # todo should work in all orderings of hand and starter
-    //        print("Show triple run of 3 ---------------------------------------------------------------------------------")
-    //        hand = [pyb.stringcard(x) for x in ['6h', '6c', '5s', '6d']]
-    //        starter = pyb.stringcard('7c')
-    //        print("hand",[pyb.cardstring(x) for x in hand],"starter",pyb.cardstring(starter))
-    //        (score,subsets) = pyb.score_shew(hand,starter)
-    //        pyb.render_score_subsets(hand, starter, subsets)        # DEBUG
-    //        self.assertEqual(score,15)
     //should have a triple run of 3 in it! Expect a score of 15
     //this one checks for triple run of 3 where the 3 of a kind is lowest rank
     //LATER will check for detailed results
     TEST_F(CribbageTest,T170_TripleRunLow) {
         build_hand("9h", "9c", "0s", "Js","9d");
-        uint8_t handscore = cr.score_shew(hand,starter,&scorelist,false);
+        uint8_t handscore = cr.score_shew(hand,starter,&scorelist,build_scorelists);
         EXPECT_EQ(handscore,cr.scorePoints[Cribbage::SCORE_TRIPLERUN]);
     }
 
     TEST_F(CribbageTest,T173_TripleRunMid) {
         build_hand("0h", "0c", "9s", "0d","Jc");
-        uint8_t handscore = cr.score_shew(hand,starter,&scorelist,false);
+        uint8_t handscore = cr.score_shew(hand,starter,&scorelist,build_scorelists);
         EXPECT_EQ(handscore,cr.scorePoints[Cribbage::SCORE_TRIPLERUN]);
     }
 
     TEST_F(CribbageTest,T177_TripleRunHigh) {
         build_hand("6h", "7h", "5s", "7d","7c");
-        uint8_t handscore = cr.score_shew(hand,starter,&scorelist,false);
+        uint8_t handscore = cr.score_shew(hand,starter,&scorelist,build_scorelists);
         EXPECT_EQ(handscore,cr.scorePoints[Cribbage::SCORE_TRIPLERUN]);
     }
 
@@ -450,7 +429,7 @@ namespace {
     //LATER will check for detailed results
     TEST_F(CribbageTest,T180_FourCardFlush) {
         build_hand("4c", "3c", "Jc", "7c","9h");
-        uint8_t handscore = cr.score_shew(hand,starter,&scorelist,false);
+        uint8_t handscore = cr.score_shew(hand,starter,&scorelist,build_scorelists);
         EXPECT_EQ(handscore,cr.scorePoints[Cribbage::SCORE_FLUSH]);
     }
 
@@ -458,7 +437,7 @@ namespace {
     //LATER will check for detailed results
     TEST_F(CribbageTest,T190_FiveCardFlush) {
         build_hand("4c", "3c", "Qc", "7c","9c");
-        uint8_t handscore = cr.score_shew(hand,starter,&scorelist,false);
+        uint8_t handscore = cr.score_shew(hand,starter,&scorelist,build_scorelists);
         EXPECT_EQ(handscore,cr.scorePoints[Cribbage::SCORE_FLUSH5]);
     }
 
@@ -466,7 +445,7 @@ namespace {
     //LATER will check for detailed results
     TEST_F(CribbageTest,T200_NotFourCardFlush) {
         build_hand("4c", "3c", "Kc", "7h","9c");
-        uint8_t handscore = cr.score_shew(hand,starter,&scorelist,false);
+        uint8_t handscore = cr.score_shew(hand,starter,&scorelist,build_scorelists);
         EXPECT_EQ(handscore,0);
     }
 
@@ -474,7 +453,7 @@ namespace {
     //LATER will check for detailed results
     TEST_F(CribbageTest,T210_Nobs) {
         build_hand("Qh", "Jd", "9s", "3d","4d");
-        uint8_t handscore = cr.score_shew(hand,starter,&scorelist,false);
+        uint8_t handscore = cr.score_shew(hand,starter,&scorelist,build_scorelists);
         EXPECT_EQ(handscore,cr.scorePoints[Cribbage::SCORE_NOBS]);
     }
 
@@ -488,7 +467,7 @@ namespace {
         //actually no 4 of a kind is a short-circuit, try one with 5 5 5 j j incl nobs
         //printf("TEN MILLION!!!\n");
         //for (auto j = 0; j < 10000000; j++)
-            handscore = cr.score_shew(hand,starter,&scorelist,false);
+            handscore = cr.score_shew(hand,starter,&scorelist,build_scorelists);
         EXPECT_EQ(handscore,(cr.scorePoints[Cribbage::SCORE_FIFTEEN] * 8) +
             cr.scorePoints[Cribbage::SCORE_4KIND] + cr.scorePoints[Cribbage::SCORE_NOBS]);
     }
@@ -506,7 +485,7 @@ namespace {
         //actually no 4 of a kind is a short-circuit, try one with 5 5 5 j j incl nobs
         //printf("TEN MILLION!!!\n");
         //for (auto j = 0; j < 10000000; j++)
-            handscore = cr.score_shew(hand,starter,&scorelist,false);
+            handscore = cr.score_shew(hand,starter,&scorelist,build_scorelists);
         EXPECT_EQ(handscore,(cr.scorePoints[Cribbage::SCORE_FIFTEEN] * 7) +
             cr.scorePoints[Cribbage::SCORE_PAIRROYAL] + cr.scorePoints[Cribbage::SCORE_PAIR] + cr.scorePoints[Cribbage::SCORE_NOBS]);
     }
