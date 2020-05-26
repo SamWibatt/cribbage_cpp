@@ -17,7 +17,7 @@ namespace cribbage_cpp {
     class Cribbage {
         // global score list
         public:
-        enum score_index : uint8_t {
+        enum score_index : index_t {
             SCORE_NOBS,          //  0. nobs - 1
             SCORE_GO,            //  1. go - 1
             SCORE_FIFTEEN,       //  2. fifteen - 2
@@ -42,7 +42,7 @@ namespace cribbage_cpp {
 
         // name and score for each of these
 
-        const uint8_t scorePoints[20] = {
+        const index_t scorePoints[20] = {
             1,                      // SCORE_NOBS = 0
             1,                      // SCORE_GO = 1
             2,                      // SCORE_FIFTEEN = 2
@@ -104,8 +104,8 @@ namespace cribbage_cpp {
             // where card n is part of the score if bit 1 << n is set
             class score_entry {
                 public:
-                    uint8_t part_cards = 0;      //mask of participating cards
-                    uint8_t score_index = 0xFF;
+                    index_t part_cards = 0;      //mask of participating cards
+                    index_t score_index = 0xFF;
 
                     //copy ctor - do you still need these?
                     /* this seems to get in a fight with other ctors
@@ -115,19 +115,19 @@ namespace cribbage_cpp {
                     }
                     */
                     // ctor for when you know the participating-card mask and score index
-                    score_entry(uint8_t pc,uint8_t sci) : part_cards(pc), score_index(sci) {}
+                    score_entry(index_t pc,index_t sci) : part_cards(pc), score_index(sci) {}
 
                     // ctor for when you know the score index but will be filling in
                     // participating cards with the settors below
-                    score_entry(uint8_t sci) : part_cards(0), score_index(sci) {}
+                    score_entry(index_t sci) : part_cards(0), score_index(sci) {}
 
                     // query for whether card 0..4 is involved in the score
-                    bool is_card_involved(uint8_t index) {
+                    bool is_card_involved(index_t index) {
                         if (index > 4) return false;
                         return (part_cards & (1 << index)) == 1;
                     }
-                    void set_card_involved(uint8_t index) { if (index < 5) index |= (1 << index); }
-                    void clear_card_involved(uint8_t index) { if (index < 5) index &= ~(1<<index); }
+                    void set_card_involved(index_t index) { if (index < 5) index |= (1 << index); }
+                    void clear_card_involved(index_t index) { if (index < 5) index &= ~(1<<index); }
             };
 
         // ctor / dtor ========================================================================================
@@ -143,16 +143,16 @@ namespace cribbage_cpp {
             // * values of the whole hand (for spotting fifteens)
             // * normalized i.e. subtract off lowest, ranks of the sorted whole hand (for spotting runs)
             // * suits of the unsorted whole hand (for spotting flushes)
-            void prep_score_hand(std::vector<uint8_t> &hand, uint8_t starter,
-                std::array<uint8_t,5> &whole_hand, std::array<uint8_t,5> &whole_vals,
-                std::array<uint8_t,5> &sorthand_nranks, std::array<uint8_t,5> &whole_suits );
+            void prep_score_hand(std::vector<card_t> &hand, card_t starter,
+                std::array<card_t,5> &whole_hand, std::array<card_t,5> &whole_vals,
+                std::array<card_t,5> &sorthand_nranks, std::array<card_t,5> &whole_suits, bool build_list );
 
 
             // given a hand of cards, starter card, and a score entry vector,
             // returns the total score for the hand
             // and fills the scores vector with the score entries for whatever the hand has in it,
             // empty if nothing
-            uint8_t score_shew(std::vector<uint8_t> hand, uint8_t starter,
+            index_t score_shew(std::vector<card_t> hand, card_t starter,
                 std::vector<score_entry> *scores, bool build_list);
 
     };

@@ -2,7 +2,7 @@
 
 cribbage_cpp - C++ implementation of cribbage utilities and scoring
 
-Targeting embedded systems, so uses small containers like uint8_t at the risk of loss of speed on larger machines
+Targeting embedded systems, so uses small containers like card_t at the risk of loss of speed on larger machines
 
 */
 
@@ -19,9 +19,9 @@ namespace cribbage_cpp {
         //dtor stuff here
     }
 
-    void Cribbage::prep_score_hand(std::vector<uint8_t> &hand, uint8_t starter,
-        std::array<uint8_t,5> &whole_hand, std::array<uint8_t,5> &whole_vals,
-        std::array<uint8_t,5> &sorthand_nranks, std::array<uint8_t,5> &whole_suits ) {
+    void Cribbage::prep_score_hand(std::vector<card_t> &hand, card_t starter,
+        std::array<card_t,5> &whole_hand, std::array<card_t,5> &whole_vals,
+        std::array<card_t,5> &sorthand_nranks, std::array<card_t,5> &whole_suits, bool build_list ) {
 
         // get the whole_hand array going - copy hand over, then drop starter at end
         std::copy_n(hand.begin(), 4, whole_hand.begin());
@@ -29,28 +29,29 @@ namespace cribbage_cpp {
 
         // then construct the vals array from that
         std::transform(whole_hand.begin(),whole_hand.end(),whole_vals.begin(),
-            [this](uint8_t card) -> uint8_t { return this->cu.val(card); });
+            [this](card_t card) -> card_t { return this->cu.val(card); });
 
         // then construct the sorted hand in sorthand_nranks
+        // if we're building score lists, we need
         std::copy(whole_hand.begin(),whole_hand.end(),sorthand_nranks.begin());
         std::sort(sorthand_nranks.begin(),sorthand_nranks.end());
         //finally, boil sorted_ranks down to its ranks and subtract off first card's rank
         //for run spotting
-        uint8_t first_rank = cu.rank(sorthand_nranks[0]);
+        card_t first_rank = cu.rank(sorthand_nranks[0]);
         std::transform(sorthand_nranks.begin(),sorthand_nranks.end(),sorthand_nranks.begin(),
-            [first_rank,this](uint8_t card) -> uint8_t { return this->cu.rank(card) - first_rank; });
+            [first_rank,this](card_t card) -> card_t { return this->cu.rank(card) - first_rank; });
 
         //then get whole_hand's suits? Not sure we need to do this here, could defer until we
         //know we need to check for flushes
         //extract suits
         std::transform(whole_hand.begin(),whole_hand.end(),whole_suits.begin(),
-            [this](uint8_t card) -> uint8_t { return this->cu.suit(card); });
+            [this](card_t card) -> card_t { return this->cu.suit(card); });
 
     }
 
     const int NUM_FIVECARDERS = 11;     //bc for some reason I can't do .size() on the upcoming
 
-    const std::array<uint8_t,5> fivecard_patterns[NUM_FIVECARDERS] = {
+    const std::array<card_t,5> fivecard_patterns[NUM_FIVECARDERS] = {
         {{0, 1, 2, 3, 4}},    // "run of 5"    //   5 = 5*1 per card
         {{0, 0, 0, 1, 2}},    // "triple run"    //  15 = 3*3 runs + 3*2 pairs
         {{0, 1, 1, 1, 2}},    // "triple run", 15],
@@ -65,7 +66,7 @@ namespace cribbage_cpp {
     };
 
     //scores parallel to the fivecard patterns
-    const uint8_t fivecard_score_indices[NUM_FIVECARDERS] = {
+    const card_t fivecard_score_indices[NUM_FIVECARDERS] = {
         Cribbage::SCORE_RUN5,      //"run of 5"           #  5 = 5*1 per card
         Cribbage::SCORE_TRIPLERUN, //"triple run"        # 15 = 3*3 runs + 3*2 pairs
         Cribbage::SCORE_TRIPLERUN, //"triple run"
@@ -81,7 +82,7 @@ namespace cribbage_cpp {
 
     const int NUM_FOURCARDERS = 5;     //bc for some reason I can't do .size() on the upcoming
 
-    const std::array<uint8_t,4> fourcard_patterns[NUM_FOURCARDERS] = {
+    const std::array<card_t,4> fourcard_patterns[NUM_FOURCARDERS] = {
         {{0, 0, 0, 0}},    // 4 of a kind
         {{0, 1, 2, 3}},    // "run of 4"    //   4 = 4*1 per card
         {{0, 0, 1, 2}},    // "double run of 3"
@@ -90,7 +91,7 @@ namespace cribbage_cpp {
     };
 
     //scores parallel to the fourcard patterns
-    const uint8_t fourcard_score_indices[NUM_FOURCARDERS] = {
+    const card_t fourcard_score_indices[NUM_FOURCARDERS] = {
         Cribbage::SCORE_4KIND,
         Cribbage::SCORE_RUN4,      //"run of 4"           #  4 = 4*1 per card
         Cribbage::SCORE_DBLRUN3,
@@ -100,7 +101,7 @@ namespace cribbage_cpp {
 
     // also scores hand + starter, but optimized for speed and doesn't worry about how scores would be read out
     // scores is a pointer so can use nullptr when build_list is false and not need a dummy vector?
-    uint8_t Cribbage::score_shew(std::vector<uint8_t> hand, uint8_t starter,
+    index_t Cribbage::score_shew(std::vector<card_t> hand, card_t starter,
         std::vector<score_entry> *scores, bool build_list) {
         //SHOULD THIS BE THE VERSION AND IT LOOKS JUST LIKE THE FAST ONE BUT WITH A FLAG SAYING WHETHER TO BUILD
         //THE LIST OR NOT AND LIST IS OF ALL THE PRIMITIVES AND PATTERN MATCHING ON THE PRIMITIVES LIST CAN DERIVE
@@ -108,23 +109,23 @@ namespace cribbage_cpp {
         //say you had primitives of pair, pair, pair you could remove those and replace with a pair royal
         //YES THAT DO IT LIKE THAT but first I'll ignore build_list and scores
         //precompute some useful views of the hand
-        std::array<uint8_t,5> whole_hand;
-        std::array<uint8_t,5> whole_vals;
-        std::array<uint8_t,5> sorthand_nranks;
-        std::array<uint8_t,5> whole_suits;
-        prep_score_hand(hand, starter, whole_hand, whole_vals, sorthand_nranks, whole_suits );
+        std::array<card_t,5> whole_hand;
+        std::array<card_t,5> whole_vals;
+        std::array<card_t,5> sorthand_nranks;
+        std::array<card_t,5> whole_suits;
+        prep_score_hand(hand, starter, whole_hand, whole_vals, sorthand_nranks, whole_suits, build_list );
 
         //figure out if we will be building a score list. build_list should only be true if scores is non-nullptr, but be sure
         bool make_list = (scores != nullptr && build_list == true) ? true : false;
         if (make_list) scores->clear();
 
-        uint totscore = 0;
+        index_t totscore = 0;
 
-        uint8_t i,j;
+        index_t i,j;
         //fifteens - in a 5 card hand, there are:
         //5 choose 5 = 1 5-card sum
         //if we save it off, can compute the 4- and 3-card totals by subtraction
-        uint8_t totvals = std::accumulate(whole_vals.begin(), whole_vals.end(), 0);
+        index_t totvals = index_t(std::accumulate(whole_vals.begin(), whole_vals.end(), 0));
         if (totvals == 15) {
             totscore += scorePoints[SCORE_FIFTEEN];
             // participating cards is all of them - so 0001 1111 bc we count from right, first card = rightmost
@@ -134,7 +135,7 @@ namespace cribbage_cpp {
         // if the total value is < 15, don't need to check for any fewer-card ones. rare case - worth checking? Sure why not
         else if (totvals > 15) {
             //5 choose 4 = 5 4-card sums, which can be considered the 5 card sum minus each single card value
-            for(i=0;i<5;i++) if (totvals - whole_vals[i] == 15) {
+            for(i=0;i<5;i++) if (totvals - index_t(whole_vals[i]) == 15) {
                 totscore += scorePoints[SCORE_FIFTEEN];
                 //participating cards is all but i
                 if(make_list) scores->push_back(score_entry(0x1F & ~(1 << i),SCORE_FIFTEEN));
@@ -142,7 +143,7 @@ namespace cribbage_cpp {
             //5 choose 3 = 10 3-card sums (or total value minus 2 cards' values so only need two nested loops)
             for(i=0;i<4;i++)
                 for(j=i+1;j<5;j++)
-                    if (totvals - (whole_vals[i] + whole_vals[j]) == 15) {
+                    if (totvals - index_t(whole_vals[i] + whole_vals[j]) == 15) {
                         totscore += scorePoints[SCORE_FIFTEEN];
                         //participating cards all but i and j
                         if(make_list) scores->push_back(score_entry(0x1F & ~(1 << i | 1 << j),SCORE_FIFTEEN));
@@ -176,9 +177,9 @@ namespace cribbage_cpp {
             bool fourcard_found = false;
 
             // 4 card patterns!
-            std::array<uint8_t,4> first4;
-            std::array<uint8_t,4> last4;
-            uint8_t firstlastrank = sorthand_nranks[1];     //first rank of last 4 cards
+            std::array<card_t,4> first4;
+            std::array<card_t,4> last4;
+            card_t firstlastrank = sorthand_nranks[1];     //first rank of last 4 cards
             std::copy_n(sorthand_nranks.begin(),4,first4.begin());
 
             //so, mimicking the python version, it assumes that if there's a match in the first 4, there won't be
@@ -196,7 +197,7 @@ namespace cribbage_cpp {
             if(!fourcard_found) {
                 //build second four
                 std::transform(sorthand_nranks.begin() + 1,sorthand_nranks.end(),last4.begin(),
-                    [firstlastrank](uint8_t rank) -> uint8_t { return rank - firstlastrank; });
+                    [firstlastrank](card_t rank) -> card_t { return rank - firstlastrank; });
 
                 for (j = 0; j < NUM_FOURCARDERS; j++) {
                     if(last4 == fourcard_patterns[j]) {
@@ -252,7 +253,7 @@ namespace cribbage_cpp {
                     //FOR BUILDING SCORE LISTS, WILL NEED TO KEEP TRACK OF PAIR RANKS N STUFF?
                     //that can all be postprocessing
                     //do count # pairs
-                    uint8_t numpairs = 0;
+                    index_t numpairs = 0;
                     for(i=0;i<4;i++)
                         for(j=i+1;j<5;j++)
                             if (sorthand_nranks[i] == sorthand_nranks[j]) numpairs++;
@@ -269,14 +270,14 @@ namespace cribbage_cpp {
                             //OR, could just scan the list and record which ranks from
                             //A..K are which cards and also count how many.
                             //this might actually be a faster way to do pairs!
-                            uint8_t rankcounts[13] = {0,0,0,0,0,0,0,0,0,0,0,0,0};
-                            uint8_t rankcards[13] = {0,0,0,0,0,0,0,0,0,0,0,0,0};
+                            index_t rankcounts[13] = {0,0,0,0,0,0,0,0,0,0,0,0,0};
+                            index_t rankcards[13] = {0,0,0,0,0,0,0,0,0,0,0,0,0};
                             for(j = 0; j < 5; j++) {
                                 rankcounts[sorthand_nranks[j]]++;
                                 rankcards[sorthand_nranks[j]] |= (1<<j);
                             }
                             for(j = 0; j < 13; j++) {
-                                if(rankcounts[2] == 2) {
+                                if(rankcounts[j] == 2) {
                                     scores->push_back(score_entry(rankcards[j],SCORE_PAIR));
                                 } else if(rankcounts[j] == 3) {
                                     scores->push_back(score_entry(rankcards[j],SCORE_PAIRROYAL));

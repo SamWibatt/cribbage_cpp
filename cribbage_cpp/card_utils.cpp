@@ -75,7 +75,7 @@ namespace cardutils {
     const std::string suitstr = "hdcs";      //lower case to stand out from values better
 
     //given a card, return the string e.g. 0 => Ah = ace of hearts
-    std::string CardUtils::cardstring(uint8_t card) {
+    std::string CardUtils::cardstring(card_t card) {
         if(card > 51) return std::string("ERROR");
         std::string s(2,rankstr[rank(card)]);       // length 2 string, both chars are rank (dumb, but allocates and takes care of 1st char)
         s[1] = suitstr[suit(card)];
@@ -83,12 +83,12 @@ namespace cardutils {
     }
 
     // given a 2-character string, return corresponding card (or error if it doesn't conform to rank/suit possibilities
-    uint8_t CardUtils::stringcard(std::string srcstr) {
-        uint8_t card = 0;
-        uint8_t i;
+    card_t CardUtils::stringcard(std::string srcstr) {
+        card_t card = 0;
+        index_t i;
         for(i = 0; i < rankstr.size(); i++) {
             if (srcstr[0] == rankstr[i]) {
-                card += i << 2;
+                card += card_t(i << 2);
                 break;
             }
         }
@@ -113,25 +113,25 @@ namespace cardutils {
     class CardOrder {
         public:
             uint32_t order;         // random number by which deck is sorted, see shuffle below
-            uint8_t card;           // card value 0..51
+            card_t card;           // card value 0..51
     };
 
     // shuffle turns the handed-in deck vector into a 52-card deck, randomized by means of constructing an array of CardOrder
     // objects s.t. their "order" member is random and the "card" member is consecutive, then sorting by "order." The resulting
     // deck is the card members copied onto the end of the deck.
     // deck is not assumed to have any particular capacity but for best results, reserve 52.
-    void CardUtils::shuffle(std::vector<uint8_t> &deck) {
+    void CardUtils::shuffle(std::vector<card_t> &deck) {
         std::array<CardOrder, 52> shufdeck;
         deck.clear();
-        uint8_t j = 0;
-        std::for_each(shufdeck.begin(), shufdeck.end(), [&j,this](CardOrder &c){ c.order = this->v_random(); c.card = j++; });
+        index_t j = 0;
+        std::for_each(shufdeck.begin(), shufdeck.end(), [&j,this](CardOrder &c){ c.order = this->v_random(); c.card = card_t(j++); });
         std::sort(shufdeck.begin(), shufdeck.end(), [](CardOrder &a, CardOrder &b) { return a.order < b.order; });
         std::for_each(shufdeck.begin(), shufdeck.end(), [&j,&deck](CardOrder &c) {deck.push_back(c.card);});
     }
 
 
     //deck is a vector, deal off the end of the array for fastness
-    uint8_t CardUtils::deal_card(std::vector<uint8_t> &deck) {
+    card_t CardUtils::deal_card(std::vector<card_t> &deck) {
         if (deck.empty() || deck.size() > 52) {
             return ERROR_CARD_VAL;
         }
@@ -141,10 +141,10 @@ namespace cardutils {
     }
 
     //this is a "global" to support the cut function
-    std::array<uint8_t,52> tempdeck;
+    std::array<card_t,52> tempdeck;
 
     // kind of weird bc I think of "index" as being from the "left" (beginning of array) and the deck deals from the "right" (end of array)
-    void CardUtils::cut(std::vector<uint8_t> &deck, uint8_t index) {
+    void CardUtils::cut(std::vector<card_t> &deck, card_t index) {
         if (deck.size() < 2 || index < 1 || index > deck.size()-1) {
             printf("Hey illegal deck or index\n");
             return;         //no effect if illegal index or degenerate deck
