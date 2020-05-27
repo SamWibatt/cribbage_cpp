@@ -143,9 +143,13 @@ namespace cribbage_cpp {
             // * values of the whole hand (for spotting fifteens)
             // * normalized i.e. subtract off lowest, ranks of the sorted whole hand (for spotting runs)
             // * suits of the unsorted whole hand (for spotting flushes)
+            // * mapping of sorted hand index to original hand index (if building score lists)
+            // * flag for whether scoring is building score lists
+            //sort_map is untouched if build_list is false
             void prep_score_hand(std::vector<card_t> &hand, card_t starter,
                 std::array<card_t,5> &whole_hand, std::array<card_t,5> &whole_vals,
-                std::array<card_t,5> &sorthand_nranks, std::array<card_t,5> &whole_suits, bool build_list );
+                std::array<card_t,5> &sorthand_nranks, std::array<card_t,5> &whole_suits,
+                std::array<index_t,5> &sort_map, bool build_list );
 
 
             // given a hand of cards, starter card, and a score entry vector,

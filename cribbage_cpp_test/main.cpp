@@ -134,7 +134,7 @@ namespace {
         std::vector<card_t> hand;
         card_t starter;
         std::vector<Cribbage::score_entry> scorelist;
-        bool build_scorelists = false;      //FOR SPEED TESTING WITH OR WITHOUT BUILDING SCORELISTS
+        bool build_scorelists = true;      //FOR SPEED TESTING WITH OR WITHOUT BUILDING SCORELISTS
 
         //special helper function to create a hand - give it string reps of 5 cards
         //and the first 4 become "hand" global and last becomes starter
@@ -562,6 +562,7 @@ int main(int argc, char *argv[]) {
     std::array<card_t,5> whole_vals;
     std::array<card_t,5> sorthand_nranks;
     std::array<card_t,5> whole_suits;
+    std::array<index_t,5> sort_map;
     Cribbage c;
     //try a bunch of reps to see how long it takes - v. roughly 3 sec for ten million iterations, not great
     //BUT in the context of a giant AI search or whatever, not terrible; minimax is unlikely to be doing that many
@@ -569,7 +570,7 @@ int main(int argc, char *argv[]) {
     //oh wait that was on debug, how about release? pretty much insty
     //printf("TEN MILLION!!!!\n");
     //for(auto j = 0; j < 10000000; j++)
-        c.prep_score_hand(hand, starter, whole_hand, whole_vals, sorthand_nranks, whole_suits, true );
+        c.prep_score_hand(hand, starter, whole_hand, whole_vals, sorthand_nranks, whole_suits, sort_map, true );
     printf("Whole Hand: ");
     std::for_each(whole_hand.begin(),whole_hand.end(),[](card_t c){printf("%d ",c);});
     printf("\nWhole Vals: ");
@@ -579,6 +580,8 @@ int main(int argc, char *argv[]) {
     printf("\nSortHand NormRanks: ");
     std::for_each(sorthand_nranks.begin(),sorthand_nranks.end(),[](card_t c){printf("%d ",c);});
     //HEY PRINT SORT MAPPING HERE IF WE DID IT
+    printf("\nSort Map: ");
+    std::for_each(sort_map.begin(),sort_map.end(),[](index_t c){printf("%d ",c);});
     printf("\n");
 
     //4-carders

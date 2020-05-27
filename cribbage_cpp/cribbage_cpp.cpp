@@ -19,9 +19,11 @@ namespace cribbage_cpp {
         //dtor stuff here
     }
 
+    //sort_map is untouched if build_list is false
     void Cribbage::prep_score_hand(std::vector<card_t> &hand, card_t starter,
         std::array<card_t,5> &whole_hand, std::array<card_t,5> &whole_vals,
-        std::array<card_t,5> &sorthand_nranks, std::array<card_t,5> &whole_suits, bool build_list ) {
+        std::array<card_t,5> &sorthand_nranks, std::array<card_t,5> &whole_suits,
+        std::array<index_t,5> &sort_map, bool build_list ) {
 
         // get the whole_hand array going - copy hand over, then drop starter at end
         std::copy_n(hand.begin(), 4, whole_hand.begin());
@@ -32,9 +34,25 @@ namespace cribbage_cpp {
             [this](card_t card) -> card_t { return this->cu.val(card); });
 
         // then construct the sorted hand in sorthand_nranks
-        // if we're building score lists, we need
-        std::copy(whole_hand.begin(),whole_hand.end(),sorthand_nranks.begin());
-        std::sort(sorthand_nranks.begin(),sorthand_nranks.end());
+        if (!build_list) {
+            std::copy(whole_hand.begin(),whole_hand.end(),sorthand_nranks.begin());
+            std::sort(sorthand_nranks.begin(),sorthand_nranks.end());
+        } else {
+            // if we're building score lists, we need to build a mapping from sorted back to original too
+            // THIS ASSUMES THAT THE VALUES STORED IN CARD_T AND INDEX_T CAN COEXIST IN 32-BIT CONTAINERS!
+            // which is true. cards are only ever 0..51 and, in this case, index is 0..4
+            // so: build an array of card << 16 | index - want card in the upper half bc that's what we sort by
+            std::array<uint32_t,5> mapsort_temp;
+            for(uint32_t j = 0; j < 5; j++) mapsort_temp[j] = uint32_t(whole_hand[j]) << 16 | j;
+            std::sort(mapsort_temp.begin(),mapsort_temp.end());
+            // copy cards over to sorthand_nranks
+            std::transform(mapsort_temp.begin(),mapsort_temp.end(),sorthand_nranks.begin(),
+                [](uint32_t x){ return card_t(x >> 16); });
+            // copy indices over to sort_map
+            std::transform(mapsort_temp.begin(),mapsort_temp.end(),sort_map.begin(),
+                [](uint32_t x){ return index_t(x & 0x0000FFFF); });
+
+        }
         //finally, boil sorted_ranks down to its ranks and subtract off first card's rank
         //for run spotting
         card_t first_rank = cu.rank(sorthand_nranks[0]);
@@ -113,7 +131,9 @@ namespace cribbage_cpp {
         std::array<card_t,5> whole_vals;
         std::array<card_t,5> sorthand_nranks;
         std::array<card_t,5> whole_suits;
-        prep_score_hand(hand, starter, whole_hand, whole_vals, sorthand_nranks, whole_suits, build_list );
+        std::array<index_t,5> sort_map;
+        prep_score_hand(hand, starter, whole_hand, whole_vals, sorthand_nranks, whole_suits,
+            sort_map, build_list );
 
         //figure out if we will be building a score list. build_list should only be true if scores is non-nullptr, but be sure
         bool make_list = (scores != nullptr && build_list == true) ? true : false;
