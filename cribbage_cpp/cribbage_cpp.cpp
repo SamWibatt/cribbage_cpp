@@ -185,7 +185,7 @@ namespace cribbage_cpp {
             if(sorthand_nranks == fivecard_patterns[j]) {
                 totscore += scorePoints[fivecard_score_indices[j]];
                 //participating cards all of them!
-                if(make_list) scores->push_back(score_entry(0x1F,fivecard_score_indices[j]));
+                if(make_list) scores->push_back(score_entry(index_t(0x1F),fivecard_score_indices[j]));
                 fivecard_found = true;
                 break;
             }
@@ -208,7 +208,11 @@ namespace cribbage_cpp {
                 if(first4 == fourcard_patterns[j]) {
                     totscore += scorePoints[fourcard_score_indices[j]];
                     //participating cards first 4 = 0x0f
-                    if(make_list) scores->push_back(score_entry(0x0F,fourcard_score_indices[j]));
+                    if(make_list) {
+                        index_t partcards = 0;
+                        for(i = 0; i < 4; i++) partcards |= (1 << sort_map[i]);
+                        scores->push_back(score_entry(partcards,fourcard_score_indices[j]));
+                    }
                     fourcard_found = true;
                     break;
                 }
@@ -223,7 +227,11 @@ namespace cribbage_cpp {
                     if(last4 == fourcard_patterns[j]) {
                         totscore += scorePoints[fourcard_score_indices[j]];
                         //participating cards last 4 = 0x1e!
-                        if(make_list) scores->push_back(score_entry(0x1E,fourcard_score_indices[j]));
+                        if(make_list) {
+                            index_t partcards = 0;
+                            for(i = 1; i < 5; i++) partcards |= (1 << sort_map[i]);
+                            scores->push_back(score_entry(partcards,fourcard_score_indices[j]));
+                        }
                         fourcard_found = true;
                         break;
                     }
@@ -259,8 +267,9 @@ namespace cribbage_cpp {
                         if((sorthand_nranks[j] == sorthand_nranks[j+1] -1) &&
                             (sorthand_nranks[j+1] == sorthand_nranks[j+2] -1)) {
                             totscore += scorePoints[SCORE_RUN3];
-                            //participating cards are j, j+1, j+2 = 7 << j, yes?
-                            if(make_list) scores->push_back(score_entry(7 << j,SCORE_RUN3));
+                            //participating cards are j, j+1, j+2 = 7 << j, yes? no. This is sorted hand
+                            if(make_list) scores->push_back(score_entry((1 << sort_map[j]) | (1 << sort_map[j+1]) | (1 << sort_map[j+2]),
+                                SCORE_RUN3));
                             break;
                         }
                     }
@@ -294,9 +303,12 @@ namespace cribbage_cpp {
                             index_t rankcards[13] = {0,0,0,0,0,0,0,0,0,0,0,0,0};
                             for(j = 0; j < 5; j++) {
                                 rankcounts[sorthand_nranks[j]]++;
-                                rankcards[sorthand_nranks[j]] |= (1<<j);
+                                // bits 0..5 store which cards 0..5 represent that rank.
+                                // need to map back to original hand order
+                                rankcards[sorthand_nranks[j]] |= (1<<sort_map[j]);
                             }
                             for(j = 0; j < 13; j++) {
+                                //have to remap from sorted order to original hand order
                                 if(rankcounts[j] == 2) {
                                     scores->push_back(score_entry(rankcards[j],SCORE_PAIR));
                                 } else if(rankcounts[j] == 3) {

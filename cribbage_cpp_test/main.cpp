@@ -156,6 +156,9 @@ namespace {
         void render_scorelist() {
             index_t mask;
             printf("score list: -----------------\n");
+            for(auto j = 0; j < 4; j++) printf("%s ",cr.getCardUtils().cardstring(hand[j]).c_str());
+            printf("%s ",cr.getCardUtils().cardstring(starter).c_str());
+            printf("= hand\n");
             for (Cribbage::score_entry se : scorelist) {
                 for(auto j = 0,mask = 0x01; j < 5; j++, mask <<= 1)
                     if(se.part_cards & mask)
