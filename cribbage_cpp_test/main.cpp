@@ -158,7 +158,8 @@ namespace {
             printf("score list: -----------------\n");
             for(auto j = 0; j < 4; j++) printf("%s ",cr.getCardUtils().cardstring(hand[j]).c_str());
             printf("%s ",cr.getCardUtils().cardstring(starter).c_str());
-            printf("= hand\n");
+            printf(" hand\n");
+            index_t totscore = 0;
             for (Cribbage::score_entry se : scorelist) {
                 for(auto j = 0,mask = 0x01; j < 5; j++, mask <<= 1)
                     if(se.part_cards & mask)
@@ -167,8 +168,8 @@ namespace {
                         else
                             printf("%s ",cr.getCardUtils().cardstring(starter).c_str());
                     else printf("-- ");
-
-                printf(" %s\n",cr.scoreStrings[se.score_index].c_str());
+                totscore += cr.scorePoints[se.score_index];
+                printf(" %s %d (%d)\n",cr.scoreStrings[se.score_index].c_str(),cr.scorePoints[se.score_index],totscore);
             }
         }
 

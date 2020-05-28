@@ -159,6 +159,13 @@ namespace cribbage_cpp {
             index_t score_shew(std::vector<card_t> hand, card_t starter,
                 std::vector<score_entry> *scores, bool build_list);
 
+            // given a stack of cards in progress and a card to add to it,
+            // returns the incremental score for playing that card
+            // and modifies the stack of cards to include the new one (if it is a legal play).
+            // if build_list is true and scores is not nullptr, scores will contain score_entrys
+            // for any scoring combinations made by the play.
+            index_t play_card(std::vector<card_t> &stack, card_t card, std::vector<score_entry> *scores, bool build_list);
+
     };
 
 }
