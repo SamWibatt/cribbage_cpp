@@ -560,7 +560,7 @@ int main(int argc, char *argv[]) {
     stacky.push_back(c.getCardUtils().stringcard("2h"));
     stacky.push_back(c.getCardUtils().stringcard("7d"));
     stacky.push_back(c.getCardUtils().stringcard("4c"));
-    c.play_card(stacky, c.getCardUtils().stringcard("Kc"), nullptr, false);
+    c.play_card(stacky, c.getCardUtils().stringcard("6c"), nullptr, false);
 
     /*
     std::vector<card_t> hand;
