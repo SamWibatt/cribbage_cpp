@@ -368,10 +368,82 @@ namespace cribbage_cpp {
     // and modifies the stack of cards to include the new one (if it is a legal play).
     // if build_list is true and scores is not nullptr, scores will contain score_entrys
     // for any scoring combinations made by the play.
+    // Score_entry is such that lowest bit is... the leftmost?
+    // rightmost makes more sense, if the stack grows to the right, which I believe it will.
+    // just need a different render algorithm, which the graphic game will have anyway. QED.
     index_t Cribbage::
     play_card(std::vector<card_t> &stack, card_t card, std::vector<score_entry> *scores, bool build_list) {
-        return 0;       //TEMP
+
+        //zeroth: clear scores, if we're doing scores, which we are if build_list
+        //is true and scores isn't nullptr.
+        bool make_list = (build_list) ? scores != nullptr : false;
+
+        if(make_list) scores->clear();
+
+        //first: see if it is legal to play this card.
+        //so initial value is val of card, add on vals of stack, see if it's <= 31. If so, legal!
+        // so first find the total of stack
+        // tip: "a" in the lambda here is the running total
+        index_t curtotal = std::accumulate(stack.begin(), stack.end(), 0,
+            [this](index_t a, card_t b){return a + index_t(this->cu.val(b));});
+
+        //debug
+        /*
+        for(auto j = 0; j < stack.size(); j++) printf("%s ",getCardUtils().cardstring(stack[j]).c_str());
+        printf("playing %s ",getCardUtils().cardstring(card).c_str());
+        printf("total value = %d\n", curtotal + index_t(cu.val(card)));
+        */
+
+        if(curtotal + index_t(cu.val(card)) > 31) {
+            //too big! no change to stack, scores nothing
+            return 0;
+        }
+
+        index_t total_score = 0;
+        index_t partcards;
+
+        //ok, so it's a legal play. put our card on the stack!
+        stack.push_back(card);
+        curtotal += index_t(cu.val(card));
+
+        //look for fifteen or thirty-one!!
+        if(curtotal == 15) {
+            total_score += scorePoints[SCORE_FIFTEEN];
+            if(make_list) {
+                partcards = (1 << (stack.size()+1))-1;     //e.g. if stack has 3 cards, (1<<3)-1 = binary 111
+                scores->push_back(score_entry(partcards,SCORE_FIFTEEN));
+            }
+        } else if(curtotal == 31) {
+            total_score += scorePoints[SCORE_THIRTYONE];
+            if(make_list) {
+                partcards = (1 << (stack.size()+1))-1;     //e.g. if stack has 3 cards, (1<<3)-1 = binary 111
+                scores->push_back(score_entry(partcards,SCORE_THIRTYONE));
+            }
+        }
+
+        //THEN pair/3/4 of a kind
+        // get rank of newly played card, which is also stack[stack.size()-1]
+        // count number of cards of that rank - count 1 for the newly played card
+        // so, the second card is stack[(stack.size()-1)-1], third stack[(stack.size()-1)-2], fourth stack[(stack.size()-1)-3]
+        // as long as those have the same rank as the new card, add 1 to # rank matches. If one mismatches, stop
+        card_t currank = cu.rank(card);
+        index_t numrankmatch = 1;
+        for(auto j = 1; j < 4 && j < stack.size()-1; j--) if(cu.rank(stack[(stack.size()-1)-j]) == currank) numrankmatch++; else break;
+        partcards = (1<<numrankmatch) - 1;
+        switch(numrankmatch) {
+            //1-4 should be the only possibilities
+            case 1: break;
+            case 2: if(make_list) scores->push_back(score_entry(partcards,SCORE_PAIR)); break;
+            case 3: if(make_list) scores->push_back(score_entry(partcards,SCORE_PAIRROYAL)); break;
+            case 4: if(make_list) scores->push_back(score_entry(partcards,SCORE_4KIND)); break;
+        }
+
+        //THEN DO RUNS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        //THEN DO RUNS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        //THEN DO RUNS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        //THEN DO RUNS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+
+        return total_score;
     }
-
-
 }

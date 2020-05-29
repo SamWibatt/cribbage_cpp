@@ -553,6 +553,16 @@ namespace {
 
 int main(int argc, char *argv[]) {
     //silly noodles
+    Cribbage c;
+
+    std::vector <card_t> stacky;
+    stacky.push_back(c.getCardUtils().stringcard("9c"));
+    stacky.push_back(c.getCardUtils().stringcard("2h"));
+    stacky.push_back(c.getCardUtils().stringcard("7d"));
+    stacky.push_back(c.getCardUtils().stringcard("4c"));
+    c.play_card(stacky, c.getCardUtils().stringcard("Kc"), nullptr, false);
+
+    /*
     std::vector<card_t> hand;
     hand.push_back(31);
     hand.push_back(17);
@@ -567,7 +577,6 @@ int main(int argc, char *argv[]) {
     std::array<card_t,5> sorthand_nranks;
     std::array<card_t,5> whole_suits;
     std::array<index_t,5> sort_map;
-    Cribbage c;
     //try a bunch of reps to see how long it takes - v. roughly 3 sec for ten million iterations, not great
     //BUT in the context of a giant AI search or whatever, not terrible; minimax is unlikely to be doing that many
     //at least if I limit the deepening
@@ -600,6 +609,7 @@ int main(int argc, char *argv[]) {
     printf("\nLast 4 nranks, firstlastrank %d: ",firstlastrank);
     std::for_each(last4.begin(),last4.end(),[](card_t c){printf("%d ",c);});
     printf("\n");
+    */
 
     // real testing main starts here
     ::testing::InitGoogleTest();
