@@ -431,11 +431,17 @@ namespace cribbage_cpp {
         for(auto j = 1; j < 4 && j < stack.size()-1; j--) if(cu.rank(stack[(stack.size()-1)-j]) == currank) numrankmatch++; else break;
         partcards = (1<<numrankmatch) - 1;
         switch(numrankmatch) {
-            //1-4 should be the only possibilities
-            case 1: break;
-            case 2: if(make_list) scores->push_back(score_entry(partcards,SCORE_PAIR)); break;
-            case 3: if(make_list) scores->push_back(score_entry(partcards,SCORE_PAIRROYAL)); break;
-            case 4: if(make_list) scores->push_back(score_entry(partcards,SCORE_4KIND)); break;
+            //1-4 should be the only possibilities, but still.
+            case 2: total_score += scorePoints[SCORE_PAIR];
+                if(make_list) scores->push_back(score_entry(partcards,SCORE_PAIR));
+                break;
+            case 3: total_score += scorePoints[SCORE_PAIRROYAL];
+                if(make_list) scores->push_back(score_entry(partcards,SCORE_PAIRROYAL));
+                break;
+            case 4: total_score += scorePoints[SCORE_4KIND];
+                if(make_list) scores->push_back(score_entry(partcards,SCORE_4KIND));
+                break;
+            default: break;
         }
 
         //THEN DO RUNS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
