@@ -1,14 +1,1 @@
 # depslib dependency file v1.0
-1590505389 source:/home/sean/dev/cpp/cribbage_cpp/cribbage_cpp/card_utils.cpp
-	"card_utils.h"
-	<array>
-	<vector>
-	<algorithm>
-	<cstring>
-	<string>
-	<stdio.h>
-
-1590506735 /home/sean/dev/cpp/cribbage_cpp/cribbage_cpp/card_utils.h
-	<string>
-	<vector>
-

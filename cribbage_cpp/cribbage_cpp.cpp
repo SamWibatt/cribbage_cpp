@@ -441,7 +441,7 @@ namespace cribbage_cpp {
         card_t currank = cu.rank(card);
         index_t numrankmatch = 1;
         for(auto j = 1; j < 4 && j < rankstack.size()-1; j--)
-            if(rankstack[(rankstack.size()-1)-j]) == currank) numrankmatch++; else break;
+            if(rankstack[(rankstack.size()-1)-j] == currank) numrankmatch++; else break;
         partcards = (1<<numrankmatch) - 1;
         switch(numrankmatch) {
             //1-4 should be the only possibilities, but still.
@@ -457,50 +457,8 @@ namespace cribbage_cpp {
             default: break;
         }
 
-        //THEN DO RUNS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        //THEN DO RUNS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        //THEN DO RUNS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        //THEN DO RUNS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        // python
-        //    # FIGURE OUT RUNS
-        //    # this works:
-        //    # >>> h = [5, 3, 7, 4, 6]
-        //    # >>> for i in range(-1, -(len(h)+1), -1):
-        //    # ...     print([x-min(h[i:]) for x in sorted(h[i:])])
-        //    # ...
-        //    # [0]
-        //    # [0, 2]
-        //    # [0, 2, 3]
-        //    # [0, 1, 3, 4]
-        //    # [0, 1, 2, 3, 4]
-        //    # that looks like a way to spot runs
-        //    # like pairs, go until you find a run...? an intervening non-run does not disqualify.
-        //    # what is the longest possible? The whole length of newcards, I suppose.
-        //    # look at them all, and pick the highest run, if any.
-        //    # >>> for i in range(-1, -(len(h)+1), -1):
-        //    # ...     ns = [x-min(h[i:]) for x in sorted(h[i:])]
-        //    # ...     if ns == list(range(0,-i)):
-        //    # ...         print(ns," = RUN!!!!!!!!! of",-i)
-        //    # ...     else:
-        //    # ...         print(ns," = not run :(")
-        //    # ...
-        //    # [0]  = RUN!!!!!!!!! of 1
-        //    # [0, 2]  = not run :(
-        //    # [0, 2, 3]  = not run :(
-        //    # [0, 1, 3, 4]  = not run :(
-        //    # [0, 1, 2, 3, 4]  = RUN!!!!!!!!! of 5
-        //    # so there you have it. just start at -3 bc no shorter run matters
-        //    # ALSO: need to get rank of card, not just card
-        //    longestrun = 0
-        //    for i in range(-3, -(len(newcards)+1), -1):
-        //        sorty = [self.rank(x) for x in sorted(newcards[i:])]
-        //        ns = [x-min(sorty) for x in sorty]
-        //        if ns == list(range(0,-i)):
-        //            longestrun = -i
-
-        // so for C++, see if we can avoid sorting every step of the way. first, short-circuit if there are fewer than 3 cards.
-        // noodle: sorting is an easy way to compare against a pattern.
-        // could do just a cascading if? not really, doesn't work easily with ordering. How did I do it in vpok?
+        // finally spot runs!
+        // How did I do straights in vpok?
         // I think it was take max and min, and the diffie between them was #cards -1, it's a straight, as long as there are no pairs.
         // ... that is what vpok did, but the writuep doesn't mention there not being pairs!
         // but the code does:
@@ -518,30 +476,31 @@ namespace cribbage_cpp {
 
             //we want to test up to stack.size() cards, so do inclusive end condition
             for(index_t j=3;j<=stack.size();j++) {
-                //std::max_element and std::min_element look promising
-                //how to iterate over the last n? let's do a test up above
-                //printf("last 3 cards in stack\n");
-                //std::for_each(stack.end()-3, stack.end(), [this](card_t c){printf("%s ",this->cu.cardstring(c).c_str());});
-                //printf("\n");
-                //other trick is that we are looking at RANKS, not cards so use rankstack
-                index_t rankmax = std::max_element(rankstack.end()-j),rankstack.end());
-                index_t rankmin = std::min_element(rankstack.end()-j),rankstack.end());
-                if((rankmax-rankmin) == j-1) longestrun = j;
+                const auto [rankmin, rankmax] = std::minmax_element(rankstack.end()-j,rankstack.end());
+                if((*rankmax-*rankmin) == j-1) longestrun = j;
             }
 
-            //    # ew, this is gross
-            //    if longestrun == 3:
-            //        scorelist.append((self.SCORE_RUN3,3))
-            //    elif longestrun == 4:
-            //        scorelist.append((self.SCORE_RUN4,4))
-            //    if longestrun == 5:
-            //        scorelist.append((self.SCORE_RUN5,5))
-            //    elif longestrun == 6:
-            //        scorelist.append((self.SCORE_RUN6,6))
-            //    elif longestrun == 7:
-            //        scorelist.append((self.SCORE_RUN7,7))
-            //
-            //    return(newcards,curtotal,scorelist)
+            //again, participating cards are contiguous at the low end, e.g. if five of them,
+            //(1<<5) - 1 = 31 = 00011111
+            partcards = (1<<longestrun) - 1;
+            switch(longestrun) {
+                case 3: total_score += scorePoints[SCORE_RUN3];
+                    if(make_list) scores->push_back(score_entry(partcards,SCORE_RUN3));
+                    break;
+                case 4: total_score += scorePoints[SCORE_RUN4];
+                    if(make_list) scores->push_back(score_entry(partcards,SCORE_RUN4));
+                    break;
+                case 5: total_score += scorePoints[SCORE_RUN5];
+                    if(make_list) scores->push_back(score_entry(partcards,SCORE_RUN5));
+                    break;
+                case 6: total_score += scorePoints[SCORE_RUN6];
+                    if(make_list) scores->push_back(score_entry(partcards,SCORE_RUN6));
+                    break;
+                case 7: total_score += scorePoints[SCORE_RUN7];
+                    if(make_list) scores->push_back(score_entry(partcards,SCORE_RUN7));
+                    break;
+                default: break;
+            }
         }
 
         return total_score;
