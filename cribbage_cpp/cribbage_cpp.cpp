@@ -412,8 +412,8 @@ namespace cribbage_cpp {
         //printf("\n");
 
         //everything after this cares about ranks, so let's precompute them
-        std::vector<card_t> rankstack;
-        rankstack.reserve(stack.size());
+        std::vector<card_t> rankstack(stack.size());
+        //rankstack.reserve(stack.size());
         std::transform(stack.begin(),stack.end(),rankstack.begin(),
             [this](card_t c){ return this->cu.rank(c); });
 
@@ -440,9 +440,9 @@ namespace cribbage_cpp {
         // as long as those have the same rank as the new card, add 1 to # rank matches. If one mismatches, stop
         card_t currank = cu.rank(card);
         index_t numrankmatch = 1;
-        for(auto j = 1; j < 4 && j < rankstack.size()-1; j--)
+        for(auto j = 1; j < 4 && j < rankstack.size(); j++)
             if(rankstack[(rankstack.size()-1)-j] == currank) numrankmatch++; else break;
-        partcards = (1<<numrankmatch) - 1;
+        partcards = (1<<(numrankmatch+1)) - 1;
         switch(numrankmatch) {
             //1-4 should be the only possibilities, but still.
             case 2: total_score += scorePoints[SCORE_PAIR];
@@ -481,8 +481,8 @@ namespace cribbage_cpp {
             }
 
             //again, participating cards are contiguous at the low end, e.g. if five of them,
-            //(1<<5) - 1 = 31 = 00011111
-            partcards = (1<<longestrun) - 1;
+            //(1<<5+1) - 1 = 31 = 00011111
+            partcards = (1<<(longestrun+1)) - 1;
             switch(longestrun) {
                 case 3: total_score += scorePoints[SCORE_RUN3];
                     if(make_list) scores->push_back(score_entry(partcards,SCORE_RUN3));

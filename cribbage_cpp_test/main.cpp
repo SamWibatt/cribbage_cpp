@@ -122,10 +122,9 @@ namespace {
 
 
 
-   // now for actual cribbage tests!
+   // now for actual cribbage tests! Here, scoring shew.
    // let's make a fixture, bc we will want a Cribbage for each as well as a hand and a starter and a score list
-
-    class CribbageTest : public ::testing::Test {
+    class ScoreShowTest : public ::testing::Test {
         protected:
 
         // data members
@@ -153,7 +152,7 @@ namespace {
             if(starter == cr.getCardUtils().ERROR_CARD_VAL) printf("WARNING: starter is illegal string '%s'\n",st.c_str());
         }
 
-        void render_scorelist() {
+        void render_shew_scorelist() {
             index_t mask;
             printf("score list: -----------------\n");
             for(auto j = 0; j < 4; j++) printf("%s ",cr.getCardUtils().cardstring(hand[j]).c_str());
@@ -190,7 +189,7 @@ namespace {
 
 
     //all right! set up a hand that should have no scoring combinations in it and score it! Expect a score of 0
-    TEST_F(CribbageTest,T000_Nothing) {
+    TEST_F(ScoreShowTest,T000_Nothing) {
         build_hand("Qh", "0c", "9s", "3d","4d");
         //this should be the longest-running scoring case - let's try 10 million of them
         //20963 ms debug, 1115 ms release - not bad!
@@ -198,61 +197,61 @@ namespace {
         //for(auto j=0;j<10000000;j++)
             handscore = cr.score_shew(hand,starter,&scorelist,build_scorelists);
         EXPECT_EQ(handscore,0);
-        if(build_scorelists) render_scorelist();
+        if(build_scorelists) render_shew_scorelist();
     }
 
     //all right! set up a hand that should have two two-card fifteens in it and score it! Expect a score of 4
     //LATER will check for detailed results
-    TEST_F(CribbageTest,T010_TwoCardFifteen) {
+    TEST_F(ScoreShowTest,T010_TwoCardFifteen) {
         build_hand("Qh", "0c", "9s", "3d","5d");
         index_t handscore = cr.score_shew(hand,starter,&scorelist,build_scorelists);
         EXPECT_EQ(handscore,cr.scorePoints[Cribbage::SCORE_FIFTEEN]*2);
-        if(build_scorelists) render_scorelist();
+        if(build_scorelists) render_shew_scorelist();
     }
 
     //should have two 3-card fifteens! Expect a score of 4
     //LATER will check for detailed results
-    TEST_F(CribbageTest,T020_ThreeCardFifteen) {
+    TEST_F(ScoreShowTest,T020_ThreeCardFifteen) {
         build_hand("6h", "3c", "7s", "0d","2d");
         index_t handscore = cr.score_shew(hand,starter,&scorelist,build_scorelists);
         EXPECT_EQ(handscore,cr.scorePoints[Cribbage::SCORE_FIFTEEN]*2);
-        if(build_scorelists) render_scorelist();
+        if(build_scorelists) render_shew_scorelist();
     }
 
     //should have one 4-card fifteen in it! Expect a score of 2
     //LATER will check for detailed results
-    TEST_F(CribbageTest,T030_FourCardFifteen) {
+    TEST_F(ScoreShowTest,T030_FourCardFifteen) {
         build_hand("Ah", "4c", "3s", "7d","6d");
         index_t handscore = cr.score_shew(hand,starter,&scorelist,build_scorelists);
         EXPECT_EQ(handscore,cr.scorePoints[Cribbage::SCORE_FIFTEEN]);
-        if(build_scorelists) render_scorelist();
+        if(build_scorelists) render_shew_scorelist();
     }
 
     //should have one 5-card fifteen and a run of 5 in it! Expect a score of 7
     //LATER will check for detailed results
-    TEST_F(CribbageTest,T040_FiveCardFifteen) {
+    TEST_F(ScoreShowTest,T040_FiveCardFifteen) {
         build_hand("Ah", "4c", "3s", "5d","2d");
         index_t handscore = cr.score_shew(hand,starter,&scorelist,build_scorelists);
         EXPECT_EQ(handscore,cr.scorePoints[Cribbage::SCORE_FIFTEEN] + cr.scorePoints[Cribbage::SCORE_RUN5]);
-        if(build_scorelists) render_scorelist();
+        if(build_scorelists) render_shew_scorelist();
     }
 
     //should have one pair in it! Expect a score of 2
     //LATER will check for detailed results
-    TEST_F(CribbageTest,T050_OnePair) {
+    TEST_F(ScoreShowTest,T050_OnePair) {
         build_hand("Ah", "2c", "6s", "0d","Ad");
         index_t handscore = cr.score_shew(hand,starter,&scorelist,build_scorelists);
         EXPECT_EQ(handscore,cr.scorePoints[Cribbage::SCORE_PAIR]);
-        if(build_scorelists) render_scorelist();
+        if(build_scorelists) render_shew_scorelist();
     }
 
     //should have two pairs in it! Expect a score of 4
     //LATER will check for detailed results
-    TEST_F(CribbageTest,T060_TwoPair) {
+    TEST_F(ScoreShowTest,T060_TwoPair) {
         build_hand("Ah", "0c", "6s", "0d","Ad");
         index_t handscore = cr.score_shew(hand,starter,&scorelist,build_scorelists);
         EXPECT_EQ(handscore,cr.scorePoints[Cribbage::SCORE_TWOPAIR]);
-        if(build_scorelists) render_scorelist();
+        if(build_scorelists) render_shew_scorelist();
     }
 
     //should have a 3 of a kind in it! Expect a score of 6
@@ -260,44 +259,44 @@ namespace {
     // ... for how these are spotted, rank shouldn't matter, but still
     //3 of a kind is the lowest rank
     //Instead do tests re: where they are in the hand
-    TEST_F(CribbageTest,T070_ThreeOfAKindLow) {
+    TEST_F(ScoreShowTest,T070_ThreeOfAKindLow) {
         build_hand("Ah", "Ac", "6s", "0d","Ad");
         index_t handscore = cr.score_shew(hand,starter,&scorelist,build_scorelists);
         EXPECT_EQ(handscore,cr.scorePoints[Cribbage::SCORE_PAIRROYAL]);
-        if(build_scorelists) render_scorelist();
+        if(build_scorelists) render_shew_scorelist();
     }
 
     //3 of a kind is the middle rank
-    TEST_F(CribbageTest,T073_ThreeOfAKindMid) {
+    TEST_F(ScoreShowTest,T073_ThreeOfAKindMid) {
         build_hand("6s", "7c", "0h", "7h","7d");
         index_t handscore = cr.score_shew(hand,starter,&scorelist,build_scorelists);
         EXPECT_EQ(handscore,cr.scorePoints[Cribbage::SCORE_PAIRROYAL]);
-        if(build_scorelists) render_scorelist();
+        if(build_scorelists) render_shew_scorelist();
     }
 
     //3 of a kind is the highest rank
-    TEST_F(CribbageTest,T077_ThreeOfAKindHigh) {
+    TEST_F(ScoreShowTest,T077_ThreeOfAKindHigh) {
         build_hand("0d", "6s", "Kc", "Kh","Kd");
         index_t handscore = cr.score_shew(hand,starter,&scorelist,build_scorelists);
         EXPECT_EQ(handscore,cr.scorePoints[Cribbage::SCORE_PAIRROYAL]);
-        if(build_scorelists) render_scorelist();
+        if(build_scorelists) render_shew_scorelist();
     }
 
 
     //should have a 3 of a kind in it plus another pair! Expect a score of 8
     //LATER will check for detailed results
-    TEST_F(CribbageTest,T080_ThreeOfAKindAndPairLow) {
+    TEST_F(ScoreShowTest,T080_ThreeOfAKindAndPairLow) {
         build_hand("Ah", "Ac", "4s", "4d","Ad");
         index_t handscore = cr.score_shew(hand,starter,&scorelist,build_scorelists);
         EXPECT_EQ(handscore,cr.scorePoints[Cribbage::SCORE_PAIRROYAL]+cr.scorePoints[Cribbage::SCORE_PAIR]);
-        if(build_scorelists) render_scorelist();
+        if(build_scorelists) render_shew_scorelist();
     }
 
-    TEST_F(CribbageTest,T085_ThreeOfAKindAndPairHigh) {
+    TEST_F(ScoreShowTest,T085_ThreeOfAKindAndPairHigh) {
         build_hand("Kh", "Kc", "4s", "4d","Kd");
         index_t handscore = cr.score_shew(hand,starter,&scorelist,build_scorelists);
         EXPECT_EQ(handscore,cr.scorePoints[Cribbage::SCORE_PAIRROYAL]+cr.scorePoints[Cribbage::SCORE_PAIR]);
-        if(build_scorelists) render_scorelist();
+        if(build_scorelists) render_shew_scorelist();
     }
 
     //should have a 4 of a kind in it! Expect a score of 12
@@ -305,19 +304,19 @@ namespace {
     //this one tests if the 4 of a kind is the higher rank compared to the odd card out
     //because of how the 4s of a kind are spotted, with patterns, this needs to be tested as well as if
     //the 4 of a kind is the lower rank (see next test.)
-    TEST_F(CribbageTest,T090_FourOfAKindHigh) {
+    TEST_F(ScoreShowTest,T090_FourOfAKindHigh) {
         build_hand("4c", "Ac", "4s", "4h","4d");
         index_t handscore = cr.score_shew(hand,starter,&scorelist,build_scorelists);
         EXPECT_EQ(handscore,cr.scorePoints[Cribbage::SCORE_4KIND]);
-        if(build_scorelists) render_scorelist();
+        if(build_scorelists) render_shew_scorelist();
     }
 
     //lower rank compared to the odd card out
-    TEST_F(CribbageTest,T095_FourOfAKindLow) {
+    TEST_F(ScoreShowTest,T095_FourOfAKindLow) {
         build_hand("4c", "Jc", "4s", "4h","4d");
         index_t handscore = cr.score_shew(hand,starter,&scorelist,build_scorelists);
         EXPECT_EQ(handscore,cr.scorePoints[Cribbage::SCORE_4KIND]);
-        if(build_scorelists) render_scorelist();
+        if(build_scorelists) render_shew_scorelist();
     }
 
     //should have a run of 3 in it! Expect a score of 3
@@ -325,25 +324,25 @@ namespace {
     //this one tests if the run of 3 is the first 3 cards
     //because of how the runs are spotted, with patterns, this needs to be tested as well as if
     //the run of 3 is the second or third triplet
-    TEST_F(CribbageTest,T100_RunOfThreeLow) {
+    TEST_F(ScoreShowTest,T100_RunOfThreeLow) {
         build_hand("8c", "9c", "0s", "Qh","Kd");
         index_t handscore = cr.score_shew(hand,starter,&scorelist,build_scorelists);
         EXPECT_EQ(handscore,cr.scorePoints[Cribbage::SCORE_RUN3]);
-        if(build_scorelists) render_scorelist();
+        if(build_scorelists) render_shew_scorelist();
     }
 
-    TEST_F(CribbageTest,T103_RunOfThreeMid) {
+    TEST_F(ScoreShowTest,T103_RunOfThreeMid) {
         build_hand("Ac", "9c", "0s", "Jh","Kd");
         index_t handscore = cr.score_shew(hand,starter,&scorelist,build_scorelists);
         EXPECT_EQ(handscore,cr.scorePoints[Cribbage::SCORE_RUN3]);
-        if(build_scorelists) render_scorelist();
+        if(build_scorelists) render_shew_scorelist();
     }
 
-    TEST_F(CribbageTest,T107_RunOfThreeHigh) {
+    TEST_F(ScoreShowTest,T107_RunOfThreeHigh) {
         build_hand("2c", "4c", "Js", "Qh","Kd");
         index_t handscore = cr.score_shew(hand,starter,&scorelist,build_scorelists);
         EXPECT_EQ(handscore,cr.scorePoints[Cribbage::SCORE_RUN3]);
-        if(build_scorelists) render_scorelist();
+        if(build_scorelists) render_shew_scorelist();
     }
 
     //should have a run of 4 in it! Expect a score of 8 bc there are a couple of 15s in there too
@@ -351,173 +350,173 @@ namespace {
     //this one tests if the run of 4 is the first 4 cards
     //because of how the runs are spotted, with patterns, this needs to be tested as well as if
     //the run of 4 is the second set of 4
-    TEST_F(CribbageTest,T110_RunOfFourLow) {
+    TEST_F(ScoreShowTest,T110_RunOfFourLow) {
         build_hand("Ac", "3c", "4s", "Qh","2d");
         index_t handscore = cr.score_shew(hand,starter,&scorelist,build_scorelists);
         EXPECT_EQ(handscore,cr.scorePoints[Cribbage::SCORE_RUN4] + (2* cr.scorePoints[Cribbage::SCORE_FIFTEEN]));
-        if(build_scorelists) render_scorelist();
+        if(build_scorelists) render_shew_scorelist();
     }
 
-    TEST_F(CribbageTest,T120_RunOfFourHigh) {
+    TEST_F(ScoreShowTest,T120_RunOfFourHigh) {
         build_hand("0c", "Jc", "Ks", "Qh","2d");
         index_t handscore = cr.score_shew(hand,starter,&scorelist,build_scorelists);
         EXPECT_EQ(handscore,cr.scorePoints[Cribbage::SCORE_RUN4]);
-        if(build_scorelists) render_scorelist();
+        if(build_scorelists) render_shew_scorelist();
     }
 
     //should have a run of 5 in it! Expect a score of 5
     //LATER will check for detailed results
-    TEST_F(CribbageTest,T130_RunOfFive) {
+    TEST_F(ScoreShowTest,T130_RunOfFive) {
         build_hand("9c", "Kc", "Js", "Qh","0d");
         index_t handscore = cr.score_shew(hand,starter,&scorelist,build_scorelists);
         EXPECT_EQ(handscore,cr.scorePoints[Cribbage::SCORE_RUN5]);
-        if(build_scorelists) render_scorelist();
+        if(build_scorelists) render_shew_scorelist();
     }
 
     //should have a double run of 3 in it! Expect a score of 8
     //this one checks for double run of 3 where the pair is the lowest rank
     //LATER will check for detailed results
-    TEST_F(CribbageTest,T140_DblRunThreeLow) {
+    TEST_F(ScoreShowTest,T140_DblRunThreeLow) {
         build_hand("8c", "8c", "9s", "Qh","0d");
         index_t handscore = cr.score_shew(hand,starter,&scorelist,build_scorelists);
         EXPECT_EQ(handscore,cr.scorePoints[Cribbage::SCORE_DBLRUN3]);
-        if(build_scorelists) render_scorelist();
+        if(build_scorelists) render_shew_scorelist();
     }
 
-    TEST_F(CribbageTest,T143_DblRunThreeMid) {
+    TEST_F(ScoreShowTest,T143_DblRunThreeMid) {
         build_hand("8c", "9c", "9s", "Qh","0d");
         index_t handscore = cr.score_shew(hand,starter,&scorelist,build_scorelists);
         EXPECT_EQ(handscore,cr.scorePoints[Cribbage::SCORE_DBLRUN3]);
-        if(build_scorelists) render_scorelist();
+        if(build_scorelists) render_shew_scorelist();
     }
 
-    TEST_F(CribbageTest,T147_DblRunThreeHigh) {
+    TEST_F(ScoreShowTest,T147_DblRunThreeHigh) {
         build_hand("8c", "0c", "9s", "Qh","0d");
         index_t handscore = cr.score_shew(hand,starter,&scorelist,build_scorelists);
         EXPECT_EQ(handscore,cr.scorePoints[Cribbage::SCORE_DBLRUN3]);
-        if(build_scorelists) render_scorelist();
+        if(build_scorelists) render_shew_scorelist();
     }
 
     //should have a double run of 3 in it! Expect a score of 10
     //this one checks for double run of 4 where the pair is the lowest rank
     //LATER will check for detailed results
-    TEST_F(CribbageTest,T150_DblRunFourLowest) {
+    TEST_F(ScoreShowTest,T150_DblRunFourLowest) {
         build_hand("8c", "8s", "9s", "Jh","0d");
         index_t handscore = cr.score_shew(hand,starter,&scorelist,build_scorelists);
         EXPECT_EQ(handscore,cr.scorePoints[Cribbage::SCORE_DBLRUN4]);
-        if(build_scorelists) render_scorelist();
+        if(build_scorelists) render_shew_scorelist();
     }
 
-    TEST_F(CribbageTest,T153_DblRunFourLowmid) {
+    TEST_F(ScoreShowTest,T153_DblRunFourLowmid) {
         build_hand("8c", "9c", "9s", "Jh","0d");
         index_t handscore = cr.score_shew(hand,starter,&scorelist,build_scorelists);
         EXPECT_EQ(handscore,cr.scorePoints[Cribbage::SCORE_DBLRUN4]);
-        if(build_scorelists) render_scorelist();
+        if(build_scorelists) render_shew_scorelist();
     }
 
-    TEST_F(CribbageTest,T155_DblRunFourHighmid) {
+    TEST_F(ScoreShowTest,T155_DblRunFourHighmid) {
         build_hand("8c", "0c", "9s", "Jh","0d");
         index_t handscore = cr.score_shew(hand,starter,&scorelist,build_scorelists);
         EXPECT_EQ(handscore,cr.scorePoints[Cribbage::SCORE_DBLRUN4]);
-        if(build_scorelists) render_scorelist();
+        if(build_scorelists) render_shew_scorelist();
     }
 
-    TEST_F(CribbageTest,T157_DblRunFourHigh) {
+    TEST_F(ScoreShowTest,T157_DblRunFourHigh) {
         build_hand("8c", "Jc", "9s", "Jh","0d");
         index_t handscore = cr.score_shew(hand,starter,&scorelist,build_scorelists);
         EXPECT_EQ(handscore,cr.scorePoints[Cribbage::SCORE_DBLRUN4]);
-        if(build_scorelists) render_scorelist();
+        if(build_scorelists) render_shew_scorelist();
     }
 
 
     //should have a double double run of 3 in it! Expect a score of 16
     //this one checks for double double run of 3 where the pairs are the lowest rank and highest
     //LATER will check for detailed results
-    TEST_F(CribbageTest,T160_DblDblRunLowHigh) {
+    TEST_F(ScoreShowTest,T160_DblDblRunLowHigh) {
         build_hand("8c", "8s", "0s", "0h","9d");
         index_t handscore = cr.score_shew(hand,starter,&scorelist,build_scorelists);
         EXPECT_EQ(handscore,cr.scorePoints[Cribbage::SCORE_DBLDBLRUN]);
-        if(build_scorelists) render_scorelist();
+        if(build_scorelists) render_shew_scorelist();
     }
 
-    TEST_F(CribbageTest,T163_DblDblRunLowMid) {
+    TEST_F(ScoreShowTest,T163_DblDblRunLowMid) {
         build_hand("8c", "9d", "9s", "0h","8d");
         index_t handscore = cr.score_shew(hand,starter,&scorelist,build_scorelists);
         EXPECT_EQ(handscore,cr.scorePoints[Cribbage::SCORE_DBLDBLRUN]);
-        if(build_scorelists) render_scorelist();
+        if(build_scorelists) render_shew_scorelist();
     }
 
-    TEST_F(CribbageTest,T160_DblDblRunMidHigh) {
+    TEST_F(ScoreShowTest,T160_DblDblRunMidHigh) {
         build_hand("8c", "9h", "9s", "0h","0d");
         index_t handscore = cr.score_shew(hand,starter,&scorelist,build_scorelists);
         EXPECT_EQ(handscore,cr.scorePoints[Cribbage::SCORE_DBLDBLRUN]);
-        if(build_scorelists) render_scorelist();
+        if(build_scorelists) render_shew_scorelist();
     }
 
     //should have a triple run of 3 in it! Expect a score of 15
     //this one checks for triple run of 3 where the 3 of a kind is lowest rank
     //LATER will check for detailed results
-    TEST_F(CribbageTest,T170_TripleRunLow) {
+    TEST_F(ScoreShowTest,T170_TripleRunLow) {
         build_hand("9h", "9c", "0s", "Js","9d");
         index_t handscore = cr.score_shew(hand,starter,&scorelist,build_scorelists);
         EXPECT_EQ(handscore,cr.scorePoints[Cribbage::SCORE_TRIPLERUN]);
-        if(build_scorelists) render_scorelist();
+        if(build_scorelists) render_shew_scorelist();
     }
 
-    TEST_F(CribbageTest,T173_TripleRunMid) {
+    TEST_F(ScoreShowTest,T173_TripleRunMid) {
         build_hand("0h", "0c", "9s", "0d","Jc");
         index_t handscore = cr.score_shew(hand,starter,&scorelist,build_scorelists);
         EXPECT_EQ(handscore,cr.scorePoints[Cribbage::SCORE_TRIPLERUN]);
-        if(build_scorelists) render_scorelist();
+        if(build_scorelists) render_shew_scorelist();
     }
 
-    TEST_F(CribbageTest,T177_TripleRunHigh) {
+    TEST_F(ScoreShowTest,T177_TripleRunHigh) {
         build_hand("6h", "7h", "5s", "7d","7c");
         index_t handscore = cr.score_shew(hand,starter,&scorelist,build_scorelists);
         EXPECT_EQ(handscore,cr.scorePoints[Cribbage::SCORE_TRIPLERUN]);
-        if(build_scorelists) render_scorelist();
+        if(build_scorelists) render_shew_scorelist();
     }
 
     //should have a 4 card flush in it! Expect a score of 4
     //LATER will check for detailed results
-    TEST_F(CribbageTest,T180_FourCardFlush) {
+    TEST_F(ScoreShowTest,T180_FourCardFlush) {
         build_hand("4c", "3c", "Jc", "7c","9h");
         index_t handscore = cr.score_shew(hand,starter,&scorelist,build_scorelists);
         EXPECT_EQ(handscore,cr.scorePoints[Cribbage::SCORE_FLUSH]);
-        if(build_scorelists) render_scorelist();
+        if(build_scorelists) render_shew_scorelist();
     }
 
     //should have a 5 card flush in it! Expect a score of 5
     //LATER will check for detailed results
-    TEST_F(CribbageTest,T190_FiveCardFlush) {
+    TEST_F(ScoreShowTest,T190_FiveCardFlush) {
         build_hand("4c", "3c", "Qc", "7c","9c");
         index_t handscore = cr.score_shew(hand,starter,&scorelist,build_scorelists);
         EXPECT_EQ(handscore,cr.scorePoints[Cribbage::SCORE_FLUSH5]);
-        if(build_scorelists) render_scorelist();
+        if(build_scorelists) render_shew_scorelist();
     }
 
     //should NOT have a 4 card flush in it! bc the 4 cards include starter Expect a score of 0
     //LATER will check for detailed results
-    TEST_F(CribbageTest,T200_NotFourCardFlush) {
+    TEST_F(ScoreShowTest,T200_NotFourCardFlush) {
         build_hand("4c", "3c", "Kc", "7h","9c");
         index_t handscore = cr.score_shew(hand,starter,&scorelist,build_scorelists);
         EXPECT_EQ(handscore,0);
-        if(build_scorelists) render_scorelist();
+        if(build_scorelists) render_shew_scorelist();
     }
 
     //should have nobs in it! Expect a score of 1
     //LATER will check for detailed results
-    TEST_F(CribbageTest,T210_Nobs) {
+    TEST_F(ScoreShowTest,T210_Nobs) {
         build_hand("Qh", "Jd", "9s", "3d","4d");
         index_t handscore = cr.score_shew(hand,starter,&scorelist,build_scorelists);
         EXPECT_EQ(handscore,cr.scorePoints[Cribbage::SCORE_NOBS]);
-        if(build_scorelists) render_scorelist();
+        if(build_scorelists) render_shew_scorelist();
     }
 
 
     //should have a 29 hand in it! Expect a score of 29
     //LATER will check for detailed results
-    TEST_F(CribbageTest,T220_Twentynine) {
+    TEST_F(ScoreShowTest,T220_Twentynine) {
         build_hand("5c", "5d", "Jh", "5s","5h");
         index_t handscore;
         //I think this might be the slowest case for scoring, so let's try 10 million of it
@@ -527,7 +526,7 @@ namespace {
             handscore = cr.score_shew(hand,starter,&scorelist,build_scorelists);
         EXPECT_EQ(handscore,(cr.scorePoints[Cribbage::SCORE_FIFTEEN] * 8) +
             cr.scorePoints[Cribbage::SCORE_4KIND] + cr.scorePoints[Cribbage::SCORE_NOBS]);
-        if(build_scorelists) render_scorelist();
+        if(build_scorelists) render_shew_scorelist();
     }
 
     //Here trying to find the worst case hand for scoring time. Current guess, 5 5 5 j j with a nobs
@@ -536,7 +535,7 @@ namespace {
     //if clock speed were the only diffie bt takkun and samd21, ~52 times slower = a long time in debug
     //and ~47 sec release, not horrible considering
     //LATER will check for detailed results
-    TEST_F(CribbageTest,T230_SlowestScore) {
+    TEST_F(ScoreShowTest,T230_SlowestScore) {
         build_hand("5c", "5d", "Jh", "Js","5h");
         index_t handscore;
         //I think this might be the slowest case for scoring, so let's try 10 million of it
@@ -546,8 +545,287 @@ namespace {
             handscore = cr.score_shew(hand,starter,&scorelist,build_scorelists);
         EXPECT_EQ(handscore,(cr.scorePoints[Cribbage::SCORE_FIFTEEN] * 7) +
             cr.scorePoints[Cribbage::SCORE_PAIRROYAL] + cr.scorePoints[Cribbage::SCORE_PAIR] + cr.scorePoints[Cribbage::SCORE_NOBS]);
-        if(build_scorelists) render_scorelist();
+        if(build_scorelists) render_shew_scorelist();
     }
+
+
+    //then a fixture for play_card test
+    class PlayCardTest : public ::testing::Test {
+        protected:
+
+        // data members
+        Cribbage cr;
+        uint32_t default_seed = 0x1337d00d;
+        std::vector<card_t> cardstack;
+        card_t card;
+        std::vector<Cribbage::score_entry> scorelist;
+        bool build_scorelists = true;      //FOR SPEED TESTING WITH OR WITHOUT BUILDING SCORELISTS
+
+        //special helper function to create a card stack - give it string reps cards
+        //they become cardstack "global"
+        void build_stack(std::vector<std::string> stackcardsstr) {
+            cardstack.clear();
+            for (auto j = 0; j < stackcardsstr.size(); j++)
+                cardstack.push_back(cr.getCardUtils().stringcard(stackcardsstr[j]));
+            //check for illegal cards
+            for(auto j = 0; j < cardstack.size(); j++)
+                if(cardstack[j] == cr.getCardUtils().ERROR_CARD_VAL) printf("WARNING: stack card %d is illegal string '%s'\n",j,stackcardsstr[j].c_str());
+        }
+
+        //cardstack should have the played card on it
+        void render_play_scorelist(std::vector<std::string> stackcardsstr, std::string cardstr) {
+            index_t mask;
+            printf("score list: -----------------\n");
+            if(stackcardsstr.empty())
+                printf("empty ");
+            else
+                for(index_t j = 0; j< stackcardsstr.size(); j++) printf("%s ",stackcardsstr[j].c_str());
+            //printf("%s ",cr.getCardUtils().cardstring(starter).c_str());
+            printf("stack, played %s\n",cardstr.c_str());
+            index_t totscore = 0;
+            for (Cribbage::score_entry se : scorelist) {
+                //remember the early cards are rightmost
+                for(index_t j = 0,mask = 1 << cardstack.size(); j < cardstack.size(); j++, mask >>= 1)
+                    if(se.part_cards & mask)
+                        printf("%s ",cr.getCardUtils().cardstring(cardstack[j]).c_str());
+                    else printf("-- ");
+                totscore += cr.scorePoints[se.score_index];
+                printf(" %s %d (%d)\n",cr.scoreStrings[se.score_index].c_str(),cr.scorePoints[se.score_index],totscore);
+            }
+        }
+
+        // setup initializes data members, runs BEFORE EVERY TEST
+        void SetUp() override {
+            cr.getCardUtils().v_srandom(default_seed);
+            //I think the longest possible list of scores is for 29: eight fifteens + 4 of a kind + nobs?
+            //VERIFY
+            scorelist.reserve(10);
+        }
+
+        // teardown cleans up after data members, runs AFTER EVERY TEST
+        void TearDown() override {
+
+        }
+
+    };
+
+    //all right! set up a hand that should have no scoring combinations in it and score it! Expect a score of 0
+    TEST_F(PlayCardTest,T000_Nothing) {
+        //order in which they're played so stack will show it same bc it grows left to right
+        std::vector<std::string> startstack = {"Qh", "0c", "9s", "3d"};
+        std::string cardstr = "4d";
+        build_stack(startstack);
+        card = cr.getCardUtils().stringcard(cardstr);
+        index_t playscore;
+        //for(auto j=0;j<10000000;j++)
+            playscore = cr.play_card(cardstack,card,&scorelist,build_scorelists);
+        EXPECT_EQ(playscore,0);
+        if(build_scorelists) render_play_scorelist(startstack,cardstr);
+    }
+
+    TEST_F(PlayCardTest,T001_Firstcard) {
+        //order in which they're played so stack will show it same bc it grows left to right
+        std::vector<std::string> startstack = {};
+        std::string cardstr = "7h";
+        build_stack(startstack);
+        card = cr.getCardUtils().stringcard(cardstr);
+        index_t playscore;
+        playscore = cr.play_card(cardstack,card,&scorelist,build_scorelists);
+        EXPECT_EQ(playscore,0);
+        if(build_scorelists) render_play_scorelist(startstack,cardstr);
+    }
+
+    TEST_F(PlayCardTest,T003_Fifteen) {
+        //order in which they're played so stack will show it same bc it grows left to right
+        std::vector<std::string> startstack = {"5d"};
+        std::string cardstr = "Jh";
+        build_stack(startstack);
+        card = cr.getCardUtils().stringcard(cardstr);
+        index_t playscore;
+        playscore = cr.play_card(cardstack,card,&scorelist,build_scorelists);
+        EXPECT_EQ(playscore,cr.scorePoints[Cribbage::SCORE_FIFTEEN]);
+        if(build_scorelists) render_play_scorelist(startstack,cardstr);
+    }
+
+    TEST_F(PlayCardTest,T007_Thirtyone) {
+        //order in which they're played so stack will show it same bc it grows left to right
+        std::vector<std::string> startstack = {"5d","Jh","Ac","5h"};
+        std::string cardstr = "Qh";
+        build_stack(startstack);
+        card = cr.getCardUtils().stringcard(cardstr);
+        index_t playscore;
+        playscore = cr.play_card(cardstack,card,&scorelist,build_scorelists);
+        EXPECT_EQ(playscore,cr.scorePoints[Cribbage::SCORE_THIRTYONE]);
+        if(build_scorelists) render_play_scorelist(startstack,cardstr);
+    }
+
+    TEST_F(PlayCardTest,T010_Pair) {
+        std::vector<std::string> startstack = {"3d"};
+        std::string cardstr = "3h";
+        build_stack(startstack);
+        card = cr.getCardUtils().stringcard(cardstr);
+        index_t playscore;
+        playscore = cr.play_card(cardstack,card,&scorelist,build_scorelists);
+        EXPECT_EQ(playscore,cr.scorePoints[Cribbage::SCORE_PAIR]);
+        if(build_scorelists) render_play_scorelist(startstack,cardstr);
+    }
+
+    TEST_F(PlayCardTest,T020_NotPair) {
+        std::vector<std::string> startstack = {"2c"};
+        std::string cardstr = "7s";
+        build_stack(startstack);
+        card = cr.getCardUtils().stringcard(cardstr);
+        index_t playscore;
+        playscore = cr.play_card(cardstack,card,&scorelist,build_scorelists);
+        EXPECT_EQ(playscore,0);
+        if(build_scorelists) render_play_scorelist(startstack,cardstr);
+    }
+
+    TEST_F(PlayCardTest,T030_3OfAKind) {
+        std::vector<std::string> startstack = {"4c","4s"};
+        std::string cardstr = "4h";
+        build_stack(startstack);
+        card = cr.getCardUtils().stringcard(cardstr);
+        index_t playscore;
+        playscore = cr.play_card(cardstack,card,&scorelist,build_scorelists);
+        EXPECT_EQ(playscore,cr.scorePoints[Cribbage::SCORE_PAIRROYAL]);
+        if(build_scorelists) render_play_scorelist(startstack,cardstr);
+    }
+
+    TEST_F(PlayCardTest,T040_Not3OfAKind) {
+        std::vector<std::string> startstack = {"4c","Qd","4s"};
+        std::string cardstr = "4h";
+        build_stack(startstack);
+        card = cr.getCardUtils().stringcard(cardstr);
+        index_t playscore;
+        playscore = cr.play_card(cardstack,card,&scorelist,build_scorelists);
+        EXPECT_EQ(playscore,cr.scorePoints[Cribbage::SCORE_PAIR]);
+        if(build_scorelists) render_play_scorelist(startstack,cardstr);
+    }
+
+    TEST_F(PlayCardTest,T050_4OfAKind) {
+        std::vector<std::string> startstack = {"Ad","6c","6s","6d"};
+        std::string cardstr = "6h";
+        build_stack(startstack);
+        card = cr.getCardUtils().stringcard(cardstr);
+        index_t playscore;
+        playscore = cr.play_card(cardstack,card,&scorelist,build_scorelists);
+        EXPECT_EQ(playscore,cr.scorePoints[Cribbage::SCORE_4KIND]);
+        if(build_scorelists) render_play_scorelist(startstack,cardstr);
+    }
+
+    TEST_F(PlayCardTest,T060_Not4OfAKind) {
+        std::vector<std::string> startstack = {"2c","2d","Qd","2s"};
+        std::string cardstr = "2h";
+        build_stack(startstack);
+        card = cr.getCardUtils().stringcard(cardstr);
+        index_t playscore;
+        playscore = cr.play_card(cardstack,card,&scorelist,build_scorelists);
+        EXPECT_EQ(playscore,cr.scorePoints[Cribbage::SCORE_PAIR]);
+        if(build_scorelists) render_play_scorelist(startstack,cardstr);
+    }
+
+    TEST_F(PlayCardTest,T070_RunOf3) {
+        std::vector<std::string> startstack = {"Ac","2s"};
+        std::string cardstr = "3h";
+        build_stack(startstack);
+        card = cr.getCardUtils().stringcard(cardstr);
+        index_t playscore;
+        playscore = cr.play_card(cardstack,card,&scorelist,build_scorelists);
+        EXPECT_EQ(playscore,cr.scorePoints[Cribbage::SCORE_RUN3]);
+        if(build_scorelists) render_play_scorelist(startstack,cardstr);
+    }
+
+    TEST_F(PlayCardTest,T080_RunOf3OOO) {
+        std::vector<std::string> startstack = {"8c","6s"};
+        std::string cardstr = "7h";
+        build_stack(startstack);
+        card = cr.getCardUtils().stringcard(cardstr);
+        index_t playscore;
+        playscore = cr.play_card(cardstack,card,&scorelist,build_scorelists);
+        EXPECT_EQ(playscore,cr.scorePoints[Cribbage::SCORE_RUN3]);
+        if(build_scorelists) render_play_scorelist(startstack,cardstr);
+    }
+
+    TEST_F(PlayCardTest,T090_RunOf3intervening) {
+        std::vector<std::string> startstack = {"5c","6s","Jd"};
+        std::string cardstr = "7h";
+        build_stack(startstack);
+        card = cr.getCardUtils().stringcard(cardstr);
+        index_t playscore;
+        playscore = cr.play_card(cardstack,card,&scorelist,build_scorelists);
+        EXPECT_EQ(playscore,0);
+        if(build_scorelists) render_play_scorelist(startstack,cardstr);
+    }
+
+    //# TODO HEY DO THIS ONE from http://cribbagecorner.com/cribbage-rules-play
+    //#
+    //#scoring sequence in play
+    //#Submitted by Meade (not verified) on Tue, 04/06/2010 - 01:50.
+    //#
+    //#How do you score the following sequence made in play? A 7 was played first followed by a 9 and then a 8 to make a
+    //# sequence of three for 3 points. Here is the questions: My playing partner then played a 7. Is this another sequence
+    //# of three for 3 points and 2 points for 31?
+    //#
+    //#re: scoring sequence
+    //#Submitted by Joan (not verified) on Thu, 06/24/2010 - 17:44.
+    //#
+    //#Yes, your parntner gets 3 points for the run of 7, 8, 9, the last 3 cards played where the sequence was not broken.
+    //# And the 2 points for 31. If 8 or 9 were played first your partner would be out of luck because the first 7 played
+    //# would have interrupted the second sequence.
+    //
+    //
+    //class bPlayTest100_runof4(unittest.TestCase):
+    //    def test_playtest_runof4(self):
+    //        print("Play run of 4 ----------------------------------------------------------------------------------------")
+    //        pyb = pybbage.Pybbage()
+    //        curcs = ['ac','2s','3s']
+    //        curcards = [pyb.stringcard(x) for x in curcs]           # cards already played
+    //        newcard = pyb.stringcard('4h')
+    //        print("playing", pyb.cardstring(newcard), "on", [pyb.cardstring(x) for x in curcards])
+    //        (resultcards, curtotal, scorelist) = pyb.play_card(curcards, newcard)
+    //        totalscore = sum([pyb.scoreStringsNPoints[x[0]][1] for x in scorelist])
+    //        print('cards',[pyb.cardstring(x) for x in resultcards],'total',curtotal,'score',
+    //              [pyb.scoreStringsNPoints[x[0]][0] for x in scorelist],"for",totalscore)
+    //        self.assertEqual(resultcards,curcards + [newcard])
+    //        self.assertEqual(curtotal,sum([pyb.val(x) for x in curcards]) + pyb.val(newcard))
+    //        self.assertEqual(scorelist,[(pyb.SCORE_RUN4,4)])
+    //        self.assertEqual(totalscore,4)
+    //
+    //class bPlayTest110_runof4ooo(unittest.TestCase):
+    //    def test_playtest_runof4ooo(self):
+    //        print("Play run of 4 out of order ---------------------------------------------------------------------------")
+    //        pyb = pybbage.Pybbage()
+    //        curcs = ['8c','6s','5c']
+    //        curcards = [pyb.stringcard(x) for x in curcs]           # cards already played
+    //        newcard = pyb.stringcard('7h')
+    //        print("playing", pyb.cardstring(newcard), "on", [pyb.cardstring(x) for x in curcards])
+    //        (resultcards, curtotal, scorelist) = pyb.play_card(curcards, newcard)
+    //        totalscore = sum([pyb.scoreStringsNPoints[x[0]][1] for x in scorelist])
+    //        print('cards',[pyb.cardstring(x) for x in resultcards],'total',curtotal,'score',
+    //              [pyb.scoreStringsNPoints[x[0]][0] for x in scorelist],"for",totalscore)
+    //        self.assertEqual(resultcards,curcards + [newcard])
+    //        self.assertEqual(curtotal,sum([pyb.val(x) for x in curcards]) + pyb.val(newcard))
+    //        self.assertEqual(scorelist,[(pyb.SCORE_RUN4,4)])
+    //        self.assertEqual(totalscore,4)
+    //
+    //class bPlayTest120_runof4intervening(unittest.TestCase):
+    //    def test_playtest_runof4int(self):
+    //        print("Play run of 4 broken with intervening card -----------------------------------------------------------")
+    //        pyb = pybbage.Pybbage()
+    //        curcs = ['ac','2s','Jd','3c']
+    //        curcards = [pyb.stringcard(x) for x in curcs]           # cards already played
+    //        newcard = pyb.stringcard('4h')
+    //        print("playing", pyb.cardstring(newcard), "on", [pyb.cardstring(x) for x in curcards])
+    //        (resultcards, curtotal, scorelist) = pyb.play_card(curcards, newcard)
+    //        totalscore = sum([pyb.scoreStringsNPoints[x[0]][1] for x in scorelist])
+    //        print('cards',[pyb.cardstring(x) for x in resultcards],'total',curtotal,'score',
+    //              [pyb.scoreStringsNPoints[x[0]][0] for x in scorelist],"for",totalscore)
+    //        self.assertEqual(resultcards,curcards + [newcard])
+    //        self.assertEqual(curtotal,sum([pyb.val(x) for x in curcards]) + pyb.val(newcard))
+    //        self.assertEqual(scorelist,[])
+    //        self.assertEqual(totalscore,0)
+
 
 }
 
