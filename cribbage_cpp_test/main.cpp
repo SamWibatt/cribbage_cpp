@@ -619,6 +619,10 @@ namespace {
         index_t playscore;
         //for(auto j=0;j<10000000;j++)
             playscore = cr.play_card(cardstack,card,&scorelist,build_scorelists);
+        // HEY PUT IN DETAILED CHECKS a la
+        // self.assertEqual(resultcards,curcards + [newcard])
+        // self.assertEqual(curtotal,sum([pyb.val(x) for x in curcards]) + pyb.val(newcard))
+        // self.assertEqual(scorelist,[(pyb.SCORE_RUN4,4)])
         EXPECT_EQ(playscore,0);
         if(build_scorelists) render_play_scorelist(startstack,cardstr);
     }
@@ -631,6 +635,10 @@ namespace {
         card = cr.getCardUtils().stringcard(cardstr);
         index_t playscore;
         playscore = cr.play_card(cardstack,card,&scorelist,build_scorelists);
+        // HEY PUT IN DETAILED CHECKS a la
+        // self.assertEqual(resultcards,curcards + [newcard])
+        // self.assertEqual(curtotal,sum([pyb.val(x) for x in curcards]) + pyb.val(newcard))
+        // self.assertEqual(scorelist,[(pyb.SCORE_RUN4,4)])
         EXPECT_EQ(playscore,0);
         if(build_scorelists) render_play_scorelist(startstack,cardstr);
     }
@@ -643,6 +651,10 @@ namespace {
         card = cr.getCardUtils().stringcard(cardstr);
         index_t playscore;
         playscore = cr.play_card(cardstack,card,&scorelist,build_scorelists);
+        // HEY PUT IN DETAILED CHECKS a la
+        // self.assertEqual(resultcards,curcards + [newcard])
+        // self.assertEqual(curtotal,sum([pyb.val(x) for x in curcards]) + pyb.val(newcard))
+        // self.assertEqual(scorelist,[(pyb.SCORE_RUN4,4)])
         EXPECT_EQ(playscore,cr.scorePoints[Cribbage::SCORE_FIFTEEN]);
         if(build_scorelists) render_play_scorelist(startstack,cardstr);
     }
@@ -655,6 +667,10 @@ namespace {
         card = cr.getCardUtils().stringcard(cardstr);
         index_t playscore;
         playscore = cr.play_card(cardstack,card,&scorelist,build_scorelists);
+        // HEY PUT IN DETAILED CHECKS a la
+        // self.assertEqual(resultcards,curcards + [newcard])
+        // self.assertEqual(curtotal,sum([pyb.val(x) for x in curcards]) + pyb.val(newcard))
+        // self.assertEqual(scorelist,[(pyb.SCORE_RUN4,4)])
         EXPECT_EQ(playscore,cr.scorePoints[Cribbage::SCORE_THIRTYONE]);
         if(build_scorelists) render_play_scorelist(startstack,cardstr);
     }
@@ -666,6 +682,10 @@ namespace {
         card = cr.getCardUtils().stringcard(cardstr);
         index_t playscore;
         playscore = cr.play_card(cardstack,card,&scorelist,build_scorelists);
+        // HEY PUT IN DETAILED CHECKS a la
+        // self.assertEqual(resultcards,curcards + [newcard])
+        // self.assertEqual(curtotal,sum([pyb.val(x) for x in curcards]) + pyb.val(newcard))
+        // self.assertEqual(scorelist,[(pyb.SCORE_RUN4,4)])
         EXPECT_EQ(playscore,cr.scorePoints[Cribbage::SCORE_PAIR]);
         if(build_scorelists) render_play_scorelist(startstack,cardstr);
     }
@@ -677,6 +697,10 @@ namespace {
         card = cr.getCardUtils().stringcard(cardstr);
         index_t playscore;
         playscore = cr.play_card(cardstack,card,&scorelist,build_scorelists);
+        // HEY PUT IN DETAILED CHECKS a la
+        // self.assertEqual(resultcards,curcards + [newcard])
+        // self.assertEqual(curtotal,sum([pyb.val(x) for x in curcards]) + pyb.val(newcard))
+        // self.assertEqual(scorelist,[(pyb.SCORE_RUN4,4)])
         EXPECT_EQ(playscore,0);
         if(build_scorelists) render_play_scorelist(startstack,cardstr);
     }
@@ -688,6 +712,10 @@ namespace {
         card = cr.getCardUtils().stringcard(cardstr);
         index_t playscore;
         playscore = cr.play_card(cardstack,card,&scorelist,build_scorelists);
+        // HEY PUT IN DETAILED CHECKS a la
+        // self.assertEqual(resultcards,curcards + [newcard])
+        // self.assertEqual(curtotal,sum([pyb.val(x) for x in curcards]) + pyb.val(newcard))
+        // self.assertEqual(scorelist,[(pyb.SCORE_RUN4,4)])
         EXPECT_EQ(playscore,cr.scorePoints[Cribbage::SCORE_PAIRROYAL]);
         if(build_scorelists) render_play_scorelist(startstack,cardstr);
     }
@@ -699,6 +727,10 @@ namespace {
         card = cr.getCardUtils().stringcard(cardstr);
         index_t playscore;
         playscore = cr.play_card(cardstack,card,&scorelist,build_scorelists);
+        // HEY PUT IN DETAILED CHECKS a la
+        // self.assertEqual(resultcards,curcards + [newcard])
+        // self.assertEqual(curtotal,sum([pyb.val(x) for x in curcards]) + pyb.val(newcard))
+        // self.assertEqual(scorelist,[(pyb.SCORE_RUN4,4)])
         EXPECT_EQ(playscore,cr.scorePoints[Cribbage::SCORE_PAIR]);
         if(build_scorelists) render_play_scorelist(startstack,cardstr);
     }
@@ -710,6 +742,10 @@ namespace {
         card = cr.getCardUtils().stringcard(cardstr);
         index_t playscore;
         playscore = cr.play_card(cardstack,card,&scorelist,build_scorelists);
+        // HEY PUT IN DETAILED CHECKS a la
+        // self.assertEqual(resultcards,curcards + [newcard])
+        // self.assertEqual(curtotal,sum([pyb.val(x) for x in curcards]) + pyb.val(newcard))
+        // self.assertEqual(scorelist,[(pyb.SCORE_RUN4,4)])
         EXPECT_EQ(playscore,cr.scorePoints[Cribbage::SCORE_4KIND]);
         if(build_scorelists) render_play_scorelist(startstack,cardstr);
     }
@@ -721,6 +757,10 @@ namespace {
         card = cr.getCardUtils().stringcard(cardstr);
         index_t playscore;
         playscore = cr.play_card(cardstack,card,&scorelist,build_scorelists);
+        // HEY PUT IN DETAILED CHECKS a la
+        // self.assertEqual(resultcards,curcards + [newcard])
+        // self.assertEqual(curtotal,sum([pyb.val(x) for x in curcards]) + pyb.val(newcard))
+        // self.assertEqual(scorelist,[(pyb.SCORE_RUN4,4)])
         EXPECT_EQ(playscore,cr.scorePoints[Cribbage::SCORE_PAIR]);
         if(build_scorelists) render_play_scorelist(startstack,cardstr);
     }
@@ -732,6 +772,10 @@ namespace {
         card = cr.getCardUtils().stringcard(cardstr);
         index_t playscore;
         playscore = cr.play_card(cardstack,card,&scorelist,build_scorelists);
+        // HEY PUT IN DETAILED CHECKS a la
+        // self.assertEqual(resultcards,curcards + [newcard])
+        // self.assertEqual(curtotal,sum([pyb.val(x) for x in curcards]) + pyb.val(newcard))
+        // self.assertEqual(scorelist,[(pyb.SCORE_RUN4,4)])
         EXPECT_EQ(playscore,cr.scorePoints[Cribbage::SCORE_RUN3]);
         if(build_scorelists) render_play_scorelist(startstack,cardstr);
     }
@@ -743,6 +787,10 @@ namespace {
         card = cr.getCardUtils().stringcard(cardstr);
         index_t playscore;
         playscore = cr.play_card(cardstack,card,&scorelist,build_scorelists);
+        // HEY PUT IN DETAILED CHECKS a la
+        // self.assertEqual(resultcards,curcards + [newcard])
+        // self.assertEqual(curtotal,sum([pyb.val(x) for x in curcards]) + pyb.val(newcard))
+        // self.assertEqual(scorelist,[(pyb.SCORE_RUN4,4)])
         EXPECT_EQ(playscore,cr.scorePoints[Cribbage::SCORE_RUN3]);
         if(build_scorelists) render_play_scorelist(startstack,cardstr);
     }
@@ -754,6 +802,10 @@ namespace {
         card = cr.getCardUtils().stringcard(cardstr);
         index_t playscore;
         playscore = cr.play_card(cardstack,card,&scorelist,build_scorelists);
+        // HEY PUT IN DETAILED CHECKS a la
+        // self.assertEqual(resultcards,curcards + [newcard])
+        // self.assertEqual(curtotal,sum([pyb.val(x) for x in curcards]) + pyb.val(newcard))
+        // self.assertEqual(scorelist,[(pyb.SCORE_RUN4,4)])
         EXPECT_EQ(playscore,0);
         if(build_scorelists) render_play_scorelist(startstack,cardstr);
     }
@@ -773,59 +825,242 @@ namespace {
     //#Yes, your parntner gets 3 points for the run of 7, 8, 9, the last 3 cards played where the sequence was not broken.
     //# And the 2 points for 31. If 8 or 9 were played first your partner would be out of luck because the first 7 played
     //# would have interrupted the second sequence.
-    //
-    //
-    //class bPlayTest100_runof4(unittest.TestCase):
-    //    def test_playtest_runof4(self):
-    //        print("Play run of 4 ----------------------------------------------------------------------------------------")
-    //        pyb = pybbage.Pybbage()
-    //        curcs = ['ac','2s','3s']
-    //        curcards = [pyb.stringcard(x) for x in curcs]           # cards already played
-    //        newcard = pyb.stringcard('4h')
-    //        print("playing", pyb.cardstring(newcard), "on", [pyb.cardstring(x) for x in curcards])
-    //        (resultcards, curtotal, scorelist) = pyb.play_card(curcards, newcard)
-    //        totalscore = sum([pyb.scoreStringsNPoints[x[0]][1] for x in scorelist])
-    //        print('cards',[pyb.cardstring(x) for x in resultcards],'total',curtotal,'score',
-    //              [pyb.scoreStringsNPoints[x[0]][0] for x in scorelist],"for",totalscore)
-    //        self.assertEqual(resultcards,curcards + [newcard])
-    //        self.assertEqual(curtotal,sum([pyb.val(x) for x in curcards]) + pyb.val(newcard))
-    //        self.assertEqual(scorelist,[(pyb.SCORE_RUN4,4)])
-    //        self.assertEqual(totalscore,4)
-    //
-    //class bPlayTest110_runof4ooo(unittest.TestCase):
-    //    def test_playtest_runof4ooo(self):
-    //        print("Play run of 4 out of order ---------------------------------------------------------------------------")
-    //        pyb = pybbage.Pybbage()
-    //        curcs = ['8c','6s','5c']
-    //        curcards = [pyb.stringcard(x) for x in curcs]           # cards already played
-    //        newcard = pyb.stringcard('7h')
-    //        print("playing", pyb.cardstring(newcard), "on", [pyb.cardstring(x) for x in curcards])
-    //        (resultcards, curtotal, scorelist) = pyb.play_card(curcards, newcard)
-    //        totalscore = sum([pyb.scoreStringsNPoints[x[0]][1] for x in scorelist])
-    //        print('cards',[pyb.cardstring(x) for x in resultcards],'total',curtotal,'score',
-    //              [pyb.scoreStringsNPoints[x[0]][0] for x in scorelist],"for",totalscore)
-    //        self.assertEqual(resultcards,curcards + [newcard])
-    //        self.assertEqual(curtotal,sum([pyb.val(x) for x in curcards]) + pyb.val(newcard))
-    //        self.assertEqual(scorelist,[(pyb.SCORE_RUN4,4)])
-    //        self.assertEqual(totalscore,4)
-    //
-    //class bPlayTest120_runof4intervening(unittest.TestCase):
-    //    def test_playtest_runof4int(self):
-    //        print("Play run of 4 broken with intervening card -----------------------------------------------------------")
-    //        pyb = pybbage.Pybbage()
-    //        curcs = ['ac','2s','Jd','3c']
-    //        curcards = [pyb.stringcard(x) for x in curcs]           # cards already played
-    //        newcard = pyb.stringcard('4h')
-    //        print("playing", pyb.cardstring(newcard), "on", [pyb.cardstring(x) for x in curcards])
-    //        (resultcards, curtotal, scorelist) = pyb.play_card(curcards, newcard)
-    //        totalscore = sum([pyb.scoreStringsNPoints[x[0]][1] for x in scorelist])
-    //        print('cards',[pyb.cardstring(x) for x in resultcards],'total',curtotal,'score',
-    //              [pyb.scoreStringsNPoints[x[0]][0] for x in scorelist],"for",totalscore)
-    //        self.assertEqual(resultcards,curcards + [newcard])
-    //        self.assertEqual(curtotal,sum([pyb.val(x) for x in curcards]) + pyb.val(newcard))
-    //        self.assertEqual(scorelist,[])
-    //        self.assertEqual(totalscore,0)
 
+    TEST_F(PlayCardTest,T100_RunOf4) {
+        std::vector<std::string> startstack = {"Ac","2s","3s"};
+        std::string cardstr = "4h";
+        build_stack(startstack);
+        card = cr.getCardUtils().stringcard(cardstr);
+        index_t playscore;
+        playscore = cr.play_card(cardstack,card,&scorelist,build_scorelists);
+        // HEY PUT IN DETAILED CHECKS a la
+        // self.assertEqual(resultcards,curcards + [newcard])
+        // self.assertEqual(curtotal,sum([pyb.val(x) for x in curcards]) + pyb.val(newcard))
+        // self.assertEqual(scorelist,[(pyb.SCORE_RUN4,4)])
+        EXPECT_EQ(playscore,cr.scorePoints[Cribbage::SCORE_RUN4]);
+        if(build_scorelists) render_play_scorelist(startstack,cardstr);
+    }
+
+    TEST_F(PlayCardTest,T110_RunOf4OOO) {
+        std::vector<std::string> startstack = {"8c","6s","5c"};
+        std::string cardstr = "7h";
+        build_stack(startstack);
+        card = cr.getCardUtils().stringcard(cardstr);
+        index_t playscore;
+        playscore = cr.play_card(cardstack,card,&scorelist,build_scorelists);
+        // HEY PUT IN DETAILED CHECKS a la
+        // self.assertEqual(resultcards,curcards + [newcard])
+        // self.assertEqual(curtotal,sum([pyb.val(x) for x in curcards]) + pyb.val(newcard))
+        // self.assertEqual(scorelist,[(pyb.SCORE_RUN4,4)])
+        EXPECT_EQ(playscore,cr.scorePoints[Cribbage::SCORE_RUN4]);
+        if(build_scorelists) render_play_scorelist(startstack,cardstr);
+    }
+
+    TEST_F(PlayCardTest,T120_RunOf4intervening) {
+        std::vector<std::string> startstack = {"Ac","2s","Jd","3h"};
+        std::string cardstr = "4c";
+        build_stack(startstack);
+        card = cr.getCardUtils().stringcard(cardstr);
+        index_t playscore;
+        playscore = cr.play_card(cardstack,card,&scorelist,build_scorelists);
+        // HEY PUT IN DETAILED CHECKS a la
+        // self.assertEqual(resultcards,curcards + [newcard])
+        // self.assertEqual(curtotal,sum([pyb.val(x) for x in curcards]) + pyb.val(newcard))
+        // self.assertEqual(scorelist,[(pyb.SCORE_RUN4,4)])
+        EXPECT_EQ(playscore,0);
+        if(build_scorelists) render_play_scorelist(startstack,cardstr);
+    }
+
+    TEST_F(PlayCardTest,T130_RunOf5) {
+        std::vector<std::string> startstack = {"2c","3s","4s","5d"};
+        std::string cardstr = "6h";
+        build_stack(startstack);
+        card = cr.getCardUtils().stringcard(cardstr);
+        index_t playscore;
+        playscore = cr.play_card(cardstack,card,&scorelist,build_scorelists);
+        // HEY PUT IN DETAILED CHECKS a la
+        // self.assertEqual(resultcards,curcards + [newcard])
+        // self.assertEqual(curtotal,sum([pyb.val(x) for x in curcards]) + pyb.val(newcard))
+        // self.assertEqual(scorelist,[(pyb.SCORE_RUN4,4)])
+        EXPECT_EQ(playscore,cr.scorePoints[Cribbage::SCORE_RUN5]);
+        if(build_scorelists) render_play_scorelist(startstack,cardstr);
+    }
+
+    TEST_F(PlayCardTest,T140_RunOf5OOO) {
+        std::vector<std::string> startstack = {"8c","6s","5c","4d"};
+        std::string cardstr = "7h";
+        build_stack(startstack);
+        card = cr.getCardUtils().stringcard(cardstr);
+        index_t playscore;
+        playscore = cr.play_card(cardstack,card,&scorelist,build_scorelists);
+        // HEY PUT IN DETAILED CHECKS a la
+        // self.assertEqual(resultcards,curcards + [newcard])
+        // self.assertEqual(curtotal,sum([pyb.val(x) for x in curcards]) + pyb.val(newcard))
+        // self.assertEqual(scorelist,[(pyb.SCORE_RUN4,4)])
+        EXPECT_EQ(playscore,cr.scorePoints[Cribbage::SCORE_RUN5]);
+        if(build_scorelists) render_play_scorelist(startstack,cardstr);
+    }
+
+    TEST_F(PlayCardTest,T150_RunOf5intervening) {
+        std::vector<std::string> startstack = {"Ac","2s","4c","Jd","3h"};
+        std::string cardstr = "5c";
+        build_stack(startstack);
+        card = cr.getCardUtils().stringcard(cardstr);
+        index_t playscore;
+        playscore = cr.play_card(cardstack,card,&scorelist,build_scorelists);
+        // HEY PUT IN DETAILED CHECKS a la
+        // self.assertEqual(resultcards,curcards + [newcard])
+        // self.assertEqual(curtotal,sum([pyb.val(x) for x in curcards]) + pyb.val(newcard))
+        // self.assertEqual(scorelist,[(pyb.SCORE_RUN4,4)])
+        EXPECT_EQ(playscore,0);
+        if(build_scorelists) render_play_scorelist(startstack,cardstr);
+    }
+
+    TEST_F(PlayCardTest,T160_RunOf6) {
+        std::vector<std::string> startstack = {"2c","3s","4s","5d","6h"};
+        std::string cardstr = "7h";
+        build_stack(startstack);
+        card = cr.getCardUtils().stringcard(cardstr);
+        index_t playscore;
+        playscore = cr.play_card(cardstack,card,&scorelist,build_scorelists);
+        // HEY PUT IN DETAILED CHECKS a la
+        // self.assertEqual(resultcards,curcards + [newcard])
+        // self.assertEqual(curtotal,sum([pyb.val(x) for x in curcards]) + pyb.val(newcard))
+        // self.assertEqual(scorelist,[(pyb.SCORE_RUN4,4)])
+        EXPECT_EQ(playscore,cr.scorePoints[Cribbage::SCORE_RUN6]);
+        if(build_scorelists) render_play_scorelist(startstack,cardstr);
+    }
+
+    TEST_F(PlayCardTest,T170_RunOf6OOO) {
+        std::vector<std::string> startstack = {"3c","6s","5c","4d","2c"};
+        std::string cardstr = "7h";
+        build_stack(startstack);
+        card = cr.getCardUtils().stringcard(cardstr);
+        index_t playscore;
+        playscore = cr.play_card(cardstack,card,&scorelist,build_scorelists);
+        // HEY PUT IN DETAILED CHECKS a la
+        // self.assertEqual(resultcards,curcards + [newcard])
+        // self.assertEqual(curtotal,sum([pyb.val(x) for x in curcards]) + pyb.val(newcard))
+        // self.assertEqual(scorelist,[(pyb.SCORE_RUN4,4)])
+        EXPECT_EQ(playscore,cr.scorePoints[Cribbage::SCORE_RUN6]);
+        if(build_scorelists) render_play_scorelist(startstack,cardstr);
+    }
+
+    TEST_F(PlayCardTest,T180_RunOf6intervening) {
+        std::vector<std::string> startstack = {"Ac","2s","4c","3d","3h","5d"};
+        std::string cardstr = "6c";
+        build_stack(startstack);
+        card = cr.getCardUtils().stringcard(cardstr);
+        index_t playscore;
+        playscore = cr.play_card(cardstack,card,&scorelist,build_scorelists);
+        // HEY PUT IN DETAILED CHECKS a la
+        // self.assertEqual(resultcards,curcards + [newcard])
+        // self.assertEqual(curtotal,sum([pyb.val(x) for x in curcards]) + pyb.val(newcard))
+        // self.assertEqual(scorelist,[(pyb.SCORE_RUN4,4)])
+        EXPECT_EQ(playscore,0);
+        if(build_scorelists) render_play_scorelist(startstack,cardstr);
+    }
+
+
+    TEST_F(PlayCardTest,T190_RunOf7) {
+        std::vector<std::string> startstack = {"Ad","Ah,","2c","3s","4s","5d","6d"};
+        std::string cardstr = "7h";
+        build_stack(startstack);
+        card = cr.getCardUtils().stringcard(cardstr);
+        index_t playscore;
+        playscore = cr.play_card(cardstack,card,&scorelist,build_scorelists);
+        printf("Cardstack len now %d\n",cardstack.size());
+
+        // HEY PUT IN DETAILED CHECKS a la
+        // self.assertEqual(resultcards,curcards + [newcard])
+        // self.assertEqual(curtotal,sum([pyb.val(x) for x in curcards]) + pyb.val(newcard))
+        // self.assertEqual(scorelist,[(pyb.SCORE_RUN4,4)])
+        EXPECT_EQ(playscore,cr.scorePoints[Cribbage::SCORE_RUN7]);
+        if(build_scorelists) render_play_scorelist(startstack,cardstr);
+    }
+
+    TEST_F(PlayCardTest,T200_RunOf7OOO) {
+        std::vector<std::string> startstack = {"7c","6s","5c","4d","2d","3h"};
+        std::string cardstr = "Ah";
+        build_stack(startstack);
+        card = cr.getCardUtils().stringcard(cardstr);
+        index_t playscore;
+        //this should be the slowest scoring hand for the play, yes?
+        //hm, can't just do it ten million times, I guess - move this earlier? bc cardstack changes
+        //so the time is a bit skewed - or maybe just pop that card off cardstack & swh
+        //in any case, play scoring is pretty fast, like 3 sec for 10MM in debug
+        //printf("TEN MILLION!!!\n");
+        //for (auto j = 0; j < 10000000; j++)
+            playscore = cr.play_card(cardstack,card,&scorelist,build_scorelists);
+            //cardstack.pop_back();
+        printf("Cardstack len now %d\n",cardstack.size());
+        // HEY PUT IN DETAILED CHECKS a la
+        // self.assertEqual(resultcards,curcards + [newcard])
+        // self.assertEqual(curtotal,sum([pyb.val(x) for x in curcards]) + pyb.val(newcard))
+        // self.assertEqual(scorelist,[(pyb.SCORE_RUN4,4)])
+        EXPECT_EQ(playscore,cr.scorePoints[Cribbage::SCORE_RUN7]);
+        if(build_scorelists) render_play_scorelist(startstack,cardstr);
+    }
+
+    TEST_F(PlayCardTest,T210_RunOf7intervening) {
+        std::vector<std::string> startstack = {"3c","2s","Ac","4d","5h","6d"};
+        std::string cardstr = "Ac";
+        build_stack(startstack);
+        card = cr.getCardUtils().stringcard(cardstr);
+        index_t playscore;
+        playscore = cr.play_card(cardstack,card,&scorelist,build_scorelists);
+        // HEY PUT IN DETAILED CHECKS a la
+        // self.assertEqual(resultcards,curcards + [newcard])
+        // self.assertEqual(curtotal,sum([pyb.val(x) for x in curcards]) + pyb.val(newcard))
+        // self.assertEqual(scorelist,[(pyb.SCORE_RUN4,4)])
+        EXPECT_EQ(playscore,0);
+        if(build_scorelists) render_play_scorelist(startstack,cardstr);
+    }
+
+    TEST_F(PlayCardTest,T220_15and3Kind) {
+        std::vector<std::string> startstack = {"3d","4c","4s"};
+        std::string cardstr = "4h";
+        build_stack(startstack);
+        card = cr.getCardUtils().stringcard(cardstr);
+        index_t playscore;
+        playscore = cr.play_card(cardstack,card,&scorelist,build_scorelists);
+        // HEY PUT IN DETAILED CHECKS a la
+        // self.assertEqual(resultcards,curcards + [newcard])
+        // self.assertEqual(curtotal,sum([pyb.val(x) for x in curcards]) + pyb.val(newcard))
+        // self.assertEqual(scorelist,[(pyb.SCORE_RUN4,4)])
+        EXPECT_EQ(playscore,cr.scorePoints[Cribbage::SCORE_FIFTEEN] + cr.scorePoints[Cribbage::SCORE_PAIRROYAL]);
+        if(build_scorelists) render_play_scorelist(startstack,cardstr);
+    }
+
+    TEST_F(PlayCardTest,T230_31And4Kind) {
+        std::vector<std::string> startstack = {"3c","7s","7c","7d"};
+        std::string cardstr = "7h";
+        build_stack(startstack);
+        card = cr.getCardUtils().stringcard(cardstr);
+        index_t playscore;
+        playscore = cr.play_card(cardstack,card,&scorelist,build_scorelists);
+        // HEY PUT IN DETAILED CHECKS a la
+        // self.assertEqual(resultcards,curcards + [newcard])
+        // self.assertEqual(curtotal,sum([pyb.val(x) for x in curcards]) + pyb.val(newcard))
+        // self.assertEqual(scorelist,[(pyb.SCORE_RUN4,4)])
+        EXPECT_EQ(playscore,cr.scorePoints[Cribbage::SCORE_THIRTYONE] + cr.scorePoints[Cribbage::SCORE_4KIND]);
+        if(build_scorelists) render_play_scorelist(startstack,cardstr);
+    }
+
+    TEST_F(PlayCardTest,T220_15andRun5) {
+        std::vector<std::string> startstack = {"2d","Ac","5s","3d"};
+        std::string cardstr = "4h";
+        build_stack(startstack);
+        card = cr.getCardUtils().stringcard(cardstr);
+        index_t playscore;
+        playscore = cr.play_card(cardstack,card,&scorelist,build_scorelists);
+        // HEY PUT IN DETAILED CHECKS a la
+        // self.assertEqual(resultcards,curcards + [newcard])
+        // self.assertEqual(curtotal,sum([pyb.val(x) for x in curcards]) + pyb.val(newcard))
+        // self.assertEqual(scorelist,[(pyb.SCORE_RUN4,4)])
+        EXPECT_EQ(playscore,cr.scorePoints[Cribbage::SCORE_FIFTEEN] + cr.scorePoints[Cribbage::SCORE_RUN5]);
+        if(build_scorelists) render_play_scorelist(startstack,cardstr);
+    }
 
 }
 

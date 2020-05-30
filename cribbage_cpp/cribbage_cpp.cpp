@@ -422,13 +422,13 @@ namespace cribbage_cpp {
         if(curtotal == 15) {
             total_score += scorePoints[SCORE_FIFTEEN];
             if(make_list) {
-                partcards = (1 << (stack.size()+1))-1;     //e.g. if stack has 3 cards, (1<<3)-1 = binary 111
+                partcards = (1 << (stack.size()+1))-1;     //e.g. if stack has 3 cards, (1<<(3+1))-1 = binary 111
                 scores->push_back(score_entry(partcards,SCORE_FIFTEEN));
             }
         } else if(curtotal == 31) {
             total_score += scorePoints[SCORE_THIRTYONE];
             if(make_list) {
-                partcards = (1 << (stack.size()+1))-1;     //e.g. if stack has 3 cards, (1<<3)-1 = binary 111
+                partcards = (1 << (stack.size()+1))-1;     //e.g. if stack has 3 cards, (1<<(3+1))-1 = binary 111
                 scores->push_back(score_entry(partcards,SCORE_THIRTYONE));
             }
         }
@@ -442,6 +442,8 @@ namespace cribbage_cpp {
         index_t numrankmatch = 1;
         for(auto j = 1; j < 4 && j < rankstack.size(); j++)
             if(rankstack[(rankstack.size()-1)-j] == currank) numrankmatch++; else break;
+        // participating cards are at the low end of the bit field - so if there are, e.g. , 4 cards participating,
+        // you want 00001111 binary, which is (1<<(4+1))-1
         partcards = (1<<(numrankmatch+1)) - 1;
         switch(numrankmatch) {
             //1-4 should be the only possibilities, but still.
@@ -472,11 +474,30 @@ namespace cribbage_cpp {
         //    find min and max of last j cards in stack
         //      if((max-min) == j-1) longestrun = j;
         index_t longestrun = 0;
+
+        //BUGFIXED: this wasn't quite right - pairs aren't the only thing that can mess this up.
+        //cards of the same value separated by intervening cards can also cause trouble, as with
+        //3 2 A 4 5 6 A gets a run of 6!
+        //...hm... so, non-contiguous pairs, which is the kind that were in the vpok scorer, so it *was*
+        //true that pairs were all you had to worry about. Also, the scope for both runs and pairs was the whole hand.
+        //how can you ensure that no two cards' ranks are the same in a list?
+        //could set up an array of the counts of ranks in the given range, yes? and if any are >1,
+        //the run at that length is broken (therefore any longer ones are too).
+
+        std::array<index_t,13> rankcounts;
+
         if(stack.size() > 2 && numrankmatch < 2) {
 
             //we want to test up to stack.size() cards, so do inclusive end condition
             for(index_t j=3;j<=stack.size();j++) {
-                const auto [rankmin, rankmax] = std::minmax_element(rankstack.end()-j,rankstack.end());
+                //find out if all the cards in the relevant subset are distinct. if any two are
+                //equal, the range check doesn't guarantee a run.
+                rankcounts.fill(0);
+                for_each(rankstack.end()-j,rankstack.end(),[&rankcounts](card_t c){rankcounts[c]++;});
+                if(*std::max_element(rankcounts.begin(),rankcounts.end()) > 1)
+                    break;      //found there's a card of same rank, so this and longer runs are disqualified
+
+                auto [rankmin, rankmax] = std::minmax_element(rankstack.end()-j,rankstack.end());
                 if((*rankmax-*rankmin) == j-1) longestrun = j;
             }
 
