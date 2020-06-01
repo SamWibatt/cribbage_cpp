@@ -15,7 +15,7 @@ card_utils.h - class definition for card game utilities - individual cards and d
 typedef uint8_t card_t;
 
 // for loop indices, counters, accumulators, etc.
-typedef uint16_t index_t;
+typedef uint8_t index_t;
 
 namespace cardutils {
 
