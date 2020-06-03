@@ -40,6 +40,8 @@ CribbagePlayer::~CribbagePlayer() {
 //        self.score = points
 //
 //
+
+//  HERE IS AN EXAMPLE of where I need to reorganize. the player class shouldn't be responsible for UI.
 //    def advance_peg_by_score_callback(self,score):
 //        # OVERRIDE to do graphics of peg advancement, given a total score (for shew)
 //        print("Advance peg by score callback",score)
@@ -54,6 +56,8 @@ CribbagePlayer::~CribbagePlayer() {
 //              self.parent.scoreStringsNPoints[score_index][1],"including this many cards:",num_cards)
 //        pass
 //
+
+//  THESE LOOK LIKE THEY NEED REORGANIZING TOO
 //    # add_score_by_* is a pegging - if the score goes past 120, force it to 121 (game hole) and return True.
 //    # otherwise return False.
 //    # add by index, so can show name (in play) or by total score (in shew)
