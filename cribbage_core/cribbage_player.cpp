@@ -1,11 +1,11 @@
 
 #include "card_utils.h"
-#include "cribbage_cpp.h"
+#include "cribbage_core.h"
 #include "cribbage_player.h"
 #include <vector>
 
 using namespace cardutils;
-using namespace cribbage_cpp;
+using namespace cribbage_core;
 
 
 //

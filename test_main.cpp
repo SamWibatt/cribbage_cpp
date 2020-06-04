@@ -7,14 +7,14 @@
 // Don't forget gtest.h, which declares the testing framework.
 
 #include <stdio.h>
-#include "cribbage_cpp.h"
+#include "cribbage_core.h"
 #include "card_utils.h"
 #include "gtest/gtest.h"
 #include <iostream>
 #include <string>
 
 using namespace cardutils;
-using namespace cribbage_cpp;
+using namespace cribbage_core;
 
 namespace {
 
@@ -969,7 +969,7 @@ namespace {
         card = cr.getCardUtils().stringcard(cardstr);
         index_t playscore;
         playscore = cr.play_card(cardstack,card,&scorelist,build_scorelists);
-        printf("Cardstack len now %d\n",cardstack.size());
+        printf("Cardstack len now %lu\n",cardstack.size());
 
         // HEY PUT IN DETAILED CHECKS a la
         // self.assertEqual(resultcards,curcards + [newcard])
@@ -993,7 +993,7 @@ namespace {
         //for (auto j = 0; j < 10000000; j++)
             playscore = cr.play_card(cardstack,card,&scorelist,build_scorelists);
             //cardstack.pop_back();
-        printf("Cardstack len now %d\n",cardstack.size());
+        printf("Cardstack len now %lu\n",cardstack.size());
         // HEY PUT IN DETAILED CHECKS a la
         // self.assertEqual(resultcards,curcards + [newcard])
         // self.assertEqual(curtotal,sum([pyb.val(x) for x in curcards]) + pyb.val(newcard))
@@ -1126,5 +1126,5 @@ int main(int argc, char *argv[]) {
 
     // real testing main starts here
     ::testing::InitGoogleTest();
-    RUN_ALL_TESTS();
+    auto testresult = RUN_ALL_TESTS();
 }

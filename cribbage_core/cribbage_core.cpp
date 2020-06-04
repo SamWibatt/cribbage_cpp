@@ -7,9 +7,9 @@ Targeting embedded systems, so uses small containers like card_t at the risk of 
 */
 
 
-#include "cribbage_cpp.h"
+#include "cribbage_core.h"
 
-namespace cribbage_cpp {
+namespace cribbage_core {
 
     Cribbage::Cribbage() {
         //ctor stuff here

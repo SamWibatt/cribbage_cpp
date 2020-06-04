@@ -2,12 +2,12 @@
 #define CRIBBAGE_PLAYER_H_INCLUDED
 
 #include "card_utils.h"
-#include "cribbage_cpp.h"
+#include "cribbage_core.h"
 
 #include <vector>
 
 using namespace cardutils;
-using namespace cribbage_cpp;
+using namespace cribbage_core;
 
 class CribbagePlayer {
 

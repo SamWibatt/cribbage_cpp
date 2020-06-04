@@ -12,7 +12,7 @@
 
 using namespace cardutils;
 
-namespace cribbage_cpp {
+namespace cribbage_core {
 
     class Cribbage {
         // global score list

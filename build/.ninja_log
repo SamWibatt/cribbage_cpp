@@ -1,0 +1,11 @@
+# ninja log v5
+1	1231	1591245477	cribbage_core/CMakeFiles/CribbagePlayer.dir/cribbage_player.cpp.o	ecd19d1cdc750c36
+5	1382	1591245478	cribbage_core/CMakeFiles/CardUtils.dir/card_utils.cpp.o	e3fc0ab82da2f659
+6	1519	1591245478	cribbage_core/CMakeFiles/Cribbage.dir/cribbage_core.cpp.o	6851b6dd4dd9eb92
+0	3205	1591245479	CMakeFiles/test_main.dir/test_main.cpp.o	85cc4565d5657fc
+3	37	1591245513	cribbage_core/libCardUtils.a	3addeb63b9d555da
+3	39	1591245513	cribbage_core/libCribbagePlayer.a	5e2a07c31f3fa42d
+3	59	1591245513	cribbage_core/libCribbage.a	c85b027e67eda04e
+59	360	1591245514	test_main	8d8806ceb44e9499
+2	508	1591245514	CMakeFiles/play_main.dir/play_main.cpp.o	e66053b195172b95
+508	612	1591245514	play_main	4a685ac1b47ee41c
