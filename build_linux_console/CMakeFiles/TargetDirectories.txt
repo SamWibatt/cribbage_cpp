@@ -1,8 +1,0 @@
-/home/sean/dev/cpp/cribbage_cpp/build_linux_console/CMakeFiles/rebuild_cache.dir
-/home/sean/dev/cpp/cribbage_cpp/build_linux_console/CMakeFiles/test_main.dir
-/home/sean/dev/cpp/cribbage_cpp/build_linux_console/CMakeFiles/edit_cache.dir
-/home/sean/dev/cpp/cribbage_cpp/build_linux_console/cribbage_core/CMakeFiles/rebuild_cache.dir
-/home/sean/dev/cpp/cribbage_cpp/build_linux_console/cribbage_core/CMakeFiles/edit_cache.dir
-/home/sean/dev/cpp/cribbage_cpp/build_linux_console/cribbage_core/CMakeFiles/CribbagePlayer.dir
-/home/sean/dev/cpp/cribbage_cpp/build_linux_console/cribbage_core/CMakeFiles/CardUtils.dir
-/home/sean/dev/cpp/cribbage_cpp/build_linux_console/cribbage_core/CMakeFiles/Cribbage.dir

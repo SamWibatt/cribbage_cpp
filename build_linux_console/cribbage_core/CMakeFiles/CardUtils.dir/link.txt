@@ -1,2 +1,0 @@
-/usr/bin/ar qc libCardUtils.a  CMakeFiles/CardUtils.dir/card_utils.cpp.o
-/usr/bin/ranlib libCardUtils.a

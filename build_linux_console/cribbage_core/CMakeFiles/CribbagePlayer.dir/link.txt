@@ -1,2 +1,0 @@
-/usr/bin/ar qc libCribbagePlayer.a  CMakeFiles/CribbagePlayer.dir/cribbage_player.cpp.o
-/usr/bin/ranlib libCribbagePlayer.a
