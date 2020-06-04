@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
-<CodeBlocks_workspace_file>
-	<Workspace title="cribbage_cpp">
-		<Project filename="cribbage_cpp_test/cribbage_cpp_test.cbp">
-			<Depends filename="cribbage_cpp/cribbage_cpp.cbp" />
-		</Project>
-		<Project filename="cribbage_cpp/cribbage_cpp.cbp" />
-	</Workspace>
-</CodeBlocks_workspace_file>
