@@ -1,0 +1,2 @@
+/usr/bin/ar qc libCribbage.a  CMakeFiles/Cribbage.dir/cribbage_cpp.cpp.o
+/usr/bin/ranlib libCribbage.a

@@ -1,0 +1,34 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/sean/dev/cpp/cribbage_cpp/cribbage_core/card_utils.h
+string
+-
+vector
+-
+
+/home/sean/dev/cpp/cribbage_cpp/cribbage_core/cribbage_cpp.cpp
+cribbage_cpp.h
+/home/sean/dev/cpp/cribbage_cpp/cribbage_core/cribbage_cpp.h
+
+/home/sean/dev/cpp/cribbage_cpp/cribbage_core/cribbage_cpp.h
+card_utils.h
+/home/sean/dev/cpp/cribbage_cpp/cribbage_core/card_utils.h
+cstdint
+-
+utility
+-
+array
+-
+vector
+-
+numeric
+-
+algorithm
+-
+
