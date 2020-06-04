@@ -7,11 +7,11 @@
 
 #include <cstdint>
 #include "card_utils.h"
-#include "cribbage_cpp.h"
+#include "cribbage_core.h"
 
 
 
-using namespace cribbage_cpp;
+using namespace cribbage_core;
 
 // GLOBALS ================================================================================================================================================
 
