@@ -80,45 +80,6 @@ CribbagePlayer::~CribbagePlayer() {
 //            return True
 //        return False
 //
-//    def get_score(self):
-//        return self.score
-//
-//    def set_dealer(self,isdealer):
-//        self.dealer = isdealer
-//
-//    def is_dealer(self):
-//        return self.dealer
-//
-//    def get_cards(self):
-//        return self.cards
-//
-//    def set_cards(self,cards):
-//        self.cards = cards
-//
-//    def add_card(self,card):
-//        self.cards.append(card)
-//
-//    def add_crib(self,card):
-//        self.crib.append(card)
-//
-//    def get_used_cards(self):
-//        return self.used_cards
-//
-//    def set_used_cards(self,used_cards):
-//        self.used_cards = used_cards
-//
-//    def get_crib(self):
-//        return self.crib
-//
-//    def set_crib(self,crib):
-//        self.crib = crib
-//
-//    def get_name(self):
-//        return self.name
-//
-//    def set_name(self,name):
-//        self.name = name
-//
 //    def get_parent(self):
 //        return parent
 //
@@ -134,6 +95,12 @@ CribbagePlayer::~CribbagePlayer() {
 //        cutspot = self.parent.get_computer_input(4,len(deck)-4)
 //        print("*** cutting.... at",cutspot)
 //        return self.parent.cut(deck,cutspot)
+
+// how to refactor parent out of this?
+// here, 
+// * move get_computer_input someplace, either a separate global utility or even this class
+//   which might suggest this is an abstract base class and the default computer player a subclass
+
 //
 //    def discard(self,otherplayer):
 //        # here, choose two cards from self.hand and into the dealer's crib, either own if self.is_dealer
@@ -148,6 +115,9 @@ CribbagePlayer::~CribbagePlayer() {
 //                self.add_crib(card)
 //            else:
 //                otherplayer.add_crib(card)
+
+// factoring parent out here is again moving random_at_most out of parent
+
 //
 //    # in the play, we get the stack of cards to date
 //    # choose a card and play it, if one is legal, returning the new stack of cards and the score for this round
