@@ -16,6 +16,10 @@
 using namespace cardutils;
 using namespace cribbage_core;
 
+//need some globals in order to use the classes - gross but there it is
+CardUtils cu;
+Cribbage cr;
+
 namespace {
 
     // Step 2. Use the TEST macro to define your tests.
@@ -35,10 +39,9 @@ namespace {
         uint32_t vrandfirst[10] = { 0xC46EB208, 0xB3C52DC7, 0x661E907A, 0xB576E591, 0x3E1961BC,
             0x0C05D1EB, 0xAA513E4E, 0x57003155, 0x8C6652B0, 0x35C3464F };
         //which agree with my ancient PIC version!
-        CardUtils c;
-        c.v_srandom(0x1337d00d);
+        cu.v_srandom(0x1337d00d);
         for(auto j=0;j<10;j++) {
-            EXPECT_EQ(c.v_random(),vrandfirst[j]);
+            EXPECT_EQ(cu.v_random(),vrandfirst[j]);
         }
     }
 
@@ -47,9 +50,9 @@ namespace {
     //very suggestive, though, if ten million >> expected max
     TEST(CardUtilsTest,RandomAtMost3333TenMReps) {
         uint32_t maxy = 0, minny = 0xFFFFFFFF, expmin = 0, expmax = 3333;
-        CardUtils c;
+        cu.v_srandom(0x1337d00d);
         for (auto j = 0; j < 10000000; j++) {
-            auto x = c.random_at_most(expmax);
+            auto x = cu.random_at_most(expmax);
             if (x < minny) minny = x;
             if (x > maxy) maxy = x;
         }
@@ -64,10 +67,9 @@ namespace {
     TEST(CardUtilsTest,StrcardCardstrAllLegit) {
         std::string cardstr;
         card_t outcard;
-        CardUtils c;
         for(card_t card = 0; card < 52; card++) {
-            cardstr = c.cardstring(card);
-            outcard = c.stringcard(cardstr);
+            cardstr = cu.cardstring(card);
+            outcard = cu.stringcard(cardstr);
             //printf("%2d => %s => %2d\n",card,cardstr.c_str(),outcard);
             EXPECT_EQ(card,outcard);
         }
@@ -87,9 +89,8 @@ namespace {
         card_t cardorder[52] = { 15, 9, 49, 14, 22, 31, 16, 13, 0, 50, 8, 47, 28, 11, 35, 2, 1, 12, 45, 7, 21, 23, 6, 17, 34, 37,
             4, 41, 36, 40, 32, 38, 51, 19, 39, 46, 27, 10, 29, 26, 48, 33, 20, 30, 3, 44, 24, 42, 18, 25, 43, 5 };
         std::vector<card_t> deck(52);
-        CardUtils c;
-        c.v_srandom(9999);
-        c.shuffle(deck);
+        cu.v_srandom(9999);
+        cu.shuffle(deck);
         for(auto j = 0; j < 52; j++) EXPECT_EQ(deck[j],cardorder[j]);
         //however, we expect the DEAL to be from the right, so it'd go 9, 17, 7, 42, ...
         //in fact let's unit test that
@@ -97,12 +98,11 @@ namespace {
 
     TEST(CardUtilsTest,Deal10FromShuf9999) {
         card_t dealorder[10] = { 5, 43, 25, 18, 42, 24, 44, 3, 30, 20 };
-        CardUtils c;
         std::vector<card_t> deck(52);
-        c.v_srandom(9999);
-        c.shuffle(deck);
+        cu.v_srandom(9999);
+        cu.shuffle(deck);
         for(auto j = 0; j < 10; j++) {
-            EXPECT_EQ(c.deal_card(deck),dealorder[j]);
+            EXPECT_EQ(cu.deal_card(deck),dealorder[j]);
             EXPECT_EQ(deck.size(),52-(j+1));            //clunky but sort of readable, deck shrinks by 1 per card dealt
         }
     }
@@ -112,11 +112,10 @@ namespace {
     // python semantics are now consistent
     TEST(CardUtilsTest,DeckCutTest) {
         card_t postcut_deck[10] = {14, 15, 16, 17, 18, 19, 10, 11, 12, 13 };
-        CardUtils c;
         std::vector<card_t> deck;
         deck.reserve(52);
         for(auto j=0;j<10;j++) deck.push_back(10+j);
-        c.cut(deck,6);
+        cu.cut(deck,6);
         for(auto j=0;j<10;j++) EXPECT_EQ(deck[j],postcut_deck[j]);
    }
 
@@ -128,7 +127,6 @@ namespace {
         protected:
 
         // data members
-        Cribbage cr;
         uint32_t default_seed = 0x1337d00d;
         std::vector<card_t> hand;
         card_t starter;
@@ -139,33 +137,33 @@ namespace {
         //and the first 4 become "hand" global and last becomes starter
         void build_hand(std::string h1, std::string h2, std::string h3, std::string h4, std::string st) {
             hand.clear();
-            hand.push_back(cr.getCardUtils().stringcard(h1));
-            hand.push_back(cr.getCardUtils().stringcard(h2));
-            hand.push_back(cr.getCardUtils().stringcard(h3));
-            hand.push_back(cr.getCardUtils().stringcard(h4));
-            starter = cr.getCardUtils().stringcard(st);
+            hand.push_back(cu.stringcard(h1));
+            hand.push_back(cu.stringcard(h2));
+            hand.push_back(cu.stringcard(h3));
+            hand.push_back(cu.stringcard(h4));
+            starter = cu.stringcard(st);
             //check for illegal cards
-            if(hand[0] == cr.getCardUtils().ERROR_CARD_VAL) printf("WARNING: card 1 is illegal string '%s'\n",h1.c_str());
-            if(hand[1] == cr.getCardUtils().ERROR_CARD_VAL) printf("WARNING: card 2 is illegal string '%s'\n",h2.c_str());
-            if(hand[2] == cr.getCardUtils().ERROR_CARD_VAL) printf("WARNING: card 3 is illegal string '%s'\n",h3.c_str());
-            if(hand[3] == cr.getCardUtils().ERROR_CARD_VAL) printf("WARNING: card 4 is illegal string '%s'\n",h4.c_str());
-            if(starter == cr.getCardUtils().ERROR_CARD_VAL) printf("WARNING: starter is illegal string '%s'\n",st.c_str());
+            if(hand[0] == cu.ERROR_CARD_VAL) printf("WARNING: card 1 is illegal string '%s'\n",h1.c_str());
+            if(hand[1] == cu.ERROR_CARD_VAL) printf("WARNING: card 2 is illegal string '%s'\n",h2.c_str());
+            if(hand[2] == cu.ERROR_CARD_VAL) printf("WARNING: card 3 is illegal string '%s'\n",h3.c_str());
+            if(hand[3] == cu.ERROR_CARD_VAL) printf("WARNING: card 4 is illegal string '%s'\n",h4.c_str());
+            if(starter == cu.ERROR_CARD_VAL) printf("WARNING: starter is illegal string '%s'\n",st.c_str());
         }
 
         void render_shew_scorelist() {
             index_t mask;
             printf("score list: -----------------\n");
-            for(auto j = 0; j < 4; j++) printf("%s ",cr.getCardUtils().cardstring(hand[j]).c_str());
-            printf("%s ",cr.getCardUtils().cardstring(starter).c_str());
+            for(auto j = 0; j < 4; j++) printf("%s ",cu.cardstring(hand[j]).c_str());
+            printf("%s ",cu.cardstring(starter).c_str());
             printf(" hand\n");
             index_t totscore = 0;
             for (Cribbage::score_entry se : scorelist) {
                 for(auto j = 0,mask = 0x01; j < 5; j++, mask <<= 1)
                     if(se.part_cards & mask)
                         if(j<4)
-                            printf("%s ",cr.getCardUtils().cardstring(hand[j]).c_str());
+                            printf("%s ",cu.cardstring(hand[j]).c_str());
                         else
-                            printf("%s ",cr.getCardUtils().cardstring(starter).c_str());
+                            printf("%s ",cu.cardstring(starter).c_str());
                     else printf("-- ");
                 totscore += cr.scorePoints[se.score_index];
                 printf(" %s %d (%d)\n",cr.scoreStrings[se.score_index].c_str(),cr.scorePoints[se.score_index],totscore);
@@ -174,7 +172,7 @@ namespace {
 
         // setup initializes data members, runs BEFORE EVERY TEST
         void SetUp() override {
-            cr.getCardUtils().v_srandom(default_seed);
+            cu.v_srandom(default_seed);
             //I think the longest possible list of scores is for 29: eight fifteens + 4 of a kind + nobs?
             //VERIFY
             scorelist.reserve(10);
@@ -554,7 +552,6 @@ namespace {
         protected:
 
         // data members
-        Cribbage cr;
         uint32_t default_seed = 0x1337d00d;
         std::vector<card_t> cardstack;
         card_t card;
@@ -566,10 +563,10 @@ namespace {
         void build_stack(std::vector<std::string> stackcardsstr) {
             cardstack.clear();
             for (auto j = 0; j < stackcardsstr.size(); j++)
-                cardstack.push_back(cr.getCardUtils().stringcard(stackcardsstr[j]));
+                cardstack.push_back(cu.stringcard(stackcardsstr[j]));
             //check for illegal cards
             for(auto j = 0; j < cardstack.size(); j++)
-                if(cardstack[j] == cr.getCardUtils().ERROR_CARD_VAL) printf("WARNING: stack card %d is illegal string '%s'\n",j,stackcardsstr[j].c_str());
+                if(cardstack[j] == cu.ERROR_CARD_VAL) printf("WARNING: stack card %d is illegal string '%s'\n",j,stackcardsstr[j].c_str());
         }
 
         //cardstack should have the played card on it
@@ -580,14 +577,14 @@ namespace {
                 printf("empty ");
             else
                 for(index_t j = 0; j< stackcardsstr.size(); j++) printf("%s ",stackcardsstr[j].c_str());
-            //printf("%s ",cr.getCardUtils().cardstring(starter).c_str());
+            //printf("%s ",cu.cardstring(starter).c_str());
             printf("stack, played %s\n",cardstr.c_str());
             index_t totscore = 0;
             for (Cribbage::score_entry se : scorelist) {
                 //remember the early cards are rightmost
                 for(index_t j = 0,mask = 1 << cardstack.size(); j < cardstack.size(); j++, mask >>= 1)
                     if(se.part_cards & mask)
-                        printf("%s ",cr.getCardUtils().cardstring(cardstack[j]).c_str());
+                        printf("%s ",cu.cardstring(cardstack[j]).c_str());
                     else printf("-- ");
                 totscore += cr.scorePoints[se.score_index];
                 printf(" %s %d (%d)\n",cr.scoreStrings[se.score_index].c_str(),cr.scorePoints[se.score_index],totscore);
@@ -596,7 +593,7 @@ namespace {
 
         // setup initializes data members, runs BEFORE EVERY TEST
         void SetUp() override {
-            cr.getCardUtils().v_srandom(default_seed);
+            cu.v_srandom(default_seed);
             //I think the longest possible list of scores is for 29: eight fifteens + 4 of a kind + nobs?
             //VERIFY
             scorelist.reserve(10);
@@ -615,7 +612,7 @@ namespace {
         std::vector<std::string> startstack = {"Qh", "0c", "9s", "3d"};
         std::string cardstr = "4d";
         build_stack(startstack);
-        card = cr.getCardUtils().stringcard(cardstr);
+        card = cu.stringcard(cardstr);
         index_t playscore;
         //for(auto j=0;j<10000000;j++)
             playscore = cr.play_card(cardstack,card,&scorelist,build_scorelists);
@@ -632,7 +629,7 @@ namespace {
         std::vector<std::string> startstack = {};
         std::string cardstr = "7h";
         build_stack(startstack);
-        card = cr.getCardUtils().stringcard(cardstr);
+        card = cu.stringcard(cardstr);
         index_t playscore;
         playscore = cr.play_card(cardstack,card,&scorelist,build_scorelists);
         // HEY PUT IN DETAILED CHECKS a la
@@ -648,7 +645,7 @@ namespace {
         std::vector<std::string> startstack = {"5d"};
         std::string cardstr = "Jh";
         build_stack(startstack);
-        card = cr.getCardUtils().stringcard(cardstr);
+        card = cu.stringcard(cardstr);
         index_t playscore;
         playscore = cr.play_card(cardstack,card,&scorelist,build_scorelists);
         // HEY PUT IN DETAILED CHECKS a la
@@ -664,7 +661,7 @@ namespace {
         std::vector<std::string> startstack = {"5d","Jh","Ac","5h"};
         std::string cardstr = "Qh";
         build_stack(startstack);
-        card = cr.getCardUtils().stringcard(cardstr);
+        card = cu.stringcard(cardstr);
         index_t playscore;
         playscore = cr.play_card(cardstack,card,&scorelist,build_scorelists);
         // HEY PUT IN DETAILED CHECKS a la
@@ -679,7 +676,7 @@ namespace {
         std::vector<std::string> startstack = {"3d"};
         std::string cardstr = "3h";
         build_stack(startstack);
-        card = cr.getCardUtils().stringcard(cardstr);
+        card = cu.stringcard(cardstr);
         index_t playscore;
         playscore = cr.play_card(cardstack,card,&scorelist,build_scorelists);
         // HEY PUT IN DETAILED CHECKS a la
@@ -694,7 +691,7 @@ namespace {
         std::vector<std::string> startstack = {"2c"};
         std::string cardstr = "7s";
         build_stack(startstack);
-        card = cr.getCardUtils().stringcard(cardstr);
+        card = cu.stringcard(cardstr);
         index_t playscore;
         playscore = cr.play_card(cardstack,card,&scorelist,build_scorelists);
         // HEY PUT IN DETAILED CHECKS a la
@@ -709,7 +706,7 @@ namespace {
         std::vector<std::string> startstack = {"4c","4s"};
         std::string cardstr = "4h";
         build_stack(startstack);
-        card = cr.getCardUtils().stringcard(cardstr);
+        card = cu.stringcard(cardstr);
         index_t playscore;
         playscore = cr.play_card(cardstack,card,&scorelist,build_scorelists);
         // HEY PUT IN DETAILED CHECKS a la
@@ -724,7 +721,7 @@ namespace {
         std::vector<std::string> startstack = {"4c","Qd","4s"};
         std::string cardstr = "4h";
         build_stack(startstack);
-        card = cr.getCardUtils().stringcard(cardstr);
+        card = cu.stringcard(cardstr);
         index_t playscore;
         playscore = cr.play_card(cardstack,card,&scorelist,build_scorelists);
         // HEY PUT IN DETAILED CHECKS a la
@@ -739,7 +736,7 @@ namespace {
         std::vector<std::string> startstack = {"Ad","6c","6s","6d"};
         std::string cardstr = "6h";
         build_stack(startstack);
-        card = cr.getCardUtils().stringcard(cardstr);
+        card = cu.stringcard(cardstr);
         index_t playscore;
         playscore = cr.play_card(cardstack,card,&scorelist,build_scorelists);
         // HEY PUT IN DETAILED CHECKS a la
@@ -754,7 +751,7 @@ namespace {
         std::vector<std::string> startstack = {"2c","2d","Qd","2s"};
         std::string cardstr = "2h";
         build_stack(startstack);
-        card = cr.getCardUtils().stringcard(cardstr);
+        card = cu.stringcard(cardstr);
         index_t playscore;
         playscore = cr.play_card(cardstack,card,&scorelist,build_scorelists);
         // HEY PUT IN DETAILED CHECKS a la
@@ -769,7 +766,7 @@ namespace {
         std::vector<std::string> startstack = {"Ac","2s"};
         std::string cardstr = "3h";
         build_stack(startstack);
-        card = cr.getCardUtils().stringcard(cardstr);
+        card = cu.stringcard(cardstr);
         index_t playscore;
         playscore = cr.play_card(cardstack,card,&scorelist,build_scorelists);
         // HEY PUT IN DETAILED CHECKS a la
@@ -784,7 +781,7 @@ namespace {
         std::vector<std::string> startstack = {"8c","6s"};
         std::string cardstr = "7h";
         build_stack(startstack);
-        card = cr.getCardUtils().stringcard(cardstr);
+        card = cu.stringcard(cardstr);
         index_t playscore;
         playscore = cr.play_card(cardstack,card,&scorelist,build_scorelists);
         // HEY PUT IN DETAILED CHECKS a la
@@ -799,7 +796,7 @@ namespace {
         std::vector<std::string> startstack = {"5c","6s","Jd"};
         std::string cardstr = "7h";
         build_stack(startstack);
-        card = cr.getCardUtils().stringcard(cardstr);
+        card = cu.stringcard(cardstr);
         index_t playscore;
         playscore = cr.play_card(cardstack,card,&scorelist,build_scorelists);
         // HEY PUT IN DETAILED CHECKS a la
@@ -830,7 +827,7 @@ namespace {
         std::vector<std::string> startstack = {"Ac","2s","3s"};
         std::string cardstr = "4h";
         build_stack(startstack);
-        card = cr.getCardUtils().stringcard(cardstr);
+        card = cu.stringcard(cardstr);
         index_t playscore;
         playscore = cr.play_card(cardstack,card,&scorelist,build_scorelists);
         // HEY PUT IN DETAILED CHECKS a la
@@ -845,7 +842,7 @@ namespace {
         std::vector<std::string> startstack = {"8c","6s","5c"};
         std::string cardstr = "7h";
         build_stack(startstack);
-        card = cr.getCardUtils().stringcard(cardstr);
+        card = cu.stringcard(cardstr);
         index_t playscore;
         playscore = cr.play_card(cardstack,card,&scorelist,build_scorelists);
         // HEY PUT IN DETAILED CHECKS a la
@@ -860,7 +857,7 @@ namespace {
         std::vector<std::string> startstack = {"Ac","2s","Jd","3h"};
         std::string cardstr = "4c";
         build_stack(startstack);
-        card = cr.getCardUtils().stringcard(cardstr);
+        card = cu.stringcard(cardstr);
         index_t playscore;
         playscore = cr.play_card(cardstack,card,&scorelist,build_scorelists);
         // HEY PUT IN DETAILED CHECKS a la
@@ -875,7 +872,7 @@ namespace {
         std::vector<std::string> startstack = {"2c","3s","4s","5d"};
         std::string cardstr = "6h";
         build_stack(startstack);
-        card = cr.getCardUtils().stringcard(cardstr);
+        card = cu.stringcard(cardstr);
         index_t playscore;
         playscore = cr.play_card(cardstack,card,&scorelist,build_scorelists);
         // HEY PUT IN DETAILED CHECKS a la
@@ -890,7 +887,7 @@ namespace {
         std::vector<std::string> startstack = {"8c","6s","5c","4d"};
         std::string cardstr = "7h";
         build_stack(startstack);
-        card = cr.getCardUtils().stringcard(cardstr);
+        card = cu.stringcard(cardstr);
         index_t playscore;
         playscore = cr.play_card(cardstack,card,&scorelist,build_scorelists);
         // HEY PUT IN DETAILED CHECKS a la
@@ -905,7 +902,7 @@ namespace {
         std::vector<std::string> startstack = {"Ac","2s","4c","Jd","3h"};
         std::string cardstr = "5c";
         build_stack(startstack);
-        card = cr.getCardUtils().stringcard(cardstr);
+        card = cu.stringcard(cardstr);
         index_t playscore;
         playscore = cr.play_card(cardstack,card,&scorelist,build_scorelists);
         // HEY PUT IN DETAILED CHECKS a la
@@ -920,7 +917,7 @@ namespace {
         std::vector<std::string> startstack = {"2c","3s","4s","5d","6h"};
         std::string cardstr = "7h";
         build_stack(startstack);
-        card = cr.getCardUtils().stringcard(cardstr);
+        card = cu.stringcard(cardstr);
         index_t playscore;
         playscore = cr.play_card(cardstack,card,&scorelist,build_scorelists);
         // HEY PUT IN DETAILED CHECKS a la
@@ -935,7 +932,7 @@ namespace {
         std::vector<std::string> startstack = {"3c","6s","5c","4d","2c"};
         std::string cardstr = "7h";
         build_stack(startstack);
-        card = cr.getCardUtils().stringcard(cardstr);
+        card = cu.stringcard(cardstr);
         index_t playscore;
         playscore = cr.play_card(cardstack,card,&scorelist,build_scorelists);
         // HEY PUT IN DETAILED CHECKS a la
@@ -950,7 +947,7 @@ namespace {
         std::vector<std::string> startstack = {"Ac","2s","4c","3d","3h","5d"};
         std::string cardstr = "6c";
         build_stack(startstack);
-        card = cr.getCardUtils().stringcard(cardstr);
+        card = cu.stringcard(cardstr);
         index_t playscore;
         playscore = cr.play_card(cardstack,card,&scorelist,build_scorelists);
         // HEY PUT IN DETAILED CHECKS a la
@@ -966,7 +963,7 @@ namespace {
         std::vector<std::string> startstack = {"Ad","Ah,","2c","3s","4s","5d","6d"};
         std::string cardstr = "7h";
         build_stack(startstack);
-        card = cr.getCardUtils().stringcard(cardstr);
+        card = cu.stringcard(cardstr);
         index_t playscore;
         playscore = cr.play_card(cardstack,card,&scorelist,build_scorelists);
         printf("Cardstack len now %lu\n",cardstack.size());
@@ -983,7 +980,7 @@ namespace {
         std::vector<std::string> startstack = {"7c","6s","5c","4d","2d","3h"};
         std::string cardstr = "Ah";
         build_stack(startstack);
-        card = cr.getCardUtils().stringcard(cardstr);
+        card = cu.stringcard(cardstr);
         index_t playscore;
         //this should be the slowest scoring hand for the play, yes?
         //hm, can't just do it ten million times, I guess - move this earlier? bc cardstack changes
@@ -1006,7 +1003,7 @@ namespace {
         std::vector<std::string> startstack = {"3c","2s","Ac","4d","5h","6d"};
         std::string cardstr = "Ac";
         build_stack(startstack);
-        card = cr.getCardUtils().stringcard(cardstr);
+        card = cu.stringcard(cardstr);
         index_t playscore;
         playscore = cr.play_card(cardstack,card,&scorelist,build_scorelists);
         // HEY PUT IN DETAILED CHECKS a la
@@ -1021,7 +1018,7 @@ namespace {
         std::vector<std::string> startstack = {"3d","4c","4s"};
         std::string cardstr = "4h";
         build_stack(startstack);
-        card = cr.getCardUtils().stringcard(cardstr);
+        card = cu.stringcard(cardstr);
         index_t playscore;
         playscore = cr.play_card(cardstack,card,&scorelist,build_scorelists);
         // HEY PUT IN DETAILED CHECKS a la
@@ -1036,7 +1033,7 @@ namespace {
         std::vector<std::string> startstack = {"3c","7s","7c","7d"};
         std::string cardstr = "7h";
         build_stack(startstack);
-        card = cr.getCardUtils().stringcard(cardstr);
+        card = cu.stringcard(cardstr);
         index_t playscore;
         playscore = cr.play_card(cardstack,card,&scorelist,build_scorelists);
         // HEY PUT IN DETAILED CHECKS a la
@@ -1051,7 +1048,7 @@ namespace {
         std::vector<std::string> startstack = {"2d","Ac","5s","3d"};
         std::string cardstr = "4h";
         build_stack(startstack);
-        card = cr.getCardUtils().stringcard(cardstr);
+        card = cu.stringcard(cardstr);
         index_t playscore;
         playscore = cr.play_card(cardstack,card,&scorelist,build_scorelists);
         // HEY PUT IN DETAILED CHECKS a la
@@ -1066,14 +1063,12 @@ namespace {
 
 int main(int argc, char *argv[]) {
     //silly noodles
-    Cribbage c;
-
     std::vector <card_t> stacky;
-    stacky.push_back(c.getCardUtils().stringcard("9c"));
-    stacky.push_back(c.getCardUtils().stringcard("2h"));
-    stacky.push_back(c.getCardUtils().stringcard("7d"));
-    stacky.push_back(c.getCardUtils().stringcard("4c"));
-    c.play_card(stacky, c.getCardUtils().stringcard("6c"), nullptr, false);
+    stacky.push_back(cu.stringcard("9c"));
+    stacky.push_back(cu.stringcard("2h"));
+    stacky.push_back(cu.stringcard("7d"));
+    stacky.push_back(cu.stringcard("4c"));
+    cr.play_card(stacky, cu.stringcard("6c"), nullptr, false);
 
     /*
     std::vector<card_t> hand;

@@ -12,6 +12,9 @@
 
 using namespace cardutils;
 
+//what if we just had globals
+extern CardUtils cu;
+
 namespace cribbage_core {
 
     class Cribbage {
@@ -89,6 +92,8 @@ namespace cribbage_core {
         };
 
         // data members =======================================================================================
+        // trying with global
+        /*
         public:
             //score
             //here is the card and deck handling object
@@ -96,7 +101,7 @@ namespace cribbage_core {
 
             //for readability, and if I want cu to be protected later
             CardUtils &getCardUtils() { return cu; }
-
+        */
         // nested classes =====================================================================================
         public:
             // score entry class

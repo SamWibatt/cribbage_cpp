@@ -9,7 +9,13 @@ Targeting embedded systems, so uses small containers like card_t at the risk of 
 
 #include "cribbage_core.h"
 
+using namespace cardutils;
+
+extern CardUtils cu;
+
+
 namespace cribbage_core {
+
 
     Cribbage::Cribbage() {
         //ctor stuff here
@@ -31,7 +37,7 @@ namespace cribbage_core {
 
         // then construct the vals array from that
         std::transform(whole_hand.begin(),whole_hand.end(),whole_vals.begin(),
-            [this](card_t card) -> card_t { return this->cu.val(card); });
+            [this](card_t card) -> card_t { return cu.val(card); });
 
         // then construct the sorted hand in sorthand_nranks
         if (!build_list) {
@@ -57,13 +63,13 @@ namespace cribbage_core {
         //for run spotting
         card_t first_rank = cu.rank(sorthand_nranks[0]);
         std::transform(sorthand_nranks.begin(),sorthand_nranks.end(),sorthand_nranks.begin(),
-            [first_rank,this](card_t card) -> card_t { return this->cu.rank(card) - first_rank; });
+            [first_rank,this](card_t card) -> card_t { return cu.rank(card) - first_rank; });
 
         //then get whole_hand's suits? Not sure we need to do this here, could defer until we
         //know we need to check for flushes
         //extract suits
         std::transform(whole_hand.begin(),whole_hand.end(),whole_suits.begin(),
-            [this](card_t card) -> card_t { return this->cu.suit(card); });
+            [this](card_t card) -> card_t { return cu.suit(card); });
 
     }
 
@@ -385,7 +391,7 @@ namespace cribbage_core {
         // so first find the total of stack
         // tip: "a" in the lambda here is the running total
         index_t curtotal = std::accumulate(stack.begin(), stack.end(), 0,
-            [this](index_t a, card_t b){return a + index_t(this->cu.val(b));});
+            [this](index_t a, card_t b){return a + index_t(cu.val(b));});
 
         //debug
         /*
@@ -408,14 +414,14 @@ namespace cribbage_core {
 
         //TEST: print last 3 cards in stack - worked!
         //printf("last 3 cards in stack\n");
-        //std::for_each(stack.end()-3, stack.end(), [this](card_t c){printf("%s ",this->cu.cardstring(c).c_str());});
+        //std::for_each(stack.end()-3, stack.end(), [this](card_t c){printf("%s ",cu.cardstring(c).c_str());});
         //printf("\n");
 
         //everything after this cares about ranks, so let's precompute them
         std::vector<card_t> rankstack(stack.size());
         //rankstack.reserve(stack.size());
         std::transform(stack.begin(),stack.end(),rankstack.begin(),
-            [this](card_t c){ return this->cu.rank(c); });
+            [this](card_t c){ return cu.rank(c); });
 
 
         //look for fifteen or thirty-one!!
