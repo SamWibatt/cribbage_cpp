@@ -1,5 +1,10 @@
 cmake_minimum_required(VERSION 3.10)
 
+# compiler - this needs to be before project()
+# though this shouldn't be necessary w/kits
+#set(CMAKE_C_COMPILER "/usr/bin/clang")
+#set(CMAKE_CXX_COMPILER "/usr/bin/clang++")
+
 # set the project name and version
 project(cribbage_cpp VERSION 1.0)
 
