@@ -1,6 +1,10 @@
 # project specific
 play_main
 test_main
+build/
+
+# Leave out vs code dependent
+.vscode
 
 # Cmake stuff
 CMakeLists.txt.user
