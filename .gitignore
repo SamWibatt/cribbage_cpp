@@ -1,6 +1,6 @@
 # project specific
-build/
-build_
+play_main
+test_main
 
 # Cmake stuff
 CMakeLists.txt.user
