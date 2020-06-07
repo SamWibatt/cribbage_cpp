@@ -10,7 +10,7 @@ cmake_minimum_required(VERSION 3.10)
 # can set from cmdline with cmake -DTARGET_PLATFORM=xxx
 # default to linux console 
 if(NOT DEFINED TARGET_PLATFORM)
-    set (TARGET_PLATFORM "LinuxConsole")  #"ArduinoSerial")
+    set (TARGET_PLATFORM "ArduinoSerial")  # "LinuxConsole")
 endif()
 
 # so we can do stuff like check to see if it's a Linux of any kind with 
@@ -52,6 +52,10 @@ list(APPEND EXTRA_LIBS CribbagePlayer)
 # and platform-independent includes
 list(APPEND EXTRA_INCLUDES "${PROJECT_SOURCE_DIR}/cribbage_core")
 
+# add the game executable
+# later to be switched by platform config of some sort
+add_executable(play_main play_main.cpp)
+
 # platform specific libraries and includes 
 if(TARGET_PLATFORM MATCHES "Arduino*")
     if(TARGET_PLATFORM STREQUAL "ArduinoSerial")
@@ -73,14 +77,14 @@ elseif(TARGET_PLATFORM MATCHES "Linux*")
         add_subdirectory("${PROJECT_SOURCE_DIR}/plat_linux_allegro")
         list(APPEND EXTRA_INCLUDES "${PROJECT_SOURCE_DIR}/plat_linux_allegro")
     endif()
-    list(APPEND EXTRA_LIBS PlatIO)
 endif()
 
+# add the platspec libraries 
+list(APPEND EXTRA_LIBS PlatPlayMain)
+list(APPEND EXTRA_LIBS PlatIO)
 
-# add the game executable
-# later to be switched by platform config of some sort
-add_executable(play_main play_main.cpp)
-# and its libs 
+
+# add libs for play_main 
 target_link_libraries(play_main PUBLIC ${EXTRA_LIBS})
 
 target_include_directories(play_main PUBLIC
