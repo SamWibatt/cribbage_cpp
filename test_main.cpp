@@ -12,6 +12,7 @@
 #include "gtest/gtest.h"
 #include <iostream>
 #include <string>
+#include "plat_io.h"
 
 using namespace cardutils;
 using namespace cribbage_core;
@@ -56,7 +57,7 @@ namespace {
             if (x < minny) minny = x;
             if (x > maxy) maxy = x;
         }
-        //printf("Minny = %d, maxy = %d\n",minny, maxy);
+        //plprintf("Minny = %d, maxy = %d\n",minny, maxy);
         EXPECT_LE(maxy,expmax);
         EXPECT_GE(minny,expmin);
     }
@@ -70,7 +71,7 @@ namespace {
         for(card_t card = 0; card < 52; card++) {
             cardstr = cu.cardstring(card);
             outcard = cu.stringcard(cardstr);
-            //printf("%2d => %s => %2d\n",card,cardstr.c_str(),outcard);
+            //plprintf("%2d => %s => %2d\n",card,cardstr.c_str(),outcard);
             EXPECT_EQ(card,outcard);
         }
     }
@@ -143,30 +144,30 @@ namespace {
             hand.push_back(cu.stringcard(h4));
             starter = cu.stringcard(st);
             //check for illegal cards
-            if(hand[0] == cu.ERROR_CARD_VAL) printf("WARNING: card 1 is illegal string '%s'\n",h1.c_str());
-            if(hand[1] == cu.ERROR_CARD_VAL) printf("WARNING: card 2 is illegal string '%s'\n",h2.c_str());
-            if(hand[2] == cu.ERROR_CARD_VAL) printf("WARNING: card 3 is illegal string '%s'\n",h3.c_str());
-            if(hand[3] == cu.ERROR_CARD_VAL) printf("WARNING: card 4 is illegal string '%s'\n",h4.c_str());
-            if(starter == cu.ERROR_CARD_VAL) printf("WARNING: starter is illegal string '%s'\n",st.c_str());
+            if(hand[0] == cu.ERROR_CARD_VAL) plprintf("WARNING: card 1 is illegal string '%s'\n",h1.c_str());
+            if(hand[1] == cu.ERROR_CARD_VAL) plprintf("WARNING: card 2 is illegal string '%s'\n",h2.c_str());
+            if(hand[2] == cu.ERROR_CARD_VAL) plprintf("WARNING: card 3 is illegal string '%s'\n",h3.c_str());
+            if(hand[3] == cu.ERROR_CARD_VAL) plprintf("WARNING: card 4 is illegal string '%s'\n",h4.c_str());
+            if(starter == cu.ERROR_CARD_VAL) plprintf("WARNING: starter is illegal string '%s'\n",st.c_str());
         }
 
         void render_shew_scorelist() {
             index_t mask;
-            printf("score list: -----------------\n");
-            for(auto j = 0; j < 4; j++) printf("%s ",cu.cardstring(hand[j]).c_str());
-            printf("%s ",cu.cardstring(starter).c_str());
-            printf(" hand\n");
+            plprintf("score list: -----------------\n");
+            for(auto j = 0; j < 4; j++) plprintf("%s ",cu.cardstring(hand[j]).c_str());
+            plprintf("%s ",cu.cardstring(starter).c_str());
+            plprintf(" hand\n");
             index_t totscore = 0;
             for (Cribbage::score_entry se : scorelist) {
                 for(auto j = 0,mask = 0x01; j < 5; j++, mask <<= 1)
                     if(se.part_cards & mask)
                         if(j<4)
-                            printf("%s ",cu.cardstring(hand[j]).c_str());
+                            plprintf("%s ",cu.cardstring(hand[j]).c_str());
                         else
-                            printf("%s ",cu.cardstring(starter).c_str());
-                    else printf("-- ");
+                            plprintf("%s ",cu.cardstring(starter).c_str());
+                    else plprintf("-- ");
                 totscore += cr.scorePoints[se.score_index];
-                printf(" %s %d (%d)\n",cr.scoreStrings[se.score_index].c_str(),cr.scorePoints[se.score_index],totscore);
+                plprintf(" %s %d (%d)\n",cr.scoreStrings[se.score_index].c_str(),cr.scorePoints[se.score_index],totscore);
             }
         }
 
@@ -519,7 +520,7 @@ namespace {
         index_t handscore;
         //I think this might be the slowest case for scoring, so let's try 10 million of it
         //actually no 4 of a kind is a short-circuit, try one with 5 5 5 j j incl nobs
-        //printf("TEN MILLION!!!\n");
+        //plprintf("TEN MILLION!!!\n");
         //for (auto j = 0; j < 10000000; j++)
             handscore = cr.score_shew(hand,starter,&scorelist,build_scorelists);
         EXPECT_EQ(handscore,(cr.scorePoints[Cribbage::SCORE_FIFTEEN] * 8) +
@@ -538,7 +539,7 @@ namespace {
         index_t handscore;
         //I think this might be the slowest case for scoring, so let's try 10 million of it
         //actually no 4 of a kind is a short-circuit, try one with 5 5 5 j j incl nobs
-        //printf("TEN MILLION!!!\n");
+        //plprintf("TEN MILLION!!!\n");
         //for (auto j = 0; j < 10000000; j++)
             handscore = cr.score_shew(hand,starter,&scorelist,build_scorelists);
         EXPECT_EQ(handscore,(cr.scorePoints[Cribbage::SCORE_FIFTEEN] * 7) +
@@ -566,28 +567,28 @@ namespace {
                 cardstack.push_back(cu.stringcard(stackcardsstr[j]));
             //check for illegal cards
             for(auto j = 0; j < cardstack.size(); j++)
-                if(cardstack[j] == cu.ERROR_CARD_VAL) printf("WARNING: stack card %d is illegal string '%s'\n",j,stackcardsstr[j].c_str());
+                if(cardstack[j] == cu.ERROR_CARD_VAL) plprintf("WARNING: stack card %d is illegal string '%s'\n",j,stackcardsstr[j].c_str());
         }
 
         //cardstack should have the played card on it
         void render_play_scorelist(std::vector<std::string> stackcardsstr, std::string cardstr) {
             index_t mask;
-            printf("score list: -----------------\n");
+            plprintf("score list: -----------------\n");
             if(stackcardsstr.empty())
-                printf("empty ");
+                plprintf("empty ");
             else
-                for(index_t j = 0; j< stackcardsstr.size(); j++) printf("%s ",stackcardsstr[j].c_str());
-            //printf("%s ",cu.cardstring(starter).c_str());
-            printf("stack, played %s\n",cardstr.c_str());
+                for(index_t j = 0; j< stackcardsstr.size(); j++) plprintf("%s ",stackcardsstr[j].c_str());
+            //plprintf("%s ",cu.cardstring(starter).c_str());
+            plprintf("stack, played %s\n",cardstr.c_str());
             index_t totscore = 0;
             for (Cribbage::score_entry se : scorelist) {
                 //remember the early cards are rightmost
                 for(index_t j = 0,mask = 1 << cardstack.size(); j < cardstack.size(); j++, mask >>= 1)
                     if(se.part_cards & mask)
-                        printf("%s ",cu.cardstring(cardstack[j]).c_str());
-                    else printf("-- ");
+                        plprintf("%s ",cu.cardstring(cardstack[j]).c_str());
+                    else plprintf("-- ");
                 totscore += cr.scorePoints[se.score_index];
-                printf(" %s %d (%d)\n",cr.scoreStrings[se.score_index].c_str(),cr.scorePoints[se.score_index],totscore);
+                plprintf(" %s %d (%d)\n",cr.scoreStrings[se.score_index].c_str(),cr.scorePoints[se.score_index],totscore);
             }
         }
 
@@ -966,7 +967,7 @@ namespace {
         card = cu.stringcard(cardstr);
         index_t playscore;
         playscore = cr.play_card(cardstack,card,&scorelist,build_scorelists);
-        printf("Cardstack len now %lu\n",cardstack.size());
+        plprintf("Cardstack len now %lu\n",cardstack.size());
 
         // HEY PUT IN DETAILED CHECKS a la
         // self.assertEqual(resultcards,curcards + [newcard])
@@ -986,11 +987,11 @@ namespace {
         //hm, can't just do it ten million times, I guess - move this earlier? bc cardstack changes
         //so the time is a bit skewed - or maybe just pop that card off cardstack & swh
         //in any case, play scoring is pretty fast, like 3 sec for 10MM in debug
-        //printf("TEN MILLION!!!\n");
+        //plprintf("TEN MILLION!!!\n");
         //for (auto j = 0; j < 10000000; j++)
             playscore = cr.play_card(cardstack,card,&scorelist,build_scorelists);
             //cardstack.pop_back();
-        printf("Cardstack len now %lu\n",cardstack.size());
+        plprintf("Cardstack len now %lu\n",cardstack.size());
         // HEY PUT IN DETAILED CHECKS a la
         // self.assertEqual(resultcards,curcards + [newcard])
         // self.assertEqual(curtotal,sum([pyb.val(x) for x in curcards]) + pyb.val(newcard))
@@ -1077,9 +1078,9 @@ int main(int argc, char *argv[]) {
     hand.push_back(41);
     hand.push_back(51);
     card_t starter = 44;
-    printf("Hand: ");
-    std::for_each(hand.begin(),hand.end(),[](card_t c){printf("%d ",c);});
-    printf("Starter: %d\n",starter);
+    plprintf("Hand: ");
+    std::for_each(hand.begin(),hand.end(),[](card_t c){plprintf("%d ",c);});
+    plprintf("Starter: %d\n",starter);
     std::array<card_t,5> whole_hand;
     std::array<card_t,5> whole_vals;
     std::array<card_t,5> sorthand_nranks;
@@ -1089,21 +1090,21 @@ int main(int argc, char *argv[]) {
     //BUT in the context of a giant AI search or whatever, not terrible; minimax is unlikely to be doing that many
     //at least if I limit the deepening
     //oh wait that was on debug, how about release? pretty much insty
-    //printf("TEN MILLION!!!!\n");
+    //plprintf("TEN MILLION!!!!\n");
     //for(auto j = 0; j < 10000000; j++)
         c.prep_score_hand(hand, starter, whole_hand, whole_vals, sorthand_nranks, whole_suits, sort_map, true );
-    printf("Whole Hand: ");
-    std::for_each(whole_hand.begin(),whole_hand.end(),[](card_t c){printf("%d ",c);});
-    printf("\nWhole Vals: ");
-    std::for_each(whole_vals.begin(),whole_vals.end(),[](card_t c){printf("%d ",c);});
-    printf("\nWhole Hand Suits: ");
-    std::for_each(whole_suits.begin(),whole_suits.end(),[](card_t c){printf("%d ",c);});
-    printf("\nSortHand NormRanks: ");
-    std::for_each(sorthand_nranks.begin(),sorthand_nranks.end(),[](card_t c){printf("%d ",c);});
+    plprintf("Whole Hand: ");
+    std::for_each(whole_hand.begin(),whole_hand.end(),[](card_t c){plprintf("%d ",c);});
+    plprintf("\nWhole Vals: ");
+    std::for_each(whole_vals.begin(),whole_vals.end(),[](card_t c){plprintf("%d ",c);});
+    plprintf("\nWhole Hand Suits: ");
+    std::for_each(whole_suits.begin(),whole_suits.end(),[](card_t c){plprintf("%d ",c);});
+    plprintf("\nSortHand NormRanks: ");
+    std::for_each(sorthand_nranks.begin(),sorthand_nranks.end(),[](card_t c){plprintf("%d ",c);});
     //HEY PRINT SORT MAPPING HERE IF WE DID IT
-    printf("\nSort Map: ");
-    std::for_each(sort_map.begin(),sort_map.end(),[](index_t c){printf("%d ",c);});
-    printf("\n");
+    plprintf("\nSort Map: ");
+    std::for_each(sort_map.begin(),sort_map.end(),[](index_t c){plprintf("%d ",c);});
+    plprintf("\n");
 
     //4-carders
     std::array<card_t,4> first4;
@@ -1112,11 +1113,11 @@ int main(int argc, char *argv[]) {
     std::copy_n(sorthand_nranks.begin(),4,first4.begin());
     std::transform(sorthand_nranks.begin() + 1,sorthand_nranks.end(),last4.begin(),
         [firstlastrank](card_t rank) -> card_t { return rank - firstlastrank; });
-    printf("First 4 nranks: ");
-    std::for_each(first4.begin(),first4.end(),[](card_t c){printf("%d ",c);});
-    printf("\nLast 4 nranks, firstlastrank %d: ",firstlastrank);
-    std::for_each(last4.begin(),last4.end(),[](card_t c){printf("%d ",c);});
-    printf("\n");
+    plprintf("First 4 nranks: ");
+    std::for_each(first4.begin(),first4.end(),[](card_t c){plprintf("%d ",c);});
+    plprintf("\nLast 4 nranks, firstlastrank %d: ",firstlastrank);
+    std::for_each(last4.begin(),last4.end(),[](card_t c){plprintf("%d ",c);});
+    plprintf("\n");
     */
 
     // real testing main starts here

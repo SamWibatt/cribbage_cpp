@@ -7,7 +7,11 @@ cmake_minimum_required(VERSION 3.10)
 # LinuxAllegro
 # ArduinoSerial
 # ArduinoTFT
-set (TARGET_PLATFORM "ArduinoSerial")
+# can set from cmdline with cmake -DTARGET_PLATFORM=xxx
+# default to linux console 
+if(NOT DEFINED TARGET_PLATFORM)
+    set (TARGET_PLATFORM "LinuxConsole")  #"ArduinoSerial")
+endif()
 
 # so we can do stuff like check to see if it's a Linux of any kind with 
 #if(<variable|string> MATCHES regex)
@@ -39,21 +43,45 @@ project(cribbage_cpp VERSION 1.0)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
-# add libraries
+# add platform-independent libraries
 add_subdirectory(cribbage_core)
 list(APPEND EXTRA_LIBS CardUtils)
 list(APPEND EXTRA_LIBS Cribbage)
 list(APPEND EXTRA_LIBS CribbagePlayer)
 
-# and includes
+# and platform-independent includes
 list(APPEND EXTRA_INCLUDES "${PROJECT_SOURCE_DIR}/cribbage_core")
+
+# platform specific libraries and includes 
+if(TARGET_PLATFORM MATCHES "Arduino*")
+    if(TARGET_PLATFORM STREQUAL "ArduinoSerial")
+        add_subdirectory("${PROJECT_SOURCE_DIR}/plat_arduino_serial")
+        list(APPEND EXTRA_INCLUDES "${PROJECT_SOURCE_DIR}/plat_arduino_serial")
+    elseif(TARGET_PLATFORM STREQUAL "ArduinoTFT")
+        add_subdirectory("${PROJECT_SOURCE_DIR}/plat_arduino_tft")
+        list(APPEND EXTRA_INCLUDES "${PROJECT_SOURCE_DIR}/plat_arduino_tft")
+    endif()
+    target_link_arduino_libraries(play_main PRIVATE core)
+    # OTHER LIBRARIES LIKE MCUFRIEND OR WHATEVER GO HERE 
+    # target for making it generate hex 
+    target_enable_arduino_upload(play_main)
+elseif(TARGET_PLATFORM MATCHES "Linux*")
+    if(TARGET_PLATFORM STREQUAL "LinuxConsole")
+        add_subdirectory("${PROJECT_SOURCE_DIR}/plat_linux_console")
+        list(APPEND EXTRA_INCLUDES "${PROJECT_SOURCE_DIR}/plat_linux_console")
+    elseif(TARGET_PLATFORM STREQUAL "ArduinoTFT")
+        add_subdirectory("${PROJECT_SOURCE_DIR}/plat_linux_allegro")
+        list(APPEND EXTRA_INCLUDES "${PROJECT_SOURCE_DIR}/plat_linux_allegro")
+    endif()
+    list(APPEND EXTRA_LIBS PlatIO)
+endif()
+
 
 # add the game executable
 # later to be switched by platform config of some sort
 add_executable(play_main play_main.cpp)
 # and its libs 
 target_link_libraries(play_main PUBLIC ${EXTRA_LIBS})
-
 
 target_include_directories(play_main PUBLIC
                            "${PROJECT_BINARY_DIR}"
