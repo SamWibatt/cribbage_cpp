@@ -14,4 +14,3 @@ llvm-profdata merge -sparse testcov.profraw -o testcov.profdata
 llvm-cov show ./test_main -instr-profile=testcov.profdata > covcounts.txt
 llvm-cov report ./test_main -instr-profile=testcov.profdata > covsummary.txt
 llvm-cov report ./test_main -instr-profile=testcov.profdata
-cd..
