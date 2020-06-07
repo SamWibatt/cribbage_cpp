@@ -122,6 +122,7 @@ namespace cribbage_core {
                     // ctor for when you know the participating-card mask and score index
                     score_entry(index_t pc,index_t sci) : part_cards(pc), score_index(sci) {}
 
+                    /*
                     // ctor for when you know the score index but will be filling in
                     // participating cards with the settors below
                     score_entry(index_t sci) : part_cards(0), score_index(sci) {}
@@ -133,6 +134,7 @@ namespace cribbage_core {
                     }
                     void set_card_involved(index_t index) { if (index < 5) index |= (1 << index); }
                     void clear_card_involved(index_t index) { if (index < 5) index &= ~(1<<index); }
+                    */
             };
 
         // ctor / dtor ========================================================================================
