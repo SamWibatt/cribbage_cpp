@@ -2,6 +2,7 @@
 play_main
 test_main
 build/
+build_*/
 
 # Leave out vs code dependent
 .vscode

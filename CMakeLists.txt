@@ -1,40 +1,62 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.14)        # add_link_options needs 3.13+
 
-# OK, going to ignore VS code build system....
+# PRE-PROJECT SETTINGS ==================================================================================
+
 # here set platform
-# possible values are:
-# LinuxConsole
-# LinuxAllegro
-# ArduinoSerial
-# ArduinoTFT
+# possible values are: LinuxConsole LinuxAllegro ArduinoSerial ArduinoTFT
 # can set from cmdline with cmake -DTARGET_PLATFORM=xxx
-# default to linux console 
+# can set default here 
 if(NOT DEFINED TARGET_PLATFORM)
-    set (TARGET_PLATFORM "ArduinoSerial")  # "LinuxConsole")
+    set (TARGET_PLATFORM "LinuxConsole")
 endif()
 
-# so we can do stuff like check to see if it's a Linux of any kind with 
-#if(<variable|string> MATCHES regex)
-# which can even do captures into CMAKE_MATCH_n for n = 0..9
-# or equal to an exact target with 
-#if(<variable|string> STREQUAL <variable|string>)
+# sanity check platform
+if(NOT TARGET_PLATFORM STREQUAL "LinuxConsole" AND
+   NOT TARGET_PLATFORM STREQUAL "LinuxAllegro" AND
+   NOT TARGET_PLATFORM STREQUAL "ArduinoSerial" AND
+   NOT TARGET_PLATFORM STREQUAL "ArduinoTFT")
+   message(FATAL_ERROR "Unrecognized TARGET_PLATFORM")
+endif()
 
-# pre-project stuff 
-# see if I can set the arduino install path here - it looks like the project command is what invokes
-# the chain of stuff that dies on this not being defined
-# THIS SEEMS TO WORK
+# here set flag for clang coverage testing
+# maybe an option that defaults to off, can edit to ON or send something on cmdline
+# something like
+# cmake -DTEST_COVERAGE=ON ..
+option(TEST_COVERAGE "Set ON to generate code coverage for main_test" OFF)
+
+# set arduino install path here for the Arduino CMake Toolchain
+# MAYBE PUT THIS SOMEWHERE MORE OBVIOUS - can be up top, no harm in setting it if the
+# compile isn't for arduino, yes?
+# also the path isn't necessary if the installation is in a standard place - see the submodule
+# write up how to do this!
 if(TARGET_PLATFORM MATCHES "Arduino.*")
     set(ARDUINO_INSTALL_PATH "/home/sean/software/arduino-1.8.12/")
     # and board - copied this line from build/BoardOptions.cmake after initial run without it set
     set(ARDUINO_BOARD "Adafruit Circuit Playground Express [samd.adafruit_circuitplayground_m0]") # Adafruit Circuit Playground Express
-    # HERE ALSO NEED TO SET THE toolchain?
+    # Select the Arduino-CMake-Toolchain toolchain
     set(CMAKE_TOOLCHAIN_FILE "Arduino-CMake-Toolchain/Arduino-toolchain.cmake")
 elseif(TARGET_PLATFORM MATCHES "Linux.*")
     set(CMAKE_C_COMPILER "clang")
     set(CMAKE_CXX_COMPILER "clang++")
-else()
-    # error! Unknown platform. die
+    # OK so in here is where we'd set up the clang code coverage options if we want that, yes?
+    # see https://clang.llvm.org/docs/SourceBasedCodeCoverage.html
+    # clang++ -fprofile-instr-generate -fcoverage-mapping foo.cc -o foo
+    # SEE HOW TO SET COMPILER OPTIONS - https://cmake.org/cmake/help/latest/variable/CMAKE_LANG_FLAGS.html
+    # This is initialized for each language from environment variables:
+    # CMAKE_C_FLAGS: Initialized by the CFLAGS environment variable.
+    # CMAKE_CXX_FLAGS: Initialized by the CXXFLAGS environment variable. 
+    # BETTER: use add_compile_options so as not to trash what's already in there
+    if(TEST_COVERAGE)
+        message("Compiling with test coverage")
+        add_compile_options(-fprofile-instr-generate -fcoverage-mapping)
+        # per https://stackoverflow.com/questions/56112019/clang-does-not-generate-profraw-file-when-linking-manually
+        # they also need to be added to the link step
+        add_link_options(-fprofile-instr-generate -fcoverage-mapping)
+    endif()   
 endif()
+
+
+# PROJECT NAME AND POST-PROJECT SETTINGS ================================================================
 
 # set the project name and version
 project(cribbage_cpp VERSION 1.0)
