@@ -38,21 +38,6 @@ if(TARGET_PLATFORM MATCHES "Arduino.*")
 elseif(TARGET_PLATFORM MATCHES "Linux.*")
     set(CMAKE_C_COMPILER "clang")
     set(CMAKE_CXX_COMPILER "clang++")
-    # OK so in here is where we'd set up the clang code coverage options if we want that, yes?
-    # see https://clang.llvm.org/docs/SourceBasedCodeCoverage.html
-    # clang++ -fprofile-instr-generate -fcoverage-mapping foo.cc -o foo
-    # SEE HOW TO SET COMPILER OPTIONS - https://cmake.org/cmake/help/latest/variable/CMAKE_LANG_FLAGS.html
-    # This is initialized for each language from environment variables:
-    # CMAKE_C_FLAGS: Initialized by the CFLAGS environment variable.
-    # CMAKE_CXX_FLAGS: Initialized by the CXXFLAGS environment variable. 
-    # BETTER: use add_compile_options so as not to trash what's already in there
-    if(TEST_COVERAGE)
-        message("Compiling with test coverage")
-        add_compile_options(-fprofile-instr-generate -fcoverage-mapping)
-        # per https://stackoverflow.com/questions/56112019/clang-does-not-generate-profraw-file-when-linking-manually
-        # they also need to be added to the link step
-        add_link_options(-fprofile-instr-generate -fcoverage-mapping)
-    endif()   
 endif()
 
 
@@ -64,6 +49,31 @@ project(cribbage_cpp VERSION 1.0)
 # specify the C++ standard
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
+
+# add/compile google test before the coverage compile options to leave it out of the report
+# YAY THIS WORKS
+if(TARGET_PLATFORM MATCHES "Linux*")
+    # add google test submod - LATER NOT LINUX ONLY BUT THE COVERAGE WILL BE
+    add_subdirectory(googletest)
+
+    # THEN can do the test coverage part
+    if(TEST_COVERAGE)
+        message("Compiling with test coverage")
+        # OK so in here is where we'd set up the clang code coverage options if we want that, yes?
+        # see https://clang.llvm.org/docs/SourceBasedCodeCoverage.html
+        # clang++ -fprofile-instr-generate -fcoverage-mapping foo.cc -o foo
+        # SEE HOW TO SET COMPILER OPTIONS - https://cmake.org/cmake/help/latest/variable/CMAKE_LANG_FLAGS.html
+        # This is initialized for each language from environment variables:
+        # CMAKE_C_FLAGS: Initialized by the CFLAGS environment variable.
+        # CMAKE_CXX_FLAGS: Initialized by the CXXFLAGS environment variable. 
+        # BETTER: use add_compile_options so as not to trash what's already in there
+        add_compile_options(-fprofile-instr-generate -fcoverage-mapping)
+        # per https://stackoverflow.com/questions/56112019/clang-does-not-generate-profraw-file-when-linking-manually
+        # they also need to be added to the link step
+        add_link_options(-fprofile-instr-generate -fcoverage-mapping)
+    endif()   
+endif()
+
 
 # add platform-independent libraries
 add_subdirectory(cribbage_core)
@@ -106,6 +116,7 @@ list(APPEND EXTRA_LIBS PlatPlayMain)
 list(APPEND EXTRA_LIBS PlatIO)
 
 
+
 # add libs for play_main 
 target_link_libraries(play_main PUBLIC ${EXTRA_LIBS})
 
@@ -115,6 +126,7 @@ target_include_directories(play_main PUBLIC
                            )
 
 # test only for linux atm - at least they'll be different
+# SOON MAYBE WE'LL HAVE GTEST FOR ARDUINO YAY
 if(TARGET_PLATFORM MATCHES "Linux*")
     # add the test executable
     add_executable(test_main test_main.cpp)

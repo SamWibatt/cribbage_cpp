@@ -1,3 +1,6 @@
 [submodule "Arduino-CMake-Toolchain"]
 	path = Arduino-CMake-Toolchain
 	url = https://github.com/a9183756-gh/Arduino-CMake-Toolchain
+[submodule "googletest"]
+	path = googletest
+	url = https://github.com/google/googletest
