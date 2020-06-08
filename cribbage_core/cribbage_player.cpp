@@ -38,29 +38,54 @@ CribbagePlayer::~CribbagePlayer() {
 // =================================================================================================================
 // HERE ARE OVERRIDEABLE STRATEGY METHODS like playing a card in the play or shew
 
-// 
+// choose an index at which to cut the deck
 index_t CribbagePlayer::get_cut_index(index_t deck_len) {
     if(deck_len < 9) return 0;                          //no legal cut possible
     return 4 + cu.random_at_most(uint32_t(deck_len)-4); //hardcode 4s bc you can't cut anywhere 
                                                         //within 4 cards of an end of the deck
 }
 
-//
-//    def discard(self,otherplayer):
-//        # here, choose two cards from self.hand and into the dealer's crib, either own if self.is_dealer
-//        # or otherplayer if not.
-//        # default implementation, just choose two at random. Can use deal to pull a card off.
-//        # or, just yank the card out.
-//        for j in range(0,2):
-//            cardind = self.parent.random_at_most(len(self.cards)-1)
-//            card = self.cards[cardind]              # split out the card
-//            self.cards = self.cards[:cardind] + self.cards[cardind + 1:]  # remove card from hand
-//            if self.is_dealer():
-//                self.add_crib(card)
-//            else:
-//                otherplayer.add_crib(card)
+// choose two cards to discard and return their indices as a pair
+// pass in the vector of cards so can use this in strategies as well as actual play
+std::pair<card_t, card_t> CribbagePlayer::get_discards(std::vector<card_t> &cardvec) {
+    // for the default implementation, just take the two cards off the end of cardvec
+    if(cardvec.size() != 6) {
+        //error if we call this when the incoming hand doesn't have 6 cards
+        return std::pair<card_t,card_t>(cu.ERROR_CARD_VAL,cu.ERROR_CARD_VAL);
+    }
 
-// factoring parent out here is again moving random_at_most out of parent
+    card_t card1 = cardvec.back();
+    cardvec.pop_back();
+    card_t card2 = cardvec.back();
+    cardvec.pop_back();
+    return std::pair<card_t,card_t>(card1,card2);
+}
+
+// choose a card to play given a current stack and a current hand
+// default implementation is just grab the first legal one
+// if no playable card is in the hand, return cu.ERROR_CARD_VAL;
+card_t CribbagePlayer::get_play_card(std::vector<card_t> &cardvec, std::vector<card_t> &cardstack) {
+    //index_t play_card(std::vector<card_t> &stack, card_t card, std::vector<score_entry> *scores, bool build_list);
+    //the only illegal play is to exceed 31, which returns cr.ERROR_SCORE_VAL
+    //IT DOES CHANGE CARDSTACK THO SO FIGURE OUT IF I NEED TO CHANGE THAT
+
+    //if there aren't any cards to play, return an error. May not be a real error, that's caller's call
+    if(cardvec.empty()) return cu.ERROR_CARD_VAL;
+
+    //find the first card that is legal to play and take it out of cardvec and return it
+    for(auto j = 0; j < cardvec.size(); j++) {
+        card_t c = *(cardvec.begin()+j);
+        index_t s = cr.play_card(cardstack,c,nullptr,false);
+        if(s != cr.ERROR_SCORE_VAL) {
+            cardvec.erase(cardvec.begin()+j);
+            return c;
+        }
+    }
+
+    //there was no playable card
+    return cu.ERROR_CARD_VAL;
+}
+
 
 //
 //    # in the play, we get the stack of cards to date

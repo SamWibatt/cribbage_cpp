@@ -402,7 +402,7 @@ namespace cribbage_core {
 
         if(curtotal + index_t(cu.val(card)) > 31) {
             //too big! no change to stack, scores nothing
-            return 0;
+            return ERROR_SCORE_VAL;
         }
 
         index_t total_score = 0;

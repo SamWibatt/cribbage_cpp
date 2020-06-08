@@ -91,6 +91,8 @@ namespace cribbage_core {
             "double double run"     // SCORE_DBLDBLRUN = 19
         };
 
+        const index_t ERROR_SCORE_VAL = index_t(-1);
+
         // data members =======================================================================================
         // trying with global
         /*

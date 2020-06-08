@@ -5,6 +5,7 @@
 #include "cribbage_core.h"
 
 #include <vector>
+#include <utility>
 
 using namespace cardutils;
 using namespace cribbage_core;
@@ -62,6 +63,8 @@ class CribbagePlayer {
 
         //overrideables for player subclasses
         virtual index_t get_cut_index(index_t deck_len);
+        std::pair<card_t, card_t> get_discards(std::vector<card_t> &cardvec);
+        card_t get_play_card(std::vector<card_t> &cardvec, std::vector<card_t> &cardstack);
 };
 
 #endif // CRIBBAGE_PLAYER_H_INCLUDED
