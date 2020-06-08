@@ -7,99 +7,43 @@
 using namespace cardutils;
 using namespace cribbage_core;
 
+//gross, might refactor all to hell and gone
+extern CardUtils cu;
+extern Cribbage cr;
 
-//
-//# Default computer player --------------------------------------------------------------------------------------------
-//# K so I have a player object. What do we know about players?
-//# - what cards they hold and which are "used"
-//# - whether they're the dealer
-//# - their score
-//# parent pybbage
-//class Player:
-//    def __init__(self, parent, cards = [], used_cards = [], crib = [], dealer = False, score = 0, name = "Player"):
-//        self.parent = parent
-//        self.cards = cards
-//        self.used_cards = used_cards
-//        self.crib = crib
-//        self.dealer = dealer
-//        self.score = score
-//        self.name = name
+//# Default player ------------------------------------------------------------------------------------
+// Default player is computer player that does random cuts and first legal card for discard or play.
 
 // CTOR AND DTOR ====================================================================================
-CribbagePlayer::CribbagePlayer() {
-    //TODO: FIGURE OUT HOW TO DO DEFAULTS and what good defaults are
+CribbagePlayer::CribbagePlayer()
+{ 
+    cards.reserve(6);           //allocate space in cards vector for 6 cards, which is the max
+    used_cards.reserve(4);      //similar for used_cards, cards that have been put down in the play, at most 4
+    crib.reserve(4);            //and crib
+    score = 0;
+    dealer = false;
+    name = "";
+}
 
+//delegate to default ctor
+CribbagePlayer::CribbagePlayer(std::string nuname, bool nudealer)  : CribbagePlayer()
+{ 
+    dealer = nudealer;
+    name = nuname;
 }
 
 CribbagePlayer::~CribbagePlayer() {
 }
 
+// =================================================================================================================
+// HERE ARE OVERRIDEABLE STRATEGY METHODS like playing a card in the play or shew
 
-//
-//    def set_score(self,points):
-//        self.score = points
-//
-//
-
-//  HERE IS AN EXAMPLE of where I need to reorganize. the player class shouldn't be responsible for UI.
-//    def advance_peg_by_score_callback(self,score):
-//        # OVERRIDE to do graphics of peg advancement, given a total score (for shew)
-//        print("Advance peg by score callback",score)
-//        pass
-//
-//    # this is used by play, and every scoring combination of cards in play is a contiguous set including the
-//    # newly played card. so if num_cards is 1, the top card is highlighted, on up to e.g. run of 4, highlight
-//    # 4 cards, top and 3 preceding.
-//    def advance_peg_by_index_callback(self,score_index,num_cards):
-//        # OVERRIDE to do graphics of peg advancement, given a score index (for play)
-//        print("Advance peg by index callback",self.parent.scoreStringsNPoints[score_index][0],"for",
-//              self.parent.scoreStringsNPoints[score_index][1],"including this many cards:",num_cards)
-//        pass
-//
-
-//  THESE LOOK LIKE THEY NEED REORGANIZING TOO
-//    # add_score_by_* is a pegging - if the score goes past 120, force it to 121 (game hole) and return True.
-//    # otherwise return False.
-//    # add by index, so can show name (in play) or by total score (in shew)
-//    # this is used by play, and every scoring combination of cards in play is a contiguous set including the
-//    # newly played card. so if num_cards is 1, the top card is highlighted, on up to e.g. run of 4, highlight
-//    # 4 cards, top and 3 preceding.
-//    def add_score_by_index(self,score_index,num_cards):
-//        self.score += self.parent.scoreStringsNPoints[score_index][1]
-//        self.advance_peg_by_index_callback(score_index,num_cards)
-//        if self.score > 120:
-//            self.score = 121
-//            return True
-//        return False
-//
-//    def add_score_by_score(self,score):
-//        self.score += score
-//        self.advance_peg_by_score_callback(score)
-//        if self.score > 120:
-//            self.score = 121
-//            return True
-//        return False
-//
-//    def get_parent(self):
-//        return parent
-//
-//    def set_parent(self,parent):
-//        self.parent = parent
-//
-//    # =================================================================================================================
-//    # HERE ARE OVERRIDEABLE STRATEGY METHODS like playing a card in the play or shew
-//    # easy ones are using human input and choosing cards at random
-//    # might also have one for initial cut or subsequent cuts
-//    def cut(self,deck):
-//        # default: assume computer, and that deck is big enough to do this. Should be called right after a shuffle
-//        cutspot = self.parent.get_computer_input(4,len(deck)-4)
-//        print("*** cutting.... at",cutspot)
-//        return self.parent.cut(deck,cutspot)
-
-// how to refactor parent out of this?
-// here, 
-// * move get_computer_input someplace, either a separate global utility or even this class
-//   which might suggest this is an abstract base class and the default computer player a subclass
+// 
+index_t CribbagePlayer::get_cut_index(index_t deck_len) {
+    if(deck_len < 9) return 0;                          //no legal cut possible
+    return 4 + cu.random_at_most(uint32_t(deck_len)-4); //hardcode 4s bc you can't cut anywhere 
+                                                        //within 4 cards of an end of the deck
+}
 
 //
 //    def discard(self,otherplayer):
