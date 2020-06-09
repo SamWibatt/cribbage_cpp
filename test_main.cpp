@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include "cribbage_core.h"
 #include "card_utils.h"
+#include "cribbage_player.h"
 #include "gtest/gtest.h"
 #include <iostream>
 #include <string>
@@ -1172,9 +1173,20 @@ namespace {
         void TearDown() override {
 
         }
-
     };
 
+    TEST_F(DefaultPlayerTest,T0_Setup) {
+        CribbagePlayer cp;
+        EXPECT_EQ(cp.is_dealer(),false);
+        EXPECT_EQ(cp.get_name(),"");
+        EXPECT_EQ(cp.get_score(),0);
+        EXPECT_EQ(cp.get_cards().capacity(),6);
+        EXPECT_EQ(cp.get_used_cards().capacity(),4);
+        EXPECT_EQ(cp.get_crib().capacity(),4);
+        EXPECT_EQ(cp.get_cards().empty(), true);
+        EXPECT_EQ(cp.get_used_cards().empty(), true);
+        EXPECT_EQ(cp.get_crib().empty(), true);
+    }
 
 }
 
