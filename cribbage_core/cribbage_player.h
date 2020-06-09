@@ -45,17 +45,17 @@ class CribbagePlayer {
 
   inline std::vector<card_t> &get_cards() { return cards; }
   inline void set_cards(std::vector<card_t> nucards) { cards = nucards; }
-  inline void add_card(card_t nucard) { cards.push_back(nucard); }
+  inline void add_card(card_t nucard) { if(cards.size() < 6) cards.push_back(nucard); }
 
   inline std::vector<card_t> &get_crib() { return crib; }
   inline void set_crib(std::vector<card_t> nucrib) { crib = nucrib; }
-  inline void add_crib(card_t nucard) { crib.push_back(nucard); }
+  inline void add_crib(card_t nucard) { if(crib.size() < 4)  crib.push_back(nucard); }
 
   inline std::vector<card_t> &get_used_cards() { return used_cards; }
   inline void set_used_cards(std::vector<card_t> nuused) {
     used_cards = nuused;
   }
-  inline void add_used_cards(card_t nucard) { used_cards.push_back(nucard); }
+  inline void add_used_cards(card_t nucard) {  if(used_cards.size() < 4) used_cards.push_back(nucard); }
 
   inline std::string get_name() { return name; }
   inline void set_name(std::string nuname) { name = nuname; }

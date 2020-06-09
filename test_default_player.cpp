@@ -182,17 +182,90 @@ TEST_F(DefaultPlayerTest, T040_SetGetCards) {
 }
 
 // inline void add_card(card_t nucard) { cards.push_back(nucard); }
+TEST_F(DefaultPlayerTest, T050_AddCard) {
+  CribbagePlayer cp("Player1",true);
+  build_stack({"Qh", "0c", "9s", "3d", "5d"});
+  cp.set_cards(cardstack);
+  card_t nucard = cu.stringcard("Jh");
+  cp.add_card(nucard);
+  cardstack.push_back(nucard);
+  EXPECT_EQ(cp.get_cards(), cardstack);
+}
+
+TEST_F(DefaultPlayerTest, T060_AddCardTooMany) {
+  CribbagePlayer cp("Player1",true);
+  build_stack({"Qh", "0c", "9s", "3d", "5d", "Qd"});
+  cp.set_cards(cardstack);
+  card_t nucard = cu.stringcard("Jh");
+  cp.add_card(nucard);  //should have no effect
+  EXPECT_EQ(cp.get_cards(), cardstack);
+}
 
 // inline std::vector<card_t> &get_crib() { return crib; }
 // inline void set_crib(std::vector<card_t> nucrib) { crib = nucrib; }
+TEST_F(DefaultPlayerTest, T070_SetGetCrib) {
+  CribbagePlayer cp("Player1",true);
+  build_stack({"Qh", "0c", "5d", "Jh"});
+  cp.set_crib(cardstack);
+  EXPECT_EQ(cp.get_crib(), cardstack);
+}
+
 // inline void add_crib(card_t nucard) { crib.push_back(nucard); }
+TEST_F(DefaultPlayerTest, T080_AddCrib) {
+  CribbagePlayer cp("Player1",true);
+  build_stack({"Qh", "0c", "9s"});
+  cp.set_crib(cardstack);
+  card_t nucard = cu.stringcard("Jh");
+  cp.add_crib(nucard);
+  cardstack.push_back(nucard);
+  EXPECT_EQ(cp.get_crib(), cardstack);
+}
+
+TEST_F(DefaultPlayerTest, T090_AddCribTooMany) {
+  CribbagePlayer cp("Player1",true);
+  build_stack({"Qh", "0c", "9s", "3d"});
+  cp.set_crib(cardstack);
+  card_t nucard = cu.stringcard("Jh");
+  cp.add_crib(nucard);  //should have no effect
+  EXPECT_EQ(cp.get_crib(), cardstack);
+}
 
 // inline std::vector<card_t> &get_used_cards() { return used_cards; }
 // inline void set_used_cards(std::vector<card_t> nuused) {
 //   used_cards = nuused;
 // }
+TEST_F(DefaultPlayerTest, T100_SetGetUsed) {
+  CribbagePlayer cp("Player1",true);
+  build_stack({"Qh", "0c", "5d", "Jh"});
+  cp.set_used_cards(cardstack);
+  EXPECT_EQ(cp.get_used_cards(), cardstack);
+}
+
 // inline void add_used_cards(card_t nucard) { used_cards.push_back(nucard); }
+TEST_F(DefaultPlayerTest, T110_AddUsed) {
+  CribbagePlayer cp("Player1",true);
+  build_stack({"Qh", "0c", "9s"});
+  cp.set_used_cards(cardstack);
+  card_t nucard = cu.stringcard("Jh");
+  cp.add_used_cards(nucard);
+  cardstack.push_back(nucard);
+  EXPECT_EQ(cp.get_used_cards(), cardstack);
+}
+
+TEST_F(DefaultPlayerTest, T120_AddUsedTooMany) {
+  CribbagePlayer cp("Player1",true);
+  build_stack({"Qh", "0c", "9s", "3d"});
+  cp.set_used_cards(cardstack);
+  card_t nucard = cu.stringcard("Jh");
+  cp.add_used_cards(nucard);  //should have no effect
+  EXPECT_EQ(cp.get_used_cards(), cardstack);
+}
 
 // inline std::string get_name() { return name; }
 // inline void set_name(std::string nuname) { name = nuname; }
+TEST_F(DefaultPlayerTest, T130_SetGetName) {
+  CribbagePlayer cp("Player1",true);
+  cp.set_name("Rollo");
+  EXPECT_EQ(cp.get_name(), "Rollo");
+}
 
