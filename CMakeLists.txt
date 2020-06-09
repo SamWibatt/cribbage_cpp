@@ -52,8 +52,13 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 # add/compile google test before the coverage compile options to leave it out of the report
 # YAY THIS WORKS
+
+#TEMP see if ardy can link gtest
+# nope, can't compile it - pthreads and other stuff don't seem to work
+#add_subdirectory(googletest)
+
 if(TARGET_PLATFORM MATCHES "Linux*")
-    # add google test submod - LATER NOT LINUX ONLY BUT THE COVERAGE WILL BE
+    # add google test submod 
     add_subdirectory(googletest)
 
     # THEN can do the test coverage part
@@ -127,6 +132,7 @@ target_include_directories(play_main PUBLIC
 
 # test only for linux atm - at least they'll be different
 # SOON MAYBE WE'LL HAVE GTEST FOR ARDUINO YAY
+# swh if we do ardy - compile fails, gtest uses stuff ardy doesn't seem to have, like pthreads
 if(TARGET_PLATFORM MATCHES "Linux*")
     # add the test executable
     add_executable(test_main test_main.cpp test_card_utils.cpp test_score_shew.cpp test_play_card.cpp test_default_player.cpp)
