@@ -5,13 +5,14 @@
 #include "plat_io.h"
 #include "plat_play_main.h"
 
-//what if we just had globals
+// what if we just had globals
 CardUtils cu;
 Cribbage cr;
 CribbagePlayer cp[2];
 
-//platform-specific main will call this after doing platspec setup
+// platform-specific main will call this after doing platspec setup
 void run() {
-    std::string gamename = "Cribbulationzzz";
-    plprintf("Hello and welcome to %s, the crinkly cribbage playing utility.\n",gamename.c_str());
+  std::string gamename = "Cribbulationzzz";
+  plprintf("Hello and welcome to %s, the crinkly cribbage playing utility.\n",
+           gamename.c_str());
 }

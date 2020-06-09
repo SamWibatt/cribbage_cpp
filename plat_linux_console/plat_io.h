@@ -10,6 +10,6 @@ plat_io.h - platform dependent printf, input, etc.
 #include <cstdarg>
 
 // platform specific printf
-void plprintf(const char * fmt, ...);
+void plprintf(const char* fmt, ...);
 
 #endif
