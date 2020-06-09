@@ -129,7 +129,7 @@ target_include_directories(play_main PUBLIC
 # SOON MAYBE WE'LL HAVE GTEST FOR ARDUINO YAY
 if(TARGET_PLATFORM MATCHES "Linux*")
     # add the test executable
-    add_executable(test_main test_main.cpp)
+    add_executable(test_main test_main.cpp test_card_utils.cpp test_score_shew.cpp test_play_card.cpp test_default_player.cpp)
     # and ITS libs 
     target_link_libraries(test_main PUBLIC ${EXTRA_LIBS})
     target_link_libraries(test_main PUBLIC gtest)
