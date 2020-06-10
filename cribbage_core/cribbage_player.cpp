@@ -89,7 +89,13 @@ card_t CribbagePlayer::get_play_card(std::vector<card_t> &cardvec,
   // return it
   for (auto j = 0; j < cardvec.size(); j++) {
     card_t c = *(cardvec.begin() + j);
-    index_t s = cr.play_card(cardstack, c, nullptr, false);
+    //so: play_card changes cardstack, yes? if this is being called hypothetically, the stack will
+    //stack up.
+    //options? Add a parameter to play_card to not do that,
+    //pop it back off here.
+    //I lean toward the former bc this is not the only place this will be called.
+    //so that's done, it's that last false there
+    index_t s = cr.play_card(cardstack, c, nullptr, false, false);
     if (s != cr.ERROR_SCORE_VAL) {
       cardvec.erase(cardvec.begin() + j);
       return c;

@@ -406,8 +406,10 @@ index_t Cribbage::score_shew(std::vector<card_t> hand, card_t starter,
 // such that lowest bit is... the leftmost? rightmost makes more sense, if the
 // stack grows to the right, which I believe it will. just need a different
 // render algorithm, which the graphic game will have anyway. QED.
+// if add_to_stack is true, add the card to stack, otherwise don't (for strategies calling
+// it hypothetically.)
 index_t Cribbage::play_card(std::vector<card_t> &stack, card_t card,
-                            std::vector<score_entry> *scores, bool build_list) {
+                            std::vector<score_entry> *scores, bool build_list, bool add_to_stack) {
   // zeroth: clear scores, if we're doing scores, which we are if build_list
   // is true and scores isn't nullptr.
   bool make_list = (build_list) ? scores != nullptr : false;
@@ -581,6 +583,9 @@ index_t Cribbage::play_card(std::vector<card_t> &stack, card_t card,
     }
   }
 
+  // clumsy, but here we are - if the call is hypothetical (add_to_stack == false), return stack
+  // to how it was.
+  if(add_to_stack == false) stack.pop_back();
   return total_score;
 }
 }  // namespace cribbage_core

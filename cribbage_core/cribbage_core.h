@@ -179,8 +179,10 @@ class Cribbage {
   // and modifies the stack of cards to include the new one (if it is a legal
   // play). if build_list is true and scores is not nullptr, scores will contain
   // score_entrys for any scoring combinations made by the play.
+  // add_to_stack is true if you want stack to be modified by this function,
+  // false if called "hypothetically" by strategies
   index_t play_card(std::vector<card_t> &stack, card_t card,
-                    std::vector<score_entry> *scores, bool build_list);
+                    std::vector<score_entry> *scores, bool build_list, bool add_to_stack);
 };
 
 }  // namespace cribbage_core

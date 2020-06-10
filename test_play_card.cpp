@@ -24,6 +24,7 @@ class PlayCardTest : public ::testing::Test {
   std::vector<Cribbage::score_entry> scorelist;
   bool build_scorelists =
       true;  // FOR SPEED TESTING WITH OR WITHOUT BUILDING SCORELISTS
+  bool add_to_stack = true; // for whether card stack should be modified by play_card
 
   // special helper function to create a card stack - give it string reps cards
   // they become cardstack "global"
@@ -86,7 +87,7 @@ TEST_F(PlayCardTest, T0000_Illegal) {
   build_stack(startstack);
   card = cu.stringcard(cardstr);
   index_t playscore;
-  playscore = cr.play_card(cardstack, card, &scorelist, build_scorelists);
+  playscore = cr.play_card(cardstack, card, &scorelist, build_scorelists, add_to_stack);
   EXPECT_EQ(playscore, cr.ERROR_SCORE_VAL);
   if (build_scorelists) render_play_scorelist(startstack, cardstr);
 }
@@ -102,7 +103,7 @@ TEST_F(PlayCardTest, T000_Nothing) {
   card = cu.stringcard(cardstr);
   index_t playscore;
   // for(auto j=0;j<10000000;j++)
-  playscore = cr.play_card(cardstack, card, &scorelist, build_scorelists);
+  playscore = cr.play_card(cardstack, card, &scorelist, build_scorelists, add_to_stack);
   // HEY PUT IN DETAILED CHECKS a la
   // self.assertEqual(resultcards,curcards + [newcard])
   // self.assertEqual(curtotal,sum([pyb.val(x) for x in curcards]) +
@@ -119,7 +120,7 @@ TEST_F(PlayCardTest, T001_Firstcard) {
   build_stack(startstack);
   card = cu.stringcard(cardstr);
   index_t playscore;
-  playscore = cr.play_card(cardstack, card, &scorelist, build_scorelists);
+  playscore = cr.play_card(cardstack, card, &scorelist, build_scorelists, add_to_stack);
   // HEY PUT IN DETAILED CHECKS a la
   // self.assertEqual(resultcards,curcards + [newcard])
   // self.assertEqual(curtotal,sum([pyb.val(x) for x in curcards]) +
@@ -136,7 +137,7 @@ TEST_F(PlayCardTest, T003_Fifteen) {
   build_stack(startstack);
   card = cu.stringcard(cardstr);
   index_t playscore;
-  playscore = cr.play_card(cardstack, card, &scorelist, build_scorelists);
+  playscore = cr.play_card(cardstack, card, &scorelist, build_scorelists, add_to_stack);
   // HEY PUT IN DETAILED CHECKS a la
   // self.assertEqual(resultcards,curcards + [newcard])
   // self.assertEqual(curtotal,sum([pyb.val(x) for x in curcards]) +
@@ -153,7 +154,7 @@ TEST_F(PlayCardTest, T007_Thirtyone) {
   build_stack(startstack);
   card = cu.stringcard(cardstr);
   index_t playscore;
-  playscore = cr.play_card(cardstack, card, &scorelist, build_scorelists);
+  playscore = cr.play_card(cardstack, card, &scorelist, build_scorelists, add_to_stack);
   // HEY PUT IN DETAILED CHECKS a la
   // self.assertEqual(resultcards,curcards + [newcard])
   // self.assertEqual(curtotal,sum([pyb.val(x) for x in curcards]) +
@@ -168,7 +169,7 @@ TEST_F(PlayCardTest, T010_Pair) {
   build_stack(startstack);
   card = cu.stringcard(cardstr);
   index_t playscore;
-  playscore = cr.play_card(cardstack, card, &scorelist, build_scorelists);
+  playscore = cr.play_card(cardstack, card, &scorelist, build_scorelists, add_to_stack);
   // HEY PUT IN DETAILED CHECKS a la
   // self.assertEqual(resultcards,curcards + [newcard])
   // self.assertEqual(curtotal,sum([pyb.val(x) for x in curcards]) +
@@ -183,7 +184,7 @@ TEST_F(PlayCardTest, T020_NotPair) {
   build_stack(startstack);
   card = cu.stringcard(cardstr);
   index_t playscore;
-  playscore = cr.play_card(cardstack, card, &scorelist, build_scorelists);
+  playscore = cr.play_card(cardstack, card, &scorelist, build_scorelists, add_to_stack);
   // HEY PUT IN DETAILED CHECKS a la
   // self.assertEqual(resultcards,curcards + [newcard])
   // self.assertEqual(curtotal,sum([pyb.val(x) for x in curcards]) +
@@ -198,7 +199,7 @@ TEST_F(PlayCardTest, T030_3OfAKind) {
   build_stack(startstack);
   card = cu.stringcard(cardstr);
   index_t playscore;
-  playscore = cr.play_card(cardstack, card, &scorelist, build_scorelists);
+  playscore = cr.play_card(cardstack, card, &scorelist, build_scorelists, add_to_stack);
   // HEY PUT IN DETAILED CHECKS a la
   // self.assertEqual(resultcards,curcards + [newcard])
   // self.assertEqual(curtotal,sum([pyb.val(x) for x in curcards]) +
@@ -213,7 +214,7 @@ TEST_F(PlayCardTest, T040_Not3OfAKind) {
   build_stack(startstack);
   card = cu.stringcard(cardstr);
   index_t playscore;
-  playscore = cr.play_card(cardstack, card, &scorelist, build_scorelists);
+  playscore = cr.play_card(cardstack, card, &scorelist, build_scorelists, add_to_stack);
   // HEY PUT IN DETAILED CHECKS a la
   // self.assertEqual(resultcards,curcards + [newcard])
   // self.assertEqual(curtotal,sum([pyb.val(x) for x in curcards]) +
@@ -228,7 +229,7 @@ TEST_F(PlayCardTest, T050_4OfAKind) {
   build_stack(startstack);
   card = cu.stringcard(cardstr);
   index_t playscore;
-  playscore = cr.play_card(cardstack, card, &scorelist, build_scorelists);
+  playscore = cr.play_card(cardstack, card, &scorelist, build_scorelists, add_to_stack);
   // HEY PUT IN DETAILED CHECKS a la
   // self.assertEqual(resultcards,curcards + [newcard])
   // self.assertEqual(curtotal,sum([pyb.val(x) for x in curcards]) +
@@ -243,7 +244,7 @@ TEST_F(PlayCardTest, T060_Not4OfAKind) {
   build_stack(startstack);
   card = cu.stringcard(cardstr);
   index_t playscore;
-  playscore = cr.play_card(cardstack, card, &scorelist, build_scorelists);
+  playscore = cr.play_card(cardstack, card, &scorelist, build_scorelists, add_to_stack);
   // HEY PUT IN DETAILED CHECKS a la
   // self.assertEqual(resultcards,curcards + [newcard])
   // self.assertEqual(curtotal,sum([pyb.val(x) for x in curcards]) +
@@ -258,7 +259,7 @@ TEST_F(PlayCardTest, T070_RunOf3) {
   build_stack(startstack);
   card = cu.stringcard(cardstr);
   index_t playscore;
-  playscore = cr.play_card(cardstack, card, &scorelist, build_scorelists);
+  playscore = cr.play_card(cardstack, card, &scorelist, build_scorelists, add_to_stack);
   // HEY PUT IN DETAILED CHECKS a la
   // self.assertEqual(resultcards,curcards + [newcard])
   // self.assertEqual(curtotal,sum([pyb.val(x) for x in curcards]) +
@@ -273,7 +274,7 @@ TEST_F(PlayCardTest, T080_RunOf3OOO) {
   build_stack(startstack);
   card = cu.stringcard(cardstr);
   index_t playscore;
-  playscore = cr.play_card(cardstack, card, &scorelist, build_scorelists);
+  playscore = cr.play_card(cardstack, card, &scorelist, build_scorelists, add_to_stack);
   // HEY PUT IN DETAILED CHECKS a la
   // self.assertEqual(resultcards,curcards + [newcard])
   // self.assertEqual(curtotal,sum([pyb.val(x) for x in curcards]) +
@@ -288,7 +289,7 @@ TEST_F(PlayCardTest, T090_RunOf3intervening) {
   build_stack(startstack);
   card = cu.stringcard(cardstr);
   index_t playscore;
-  playscore = cr.play_card(cardstack, card, &scorelist, build_scorelists);
+  playscore = cr.play_card(cardstack, card, &scorelist, build_scorelists, add_to_stack);
   // HEY PUT IN DETAILED CHECKS a la
   // self.assertEqual(resultcards,curcards + [newcard])
   // self.assertEqual(curtotal,sum([pyb.val(x) for x in curcards]) +
@@ -321,7 +322,7 @@ TEST_F(PlayCardTest, T100_RunOf4) {
   build_stack(startstack);
   card = cu.stringcard(cardstr);
   index_t playscore;
-  playscore = cr.play_card(cardstack, card, &scorelist, build_scorelists);
+  playscore = cr.play_card(cardstack, card, &scorelist, build_scorelists, add_to_stack);
   // HEY PUT IN DETAILED CHECKS a la
   // self.assertEqual(resultcards,curcards + [newcard])
   // self.assertEqual(curtotal,sum([pyb.val(x) for x in curcards]) +
@@ -336,7 +337,7 @@ TEST_F(PlayCardTest, T110_RunOf4OOO) {
   build_stack(startstack);
   card = cu.stringcard(cardstr);
   index_t playscore;
-  playscore = cr.play_card(cardstack, card, &scorelist, build_scorelists);
+  playscore = cr.play_card(cardstack, card, &scorelist, build_scorelists, add_to_stack);
   // HEY PUT IN DETAILED CHECKS a la
   // self.assertEqual(resultcards,curcards + [newcard])
   // self.assertEqual(curtotal,sum([pyb.val(x) for x in curcards]) +
@@ -351,7 +352,7 @@ TEST_F(PlayCardTest, T120_RunOf4intervening) {
   build_stack(startstack);
   card = cu.stringcard(cardstr);
   index_t playscore;
-  playscore = cr.play_card(cardstack, card, &scorelist, build_scorelists);
+  playscore = cr.play_card(cardstack, card, &scorelist, build_scorelists, add_to_stack);
   // HEY PUT IN DETAILED CHECKS a la
   // self.assertEqual(resultcards,curcards + [newcard])
   // self.assertEqual(curtotal,sum([pyb.val(x) for x in curcards]) +
@@ -366,7 +367,7 @@ TEST_F(PlayCardTest, T130_RunOf5) {
   build_stack(startstack);
   card = cu.stringcard(cardstr);
   index_t playscore;
-  playscore = cr.play_card(cardstack, card, &scorelist, build_scorelists);
+  playscore = cr.play_card(cardstack, card, &scorelist, build_scorelists, add_to_stack);
   // HEY PUT IN DETAILED CHECKS a la
   // self.assertEqual(resultcards,curcards + [newcard])
   // self.assertEqual(curtotal,sum([pyb.val(x) for x in curcards]) +
@@ -381,7 +382,7 @@ TEST_F(PlayCardTest, T140_RunOf5OOO) {
   build_stack(startstack);
   card = cu.stringcard(cardstr);
   index_t playscore;
-  playscore = cr.play_card(cardstack, card, &scorelist, build_scorelists);
+  playscore = cr.play_card(cardstack, card, &scorelist, build_scorelists, add_to_stack);
   // HEY PUT IN DETAILED CHECKS a la
   // self.assertEqual(resultcards,curcards + [newcard])
   // self.assertEqual(curtotal,sum([pyb.val(x) for x in curcards]) +
@@ -396,7 +397,7 @@ TEST_F(PlayCardTest, T150_RunOf5intervening) {
   build_stack(startstack);
   card = cu.stringcard(cardstr);
   index_t playscore;
-  playscore = cr.play_card(cardstack, card, &scorelist, build_scorelists);
+  playscore = cr.play_card(cardstack, card, &scorelist, build_scorelists, add_to_stack);
   // HEY PUT IN DETAILED CHECKS a la
   // self.assertEqual(resultcards,curcards + [newcard])
   // self.assertEqual(curtotal,sum([pyb.val(x) for x in curcards]) +
@@ -411,7 +412,7 @@ TEST_F(PlayCardTest, T160_RunOf6) {
   build_stack(startstack);
   card = cu.stringcard(cardstr);
   index_t playscore;
-  playscore = cr.play_card(cardstack, card, &scorelist, build_scorelists);
+  playscore = cr.play_card(cardstack, card, &scorelist, build_scorelists, add_to_stack);
   // HEY PUT IN DETAILED CHECKS a la
   // self.assertEqual(resultcards,curcards + [newcard])
   // self.assertEqual(curtotal,sum([pyb.val(x) for x in curcards]) +
@@ -426,7 +427,7 @@ TEST_F(PlayCardTest, T170_RunOf6OOO) {
   build_stack(startstack);
   card = cu.stringcard(cardstr);
   index_t playscore;
-  playscore = cr.play_card(cardstack, card, &scorelist, build_scorelists);
+  playscore = cr.play_card(cardstack, card, &scorelist, build_scorelists, add_to_stack);
   // HEY PUT IN DETAILED CHECKS a la
   // self.assertEqual(resultcards,curcards + [newcard])
   // self.assertEqual(curtotal,sum([pyb.val(x) for x in curcards]) +
@@ -441,7 +442,7 @@ TEST_F(PlayCardTest, T180_RunOf6intervening) {
   build_stack(startstack);
   card = cu.stringcard(cardstr);
   index_t playscore;
-  playscore = cr.play_card(cardstack, card, &scorelist, build_scorelists);
+  playscore = cr.play_card(cardstack, card, &scorelist, build_scorelists, add_to_stack);
   // HEY PUT IN DETAILED CHECKS a la
   // self.assertEqual(resultcards,curcards + [newcard])
   // self.assertEqual(curtotal,sum([pyb.val(x) for x in curcards]) +
@@ -457,7 +458,7 @@ TEST_F(PlayCardTest, T190_RunOf7) {
   build_stack(startstack);
   card = cu.stringcard(cardstr);
   index_t playscore;
-  playscore = cr.play_card(cardstack, card, &scorelist, build_scorelists);
+  playscore = cr.play_card(cardstack, card, &scorelist, build_scorelists, add_to_stack);
   plprintf("Cardstack len now %lu\n", cardstack.size());
 
   // HEY PUT IN DETAILED CHECKS a la
@@ -480,7 +481,7 @@ TEST_F(PlayCardTest, T200_RunOf7OOO) {
   // off cardstack & swh in any case, play scoring is pretty fast, like 3 sec for
   // 10MM in debug plprintf("TEN MILLION!!!\n"); for (auto j = 0; j < 10000000;
   // j++)
-  playscore = cr.play_card(cardstack, card, &scorelist, build_scorelists);
+  playscore = cr.play_card(cardstack, card, &scorelist, build_scorelists, add_to_stack);
   // cardstack.pop_back();
   plprintf("Cardstack len now %lu\n", cardstack.size());
   // HEY PUT IN DETAILED CHECKS a la
@@ -497,7 +498,7 @@ TEST_F(PlayCardTest, T210_RunOf7intervening) {
   build_stack(startstack);
   card = cu.stringcard(cardstr);
   index_t playscore;
-  playscore = cr.play_card(cardstack, card, &scorelist, build_scorelists);
+  playscore = cr.play_card(cardstack, card, &scorelist, build_scorelists, add_to_stack);
   // HEY PUT IN DETAILED CHECKS a la
   // self.assertEqual(resultcards,curcards + [newcard])
   // self.assertEqual(curtotal,sum([pyb.val(x) for x in curcards]) +
@@ -512,7 +513,7 @@ TEST_F(PlayCardTest, T220_15and3Kind) {
   build_stack(startstack);
   card = cu.stringcard(cardstr);
   index_t playscore;
-  playscore = cr.play_card(cardstack, card, &scorelist, build_scorelists);
+  playscore = cr.play_card(cardstack, card, &scorelist, build_scorelists, add_to_stack);
   // HEY PUT IN DETAILED CHECKS a la
   // self.assertEqual(resultcards,curcards + [newcard])
   // self.assertEqual(curtotal,sum([pyb.val(x) for x in curcards]) +
@@ -528,7 +529,7 @@ TEST_F(PlayCardTest, T230_31And4Kind) {
   build_stack(startstack);
   card = cu.stringcard(cardstr);
   index_t playscore;
-  playscore = cr.play_card(cardstack, card, &scorelist, build_scorelists);
+  playscore = cr.play_card(cardstack, card, &scorelist, build_scorelists, add_to_stack);
   // HEY PUT IN DETAILED CHECKS a la
   // self.assertEqual(resultcards,curcards + [newcard])
   // self.assertEqual(curtotal,sum([pyb.val(x) for x in curcards]) +
@@ -544,7 +545,7 @@ TEST_F(PlayCardTest, T220_15andRun5) {
   build_stack(startstack);
   card = cu.stringcard(cardstr);
   index_t playscore;
-  playscore = cr.play_card(cardstack, card, &scorelist, build_scorelists);
+  playscore = cr.play_card(cardstack, card, &scorelist, build_scorelists, add_to_stack);
   // HEY PUT IN DETAILED CHECKS a la
   // self.assertEqual(resultcards,curcards + [newcard])
   // self.assertEqual(curtotal,sum([pyb.val(x) for x in curcards]) +

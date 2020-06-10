@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <iostream>
 #include <string>
+#include <utility>
 #include "card_utils.h"
 #include "cribbage_core.h"
 #include "cribbage_player.h"
@@ -303,23 +304,20 @@ TEST_F(DefaultPlayerTest, T170_CutIndexError) {
   EXPECT_EQ(cp.get_cut_index(8),cr.ERROR_SCORE_VAL);
 }
 
-/*
-std::pair<card_t, card_t> CribbagePlayer::get_discards(
-    std::vector<card_t> &cardvec) {
-  // for the default implementation, just take the two cards off the end of
-  // cardvec
-  if (cardvec.size() != 6) {
-    // error if we call this when the incoming hand doesn't have 6 cards
-    return std::pair<card_t, card_t>(cu.ERROR_CARD_VAL, cu.ERROR_CARD_VAL);
-  }
-
-  card_t card1 = cardvec.back();
-  cardvec.pop_back();
-  card_t card2 = cardvec.back();
-  cardvec.pop_back();
-  return std::pair<card_t, card_t>(card1, card2);
+//default discards = last two cards in the provided hand
+TEST_F(DefaultPlayerTest, T180_GetDiscards) {
+  CribbagePlayer cp("Player1",true);
+  build_stack({"Qh", "0c", "9s", "3d", "Jh", "Ks"});
+  auto res = std::pair<card_t,card_t>(cu.stringcard("Ks"),cu.stringcard("Jh"));
+  EXPECT_EQ(cp.get_discards(cardstack), res);
 }
-*/
-//TEST_F(DefaultPlayerTest, T180_CutIndexError) {
-//}
 
+//default discards needs hand to be 6 cards
+TEST_F(DefaultPlayerTest, T190_GetDiscardsError) {
+  CribbagePlayer cp("Player1",true);
+  build_stack({"Qh", "0c", "9s", "3d", "Jh"});
+  auto res = std::pair<card_t,card_t>(cu.ERROR_CARD_VAL,cu.ERROR_CARD_VAL);
+  EXPECT_EQ(cp.get_discards(cardstack), res);
+}
+
+/* get_play_card is next but it may need some rewriting */
