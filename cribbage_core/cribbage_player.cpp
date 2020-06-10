@@ -44,10 +44,12 @@ CribbagePlayer::~CribbagePlayer() {}
 
 // choose an index at which to cut the deck
 index_t CribbagePlayer::get_cut_index(index_t deck_len) {
-  if (deck_len < 9) return 0;  // no legal cut possible
+  if (deck_len < 9) return cr.ERROR_SCORE_VAL;  // no legal cut possible
   return 4 + cu.random_at_most(uint32_t(deck_len) -
-                               4);  // hardcode 4s bc you can't cut anywhere
-                                    // within 4 cards of an end of the deck
+                               9);  // hardcode 4s bc you can't cut anywhere
+                                    // within 4 cards of an end of the deck 
+                                    // so that leaves decklen - 8 cards, 9 bc inclusive
+                                    // for 52 card deck we want not 0,1,2,3 or 48,49,50,51
 }
 
 // choose two cards to discard and return their indices as a pair

@@ -269,3 +269,57 @@ TEST_F(DefaultPlayerTest, T130_SetGetName) {
   EXPECT_EQ(cp.get_name(), "Rollo");
 }
 
+// non-accessor functions!!!!!!!!!!!!!!!!!!!!!!!!!!!
+// Kind of a dumb test, but ok
+TEST_F(DefaultPlayerTest, T140_CutIndex) {
+  CribbagePlayer cp("Player1",true);
+  cu.v_srandom(9999);
+  EXPECT_EQ(cp.get_cut_index(52),8);
+}
+
+// do a million cuts of a 52 card deck and ensure
+// that it's always not from the first or last 4 cards bc them's the rules
+TEST_F(DefaultPlayerTest, T150_1MCutIndex) {
+  CribbagePlayer cp("Player1",true);
+  cu.v_srandom(9999);
+  for(auto j = 0; j < 1000000; j++) {
+    auto c = cp.get_cut_index(52);
+    EXPECT_LE(c,47);
+    EXPECT_GE(c,4);
+  }
+}
+
+// make sure 9 card deck returns 4
+TEST_F(DefaultPlayerTest, T160_CutIndex9) {
+  CribbagePlayer cp("Player1",true);
+  cu.v_srandom(9999);
+  for(auto j = 0; j< 100; j++)  //every time!
+    EXPECT_EQ(cp.get_cut_index(9),4);
+}
+
+TEST_F(DefaultPlayerTest, T170_CutIndexError) {
+  CribbagePlayer cp("Player1",true);
+  cu.v_srandom(9999);
+  EXPECT_EQ(cp.get_cut_index(8),cr.ERROR_SCORE_VAL);
+}
+
+/*
+std::pair<card_t, card_t> CribbagePlayer::get_discards(
+    std::vector<card_t> &cardvec) {
+  // for the default implementation, just take the two cards off the end of
+  // cardvec
+  if (cardvec.size() != 6) {
+    // error if we call this when the incoming hand doesn't have 6 cards
+    return std::pair<card_t, card_t>(cu.ERROR_CARD_VAL, cu.ERROR_CARD_VAL);
+  }
+
+  card_t card1 = cardvec.back();
+  cardvec.pop_back();
+  card_t card2 = cardvec.back();
+  cardvec.pop_back();
+  return std::pair<card_t, card_t>(card1, card2);
+}
+*/
+//TEST_F(DefaultPlayerTest, T180_CutIndexError) {
+//}
+
