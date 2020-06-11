@@ -1,0 +1,38 @@
+buildType:
+  default: debug
+  choices:
+    debug:
+      short: Debug
+      long: Emit debug information
+      buildType: Debug
+    release:
+      short: Release
+      long: Optimize generated code
+      buildType: Release
+
+# ok so platform - need this kind of thing too
+# settings (Optional)
+#    A map of arbitrary CMake cache options to pass via the CMake command line with -D. 
+# Similar to the cmake.configureSettings in settings.json.
+
+platform:
+  default: Linux
+  choices:
+    Linux:
+      short: Linux
+      long: Compile for Linux platform
+      platform: Linux
+      settings:
+        TARGET_PLATFORM: LinuxConsole
+    Arduino:
+      short: Arduino
+      long: Compile for Arduino platform
+      platform: Arduino
+      # I suppose the toolchain file should go in the kit but install path here?
+      # cmake -D CMAKE_TOOLCHAIN_FILE=/home/sean/Dropbox/Private/elec/arduino-takkun/Arduino-CMake-Toolchain/Arduino-toolchain.cmake 
+      # -D ARDUINO_INSTALL_PATH=/home/sean/software/arduino-1.8.12/ 
+      settings:
+        TARGET_PLATFORM: ArduinoSerial
+        #CMAKE_TOOLCHAIN_FILE: Arduino-CMake-Toolchain/Arduino-toolchain.cmake
+        ARDUINO_INSTALL_PATH: /home/sean/software/arduino-1.8.12/
+        ARDUINO_BOARD: "Adafruit Circuit Playground Express [samd.adafruit_circuitplayground_m0]"

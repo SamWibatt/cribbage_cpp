@@ -377,3 +377,14 @@ TEST_F(DefaultPlayerTest, T210_PlayCard) {
   build_stack({"4h","9d","Ah"});
   EXPECT_EQ(hand,cardstack);
 }
+
+//no legal card to play
+TEST_F(DefaultPlayerTest, T220_PlayCardNoLegal) {
+  CribbagePlayer cp("Player1",true);
+  build_stack({"Qh", "0c", "9s"});
+  //recall build_hand takes starter as fifth arg so hand is really only 4h 9d 2d Ah
+  build_hand("4h","9d","3d","Kh","Jh");
+  //true means the card gets removed from hand
+  card_t c = cp.get_play_card(hand,cardstack, true);
+  EXPECT_EQ(c, cu.ERROR_CARD_VAL);
+}
