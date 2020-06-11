@@ -8,6 +8,8 @@ void setup() {
 
   // Initialize serial and wait for port to open:
   Serial.begin(115200);
+  // SEAN NOTES THIS IS NEEDED FOR SERIAL TO WORK ON CPX BUT MAKES IT SO IT DOESN'T START BLINKING UNTIL
+  // THE MONITOR IS CONNECTED!
   while (!Serial) {
     ;  // wait for serial port to connect. Needed for native USB port only
   }
