@@ -4,8 +4,8 @@ test_main
 build/
 build_*/
 
-# Leave out vs code dependent
-.vscode
+# Leave out vs code dependent - well, maybe not
+#.vscode
 
 # Cmake stuff
 CMakeLists.txt.user

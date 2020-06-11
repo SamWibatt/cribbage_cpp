@@ -369,10 +369,11 @@ TEST_F(DefaultPlayerTest, T200_PlayCardError) {
 TEST_F(DefaultPlayerTest, T210_PlayCard) {
   CribbagePlayer cp("Player1",true);
   build_stack({"Qh", "0c", "9s"});
+  //recall build_hand takes starter as fifth arg so hand is really only 4h 9d 2d Ah
   build_hand("4h","9d","2d","Ah","Jh");
   //true means the card gets removed from hand
   card_t c = cp.get_play_card(hand,cardstack, true);
   EXPECT_EQ(c, cu.stringcard("2d"));
-  build_stack({"4h","9d","Ah","Jh"});
+  build_stack({"4h","9d","Ah"});
   EXPECT_EQ(hand,cardstack);
 }
