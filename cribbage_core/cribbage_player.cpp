@@ -74,8 +74,10 @@ std::pair<card_t, card_t> CribbagePlayer::get_discards(
 // choose a card to play given a current stack and a current hand
 // default implementation is just grab the first legal one
 // if no playable card is in the hand, return cu.ERROR_CARD_VAL;
+// take_from_hand, if true, makes cardvec be destructively modified
+// if false, it's untouched
 card_t CribbagePlayer::get_play_card(std::vector<card_t> &cardvec,
-                                     std::vector<card_t> &cardstack) {
+                                     std::vector<card_t> &cardstack, bool take_from_hand) {
   // index_t play_card(std::vector<card_t> &stack, card_t card,
   // std::vector<score_entry> *scores, bool build_list); the only illegal play is
   // to exceed 31, which returns cr.ERROR_SCORE_VAL IT DOES CHANGE CARDSTACK THO
@@ -97,7 +99,7 @@ card_t CribbagePlayer::get_play_card(std::vector<card_t> &cardvec,
     //so that's done, it's that last false there
     index_t s = cr.play_card(cardstack, c, nullptr, false, false);
     if (s != cr.ERROR_SCORE_VAL) {
-      cardvec.erase(cardvec.begin() + j);
+      if(take_from_hand) cardvec.erase(cardvec.begin() + j);
       return c;
     }
   }

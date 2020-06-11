@@ -320,4 +320,59 @@ TEST_F(DefaultPlayerTest, T190_GetDiscardsError) {
   EXPECT_EQ(cp.get_discards(cardstack), res);
 }
 
-/* get_play_card is next but it may need some rewriting */
+/*
+// choose a card to play given a current stack and a current hand
+// default implementation is just grab the first legal one
+// if no playable card is in the hand, return cu.ERROR_CARD_VAL;
+card_t CribbagePlayer::get_play_card(std::vector<card_t> &cardvec,
+                                     std::vector<card_t> &cardstack) {
+  // index_t play_card(std::vector<card_t> &stack, card_t card,
+  // std::vector<score_entry> *scores, bool build_list); the only illegal play is
+  // to exceed 31, which returns cr.ERROR_SCORE_VAL IT DOES CHANGE CARDSTACK THO
+  // SO FIGURE OUT IF I NEED TO CHANGE THAT
+
+  // if there aren't any cards to play, return an error. May not be a real
+  // error, that's caller's call
+  if (cardvec.empty()) return cu.ERROR_CARD_VAL;
+
+  // find the first card that is legal to play and take it out of cardvec and
+  // return it
+  for (auto j = 0; j < cardvec.size(); j++) {
+    card_t c = *(cardvec.begin() + j);
+    //so: play_card changes cardstack, yes? if this is being called hypothetically, the stack will
+    //stack up.
+    //options? Add a parameter to play_card to not do that,
+    //pop it back off here.
+    //I lean toward the former bc this is not the only place this will be called.
+    //so that's done, it's that last false there
+    index_t s = cr.play_card(cardstack, c, nullptr, false, false);
+    if (s != cr.ERROR_SCORE_VAL) {
+      cardvec.erase(cardvec.begin() + j);
+      return c;
+    }
+  }
+
+  // there was no playable card
+  return cu.ERROR_CARD_VAL;
+}
+*/
+//empty hand means there's no card to play
+TEST_F(DefaultPlayerTest, T200_PlayCardError) {
+  CribbagePlayer cp("Player1",true);
+  build_stack({"Qh", "0c", "9s", "3d", "Jh"});
+  hand.clear();
+  card_t c = cp.get_play_card(hand,cardstack,true);
+  EXPECT_EQ(c, cu.ERROR_CARD_VAL);
+}
+
+//first legal card should be the 2 in this case, play that, even though the ace is also legal
+TEST_F(DefaultPlayerTest, T210_PlayCard) {
+  CribbagePlayer cp("Player1",true);
+  build_stack({"Qh", "0c", "9s"});
+  build_hand("4h","9d","2d","Ah","Jh");
+  //true means the card gets removed from hand
+  card_t c = cp.get_play_card(hand,cardstack, true);
+  EXPECT_EQ(c, cu.stringcard("2d"));
+  build_stack({"4h","9d","Ah","Jh"});
+  EXPECT_EQ(hand,cardstack);
+}
