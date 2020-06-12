@@ -24,6 +24,15 @@ platform:
       platform: Linux
       settings:
         TARGET_PLATFORM: LinuxConsole
+    # LinuxCoverage that compiles with the clang coverage options by setting TEST_COVERAGE ON 
+    # and the cmakelists will pick up on that
+    LinuxCov:
+      short: Linux
+      long: Compile for Linux platform with clang coverage 
+      platform: Linux
+      settings:
+        TARGET_PLATFORM: LinuxConsole
+        TEST_COVERAGE: ON
     Arduino:
       short: Arduino
       long: Compile for Arduino platform
