@@ -37,15 +37,9 @@ platform:
       short: Arduino
       long: Compile for Arduino platform
       platform: Arduino
-      # I suppose the toolchain file should go in the kit but install path here?
-      # cmake -D CMAKE_TOOLCHAIN_FILE=/home/sean/Dropbox/Private/elec/arduino-takkun/Arduino-CMake-Toolchain/Arduino-toolchain.cmake 
-      # -D ARDUINO_INSTALL_PATH=/home/sean/software/arduino-1.8.12/ 
-      # should emit hex
-      # can burn with bossac e.g. 
-      # /home/sean/.arduino15/packages/arduino/tools/bossac/1.7.0-arduino3/bossac -i -d --port=ttyACM0 -U true -i -e -w -v play_main.bin -R
-      # CHANGE THIS TO USE AN ENV VAR FOR ARDY INSTALL LOC 
       settings:
         TARGET_PLATFORM: ArduinoSerial
+        # toolchain goes in kit
         #CMAKE_TOOLCHAIN_FILE: Arduino-CMake-Toolchain/Arduino-toolchain.cmake
         ARDUINO_INSTALL_PATH: /home/sean/software/arduino-1.8.12/
         ARDUINO_BOARD: "Adafruit Circuit Playground Express [samd.adafruit_circuitplayground_m0]"

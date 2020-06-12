@@ -112,6 +112,7 @@ if(TARGET_PLATFORM MATCHES "Linux.*")
       #COMMAND script -q -c 'llvm-cov report ./test_main -instr-profile=testcov.profdata' covsummary.typescript > /dev/null
       COMMAND echo "script -q -c 'llvm-cov show ./test_main -show-line-counts-or-regions -instr-profile=testcov.profdata'  covcounts.typescript > /dev/null" >> makereport.sh
       COMMAND echo "script -q -c 'llvm-cov report ./test_main -instr-profile=testcov.profdata' covsummary.typescript > /dev/null" >> makereport.sh
+      COMMAND echo "tail -5 testresults.typescript" >> makereport.sh
       COMMAND echo "llvm-cov report ./test_main -instr-profile=testcov.profdata" >> makereport.sh
       COMMAND chmod 755 makereport.sh
       # swh if we run that - strips out the ansi
@@ -129,22 +130,22 @@ if(TARGET_PLATFORM MATCHES "Linux.*")
       COMMAND echo "**********************************************************************************************"
       COMMAND echo "**********************************************************************************************"
     )
-    # LLVM_PROFILE_FILE="testcov.profraw" ./test_main 
-    # llvm-profdata merge -sparse testcov.profraw -o testcov.profdata
-    # # original cmdlines
-    # #llvm-cov show ./test_main -show-line-counts-or-regions -instr-profile=testcov.profdata > covcounts.txt
-    # #llvm-cov report ./test_main -instr-profile=testcov.profdata > covsummary.txt
-    # # see if I can preserve the nice colors, which should show when using less -R, though no editors seem to
-    # # see https://unix.stackexchange.com/questions/249723/how-to-trick-a-command-into-thinking-its-output-is-going-to-a-terminal
-    # # script -q -c 'ls -G' out_file
-    # # redirect to /dev/null or it dumps everything to the console too!
-    # # output works with more and cat, too! The colors are good for quickly spotting unvisited regions.
-    # script -q -c 'llvm-cov show ./test_main -show-line-counts-or-regions -instr-profile=testcov.profdata'  covcounts.typescript > /dev/null
-    # script -q -c 'llvm-cov report ./test_main -instr-profile=testcov.profdata' covsummary.typescript > /dev/null
-    
-    # # print summary to console
-    # llvm-cov report ./test_main -instr-profile=testcov.profdata
   endif()
+elseif(TARGET_PLATFORM MATCHES "Arduino*")
+  add_custom_command(TARGET play_main POST_BUILD
+    USES_TERMINAL
+    VERBATIM
+    COMMAND echo "**********************************************************************************************"
+    COMMAND echo "**********************************************************************************************"
+    COMMAND echo "**********************************************************************************************"
+    COMMAND echo ".bin and .hex files have been emitted for play_main"
+    COMMAND echo "Assuming a SAMD21 target, you can burn with bossac installed with  e.g." 
+    COMMAND echo "~/.arduino15/packages/arduino/tools/bossac/1.7.0-arduino3/bossac -i -d --port=<device port> -U true -i -e -w -v play_main.bin -R"
+    COMMAND echo "**********************************************************************************************"
+    COMMAND echo "**********************************************************************************************"
+    COMMAND echo "**********************************************************************************************"
+  )
+
 endif()
 
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
