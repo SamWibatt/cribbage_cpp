@@ -108,63 +108,25 @@ card_t CribbagePlayer::get_play_card(std::vector<card_t> &cardvec,
   return cu.ERROR_CARD_VAL;
 }
 
-//
-//    # in the play, we get the stack of cards to date
-//    # choose a card and play it, if one is legal, returning the new stack of
-//    cards and the score for this round # (which also gets added on here.) can
-//    be 0. If -1, no legal play was available, and card stack unchanged, #
-//    which means "go" # card that gets played, if any, is appended to
-//    used_cards so hand can be restored for show. # THIS VERSION SHOULD STAY AS
-//    THE DEFAULT, OR AT LEAST BE AVAILABLE THROUGH A PlayFirstLegalPlayer #
-//    SUBCLASS, BC THAT WILL MAKE FOR EASY UNIT TESTING!!!!!!! # refactoring to
-//    return score index e.g. instead of 5 points for a run of 5, return
-//    self.SCORE_RUN5 # as curscore. Which means play_card has to do that. # +
-//    actually it's a list or None - None if it was illegal like going over 31,
-//    [] if legal but no score, # list of score indices if legal and gets
-//    scores. # and now it's a list of (score index, # cards) so we can
-//    highlight! See above in player.add_score_by_index # this is used by play,
-//    and every scoring combination of cards in play is a contiguous set
-//    including the # newly played card. so if num_cards is 1, the top card is
-//    highlighted, on up to e.g. run of 4, highlight # 4 cards, top and 3
-//    preceding. def play(self,curcards):
-//        # choose a card for the play, if there is one that works
-//        # let's just go with the first one
-//        # def play_card(curcards, newcard):
-//        # return (newcards, curtotal, scorelist)
-//        for i in range(0,len(self.cards)):
-//            card = self.cards[i]
-//            (newcards,curtotal,scorelist) =
-//            self.parent.play_card(curcards,card) if scorelist is not None:
-//                # play this one!
-//                print("playing",self.parent.cardstring(card),"on",[self.parent.cardstring(x)
-//                for x in curcards]) self.cards = self.cards[:i] + self.cards[i
-//                + 1:]  # remove card from hand self.used_cards.append(card) #
-//                memorize it so can be restored return
-//                (newcards,curtotal,scorelist) pass
-//        # if we get here, it's a go, I guess. -1 works for score index as well
-//        as actual score. print("Go!") return (curcards,sum([self.parent.val(x)
-//        for x in curcards]),None)
-//
-//    #
-//    =================================================================================================================
-//
+// do we still need these? Might be platspec responsibility of the caller now...
+// hm 
 //    def print_hand(self):
 //        print("Hand:",[self.parent.cardstring(x) for x in self.cards],"used",
 //              [self.parent.cardstring(x) for x in self.used_cards])
-//
+
 //    def print_crib(self):
 //        if self.is_dealer():
 //            print("Crib:", [self.parent.cardstring(x) for x in self.crib])
 //        else:
 //            print("Crib: (not dealer)")
-//
+
 //    def print_all(self):
 //        print("Name:",self.name,"Dealer:",self.is_dealer(),"score:",self.score)
 //        self.print_hand()
 //        if self.is_dealer():
 //            self.print_crib()
-//
-//
+
+// This should also be platspec 
 //# Default human player
 //------------------------------------------------------------------------------------------------
 // class HumanPlayer(Player):

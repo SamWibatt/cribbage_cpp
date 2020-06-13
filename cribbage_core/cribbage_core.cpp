@@ -548,10 +548,10 @@ index_t Cribbage::play_card(std::vector<card_t> &stack, card_t card,
       if (*std::max_element(rankcounts.begin(), rankcounts.end()) > 1)
         break;  // found there's a card of same rank, so this and longer runs
                 // are disqualified
-
-      auto [rankmin, rankmax] =
+      std::pair<std::vector<card_t>::iterator, std::vector<card_t>::iterator> rankminmax = 
           std::minmax_element(rankstack.end() - j, rankstack.end());
-      if ((*rankmax - *rankmin) == j - 1) longestrun = j;
+
+      if ((*(rankminmax.second) - *(rankminmax.first)) == j - 1) longestrun = j;
     }
 
     // again, participating cards are contiguous at the low end, e.g. if five of
