@@ -42,10 +42,13 @@ list(APPEND EXTRA_LIBS CardUtils)
 list(APPEND EXTRA_LIBS Cribbage)
 list(APPEND EXTRA_LIBS CribbagePlayer)
 
-# platform-dependent includes and libraries
 # add the game executable
 # later to be switched by platform config of some sort
 add_executable(play_main play_main.cpp)
+
+# add test minimax executable, later removed but for now why not
+add_executable(minimax_main minimax_main.cpp)
+
 
 # platform specific libraries and includes 
 if(TARGET_PLATFORM MATCHES "Arduino*")
@@ -85,6 +88,12 @@ endif()
 target_include_directories(play_main PUBLIC ${EXTRA_INCLUDES})
 target_link_libraries(play_main PUBLIC ${EXTRA_LIBS})
 target_link_libraries(play_main PUBLIC PlatPlayMain)
+
+# tempish minimax thing
+target_include_directories(minimax_main PUBLIC ${EXTRA_INCLUDES})
+target_link_libraries(minimax_main PUBLIC ${EXTRA_LIBS})
+target_link_libraries(minimax_main PUBLIC PlatMinimaxMain)
+
 
 # add any post-build steps
 # https://cmake.org/cmake/help/latest/command/add_custom_command.html

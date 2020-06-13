@@ -24,10 +24,12 @@ platform:
       platform: Linux
       settings:
         TARGET_PLATFORM: LinuxConsole
+        # do this explicitly or it persists in the cache(?)
+        TEST_COVERAGE: OFF
     # LinuxCoverage that compiles with the clang coverage options by setting TEST_COVERAGE ON 
     # and the cmakelists will pick up on that
     LinuxCov:
-      short: Linux
+      short: LinuxCov
       long: Compile for Linux platform with clang coverage 
       platform: Linux
       settings:
