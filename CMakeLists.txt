@@ -111,11 +111,11 @@ if(TARGET_PLATFORM MATCHES "Linux.*")
     #[COMMAND_EXPAND_LISTS])
     #
     add_custom_command(TARGET test_main POST_BUILD
-      # emits default.profraw
       USES_TERMINAL
       VERBATIM
+      # emits default.profraw
       COMMAND echo "script -q -c './test_main' testresults.typescript > /dev/null" > makereport.sh 
-      COMMAND llvm-profdata merge -sparse default.profraw -o testcov.profdata
+      COMMAND echo "llvm-profdata merge -sparse default.profraw -o testcov.profdata" >> makereport.sh
       # these didn't keep the lovely colors - maybe we can just build a shell script
       #COMMAND script -q -c 'llvm-cov show ./test_main -show-line-counts-or-regions -instr-profile=testcov.profdata'  covcounts.typescript > /dev/null
       #COMMAND script -q -c 'llvm-cov report ./test_main -instr-profile=testcov.profdata' covsummary.typescript > /dev/null

@@ -1,5 +1,5 @@
 {
-    "cmake.cmakePath": "/usr/share/cmake-3.17.3-Linux-x86_64/bin/cmake",
+    "cmake.cmakePath": "cmake",
     "files.associations": {
         "cctype": "cpp",
         "clocale": "cpp",
@@ -50,5 +50,6 @@
         "cinttypes": "cpp",
         "typeinfo": "cpp"
     },
-    "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools"
+    "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools",
+    "cmake.configureOnOpen": true
 }

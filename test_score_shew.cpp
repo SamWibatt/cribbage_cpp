@@ -475,7 +475,9 @@ TEST_F(ScoreShowTest, T230_SlowestScore) {
   index_t handscore;
   // I think this might be the slowest case for scoring, so let's try 10 million
   // of it actually no 4 of a kind is a short-circuit, try one with 5 5 5 j j
-  // incl nobs plprintf("TEN MILLION!!!\n"); for (auto j = 0; j < 10000000; j++)
+  // incl nobs 
+  //plprintf("TEN MILLION!!!\n"); 
+  //for (auto j = 0; j < 10000000; j++)
   handscore = cr.score_shew(hand, starter, &scorelist, build_scorelists);
   EXPECT_EQ(handscore, (cr.scorePoints[Cribbage::SCORE_FIFTEEN] * 7) +
                            cr.scorePoints[Cribbage::SCORE_PAIRROYAL] +
