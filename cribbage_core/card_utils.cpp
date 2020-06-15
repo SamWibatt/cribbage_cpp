@@ -116,7 +116,7 @@ card_t CardUtils::stringcard(std::string srcstr) {
       break;
     }
   }
-  // if at this point is strlen(suitstr), the rank wasn't found
+  // if at this point is strlen(suitstr), the suit wasn't found
   if (i == suitstr.size()) {
     return ERROR_CARD_VAL;
   }

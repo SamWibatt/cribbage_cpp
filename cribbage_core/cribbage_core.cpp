@@ -19,9 +19,7 @@ Cribbage::Cribbage() {
   // ctor stuff here
 }
 
-Cribbage::~Cribbage() {
-  // dtor stuff here
-}
+Cribbage::~Cribbage() {}
 
 // sort_map is untouched if build_list is false
 void Cribbage::prep_score_hand(std::vector<card_t> &hand, card_t starter,

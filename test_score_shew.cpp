@@ -464,6 +464,37 @@ TEST_F(ScoreShowTest, T220_Twentynine) {
   if (build_scorelists) render_shew_scorelist();
 }
 
+//for coverage - do a test with build list forced false
+// should have a 29 hand in it! Expect a score of 29
+// LATER will check for detailed results
+TEST_F(ScoreShowTest, T223_TwentynineNoList) {
+  build_hand("5c", "5d", "Jh", "5s", "5h");
+  index_t handscore;
+  // I think this might be the slowest case for scoring, so let's try 10 million
+  // of it actually no 4 of a kind is a short-circuit, try one with 5 5 5 j j
+  // incl nobs plprintf("TEN MILLION!!!\n"); for (auto j = 0; j < 10000000; j++)
+  handscore = cr.score_shew(hand, starter, &scorelist, false);
+  EXPECT_EQ(handscore, (cr.scorePoints[Cribbage::SCORE_FIFTEEN] * 8) +
+                           cr.scorePoints[Cribbage::SCORE_4KIND] +
+                           cr.scorePoints[Cribbage::SCORE_NOBS]);
+}
+
+//for coverage - do a test with build list forced true
+// should have a 29 hand in it! Expect a score of 29
+// LATER will check for detailed results
+TEST_F(ScoreShowTest, T227_TwentynineWithList) {
+  build_hand("5c", "5d", "Jh", "5s", "5h");
+  index_t handscore;
+  // I think this might be the slowest case for scoring, so let's try 10 million
+  // of it actually no 4 of a kind is a short-circuit, try one with 5 5 5 j j
+  // incl nobs plprintf("TEN MILLION!!!\n"); for (auto j = 0; j < 10000000; j++)
+  handscore = cr.score_shew(hand, starter, &scorelist, true);
+  EXPECT_EQ(handscore, (cr.scorePoints[Cribbage::SCORE_FIFTEEN] * 8) +
+                           cr.scorePoints[Cribbage::SCORE_4KIND] +
+                           cr.scorePoints[Cribbage::SCORE_NOBS]);
+  render_shew_scorelist();
+}
+
 // Here trying to find the worst case hand for scoring time. Current guess, 5 5
 // 5 j j with a nobs Expect a score of 15-14 + 3 of a kind + pair + nobs = 23
 // wow, 20.1 seconds debug, but only 900 ms release!

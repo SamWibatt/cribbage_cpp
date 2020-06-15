@@ -22,9 +22,6 @@ extern Cribbage cr;
 // success or failure of a test.  EXPECT_TRUE and EXPECT_EQ are
 // examples of such macros.  For a complete list, see gtest.h.
 
-// TODO: init an array of these uint32s, srand with 9999, expect this sequence
-// from my_random
-//
 // testing random first 10! seeded with 9999
 // ================================================================
 
@@ -56,6 +53,12 @@ TEST(CardUtilsTest, RandomAtMost3333TenMReps) {
   EXPECT_GE(minny, expmin);
 }
 
+TEST(CardUtilsTest, RandomAtMostMaxTooBig) {
+  cu.v_srandom(0x1337d00d);
+  auto x = cu.random_at_most(cu.RANDOM_MAX+1);
+  EXPECT_EQ(x,cu.RANDOM_ERROR);
+}
+
 // card basics tests
 // ========================================================================================
 
@@ -71,13 +74,20 @@ TEST(CardUtilsTest, StrcardCardstrAllLegit) {
   }
 }
 
-//*********************************************************************************************************
-//*********************************************************************************************************
-//*********************************************************************************************************
-// HEY DO SOME TESTS WITH NON-LEGIT
-//*********************************************************************************************************
-//*********************************************************************************************************
-//*********************************************************************************************************
+TEST(CardUtilsTest, StrcardBadRank) {
+  card_t outcard = cu.stringcard("Xh");
+  EXPECT_EQ(outcard, cu.ERROR_CARD_VAL);
+}
+
+TEST(CardUtilsTest, StrcardBadSuit) {
+  card_t outcard = cu.stringcard("Jx");
+  EXPECT_EQ(outcard, cu.ERROR_CARD_VAL);
+}
+
+TEST(CardUtilsTest, CardstrBadNum) {
+  std::string outstr = cu.cardstring(67);
+  EXPECT_EQ(outstr,"ERROR");
+}
 
 // shuffle test for sameness with python implementation
 TEST(CardUtilsTest, ShuffleTestFrom9999) {
@@ -106,6 +116,19 @@ TEST(CardUtilsTest, Deal10FromShuf9999) {
   }
 }
 
+TEST(CardUtilsTest, DealFromEmptyDeck) {
+  std::vector<card_t> deck;   //but don't put any cards in it
+  card_t outcard = cu.deal_card(deck);
+  EXPECT_EQ(outcard,cu.ERROR_CARD_VAL);
+}
+
+TEST(CardUtilsTest, DealFromOverlargeDeck) {
+  std::vector<card_t> deck(56);
+  std::fill(deck.begin(),deck.end(),0);
+  card_t outcard = cu.deal_card(deck);
+  EXPECT_EQ(outcard,cu.ERROR_CARD_VAL);
+}
+
 // test cut: 10 card deck from 10..19, cut at index 6
 // but... now we count from the right? so index 6 is really 6 from the end
 // python semantics are now consistent
@@ -116,4 +139,36 @@ TEST(CardUtilsTest, DeckCutTest) {
   for (auto j = 0; j < 10; j++) deck.push_back(10 + j);
   cu.cut(deck, 6);
   for (auto j = 0; j < 10; j++) EXPECT_EQ(deck[j], postcut_deck[j]);
+}
+
+//  171|      1|  if (deck.size() < 2 || index < 1 || index > deck.size() - 1) {
+//  172|      0|    printf("Hey illegal deck or index\n");
+//  173|      0|    return;  // no effect if illegal index or degenerate deck
+//  174|      0|  }
+
+TEST(CardUtilsTest, DeckCutErrorIndexTooLow) {
+  std::vector<card_t> deck(52);
+  cu.v_srandom(9999);
+  cu.shuffle(deck);
+  std::vector<card_t> outdeck;
+  std::copy(deck.begin(), deck.end(), std::back_inserter(outdeck));
+  cu.cut(deck,0);     // should have no effect
+  EXPECT_EQ(deck,outdeck);
+}
+
+TEST(CardUtilsTest, DeckCutErrorIndexTooHigh) {
+  std::vector<card_t> deck(52);
+  cu.v_srandom(9999);
+  cu.shuffle(deck);
+  std::vector<card_t> outdeck;
+  std::copy(deck.begin(), deck.end(), std::back_inserter(outdeck));
+  cu.cut(deck,99);     // should have no effect
+  EXPECT_EQ(deck,outdeck);
+}
+
+TEST(CardUtilsTest, DeckCutErrorDeckTooShort) {
+  std::vector<card_t> deck = { 51 };
+  std::vector<card_t> outdeck = { 51 };
+  cu.cut(deck,1);     // should have no effect
+  EXPECT_EQ(deck,outdeck);
 }
