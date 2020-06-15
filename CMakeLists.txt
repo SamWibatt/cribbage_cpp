@@ -63,6 +63,9 @@ if(TARGET_PLATFORM MATCHES "Arduino*")
     # OTHER LIBRARIES LIKE MCUFRIEND OR WHATEVER GO HERE 
     # target for making it generate hex 
     target_enable_arduino_upload(play_main)
+    # and for minimax
+    target_link_arduino_libraries(minimax_main PRIVATE core)
+    target_enable_arduino_upload(minimax_main)
 elseif(TARGET_PLATFORM MATCHES "Linux*")
     if(TARGET_PLATFORM STREQUAL "LinuxConsole")
         add_subdirectory("${PROJECT_SOURCE_DIR}/plat_linux_console")
@@ -154,7 +157,19 @@ elseif(TARGET_PLATFORM MATCHES "Arduino*")
     COMMAND echo "**********************************************************************************************"
     COMMAND echo "**********************************************************************************************"
   )
-
+  add_custom_command(TARGET minimax_main POST_BUILD
+    USES_TERMINAL
+    VERBATIM
+    COMMAND echo "**********************************************************************************************"
+    COMMAND echo "**********************************************************************************************"
+    COMMAND echo "**********************************************************************************************"
+    COMMAND echo ".bin and .hex files have been emitted for minimax_main"
+    COMMAND echo "Assuming a SAMD21 target, you can burn with bossac installed with  e.g." 
+    COMMAND echo "~/.arduino15/packages/arduino/tools/bossac/1.7.0-arduino3/bossac -i -d --port=<device port> -U true -i -e -w -v minimax_main.bin -R"
+    COMMAND echo "**********************************************************************************************"
+    COMMAND echo "**********************************************************************************************"
+    COMMAND echo "**********************************************************************************************"
+  )
 endif()
 
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
