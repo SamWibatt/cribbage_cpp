@@ -23,12 +23,13 @@ namespace minimax {
   class MinimaxNode {
 
     protected:
-      //depth, as in move/countermove depth.
+      //depth, as in move/countermove depth. starts at max_depth and counts down
       index_t depth;
 
 
     public:
-      MinimaxNode() {}
+      MinimaxNode() { plprintf("Hey in MinimaxNode"); }
+      MinimaxNode(index_t dep) : MinimaxNode() { depth = dep; } 
       virtual ~MinimaxNode() {} 
 
       //accessors ----------------------------------------------------------------------------------------------
@@ -44,6 +45,9 @@ namespace minimax {
         return std::vector<MinimaxNode>();
       }
 
+      // for debugging and testing
+      virtual void print_node(index_t max_depth) {}
+
   };
 
   class MinimaxRunner {
@@ -53,6 +57,7 @@ namespace minimax {
 
     public:
       MinimaxRunner() {}
+      MinimaxRunner(index_t md) : MinimaxRunner() { max_depth = md; }
       virtual ~MinimaxRunner() {}
 
       index_t get_max_depth() { return max_depth; }
@@ -81,7 +86,7 @@ namespace minimax {
       //cards in hand after the one being played, for finding children
       std::vector<card_t> handcards;
 
-      //card being played
+      //card that was played to get to this state
       card_t card_to_play;
 
       //ranks of cards remaining in deck - this is how we can impose the constraint that there be only 4
@@ -91,12 +96,23 @@ namespace minimax {
       //WHOLE REST OF THE DECK?
       //or how about those are the same thing? 
       //let's just call it opponentcards - of course, it'll be just hearts
-      std::vector<card_t> opponentcards;
+      //no the rank thing was better
+      std::array<index_t,13> remainingRankCounts;
 
     public:
       // ctor / dtor -------------------------------------------------------------------------------------
 
       CribbageCountNode();
+      CribbageCountNode(index_t dp, bool mn, node_value_t cs, std::vector<card_t> &sc, std::vector<card_t> &hc, 
+                        std::array<index_t,13> &rrc, card_t ctp) : CribbageCountNode() {
+        depth = dp;
+        max_node = mn;
+        cumulativeScore = cs;
+        stackcards = sc;
+        handcards = hc;
+        remainingRankCounts = rrc;
+        card_to_play = ctp;
+      }
       virtual ~CribbageCountNode();
 
       // accessors ---------------------------------------------------------------------------------------
@@ -118,14 +134,15 @@ namespace minimax {
       void set_card_to_play(card_t ctp) { card_to_play = ctp; }
 
       //do we want a ref here?
-      std::vector<card_t> &get_opponentcards() { return opponentcards; }
-      void set_opponentcards(std::vector<card_t> oc) { opponentcards = oc; }
+      std::array<index_t,13> &get_remaining_rank_counts() { return remainingRankCounts; }
+      void set_opponentcards(std::array<index_t,13> oc) { remainingRankCounts = oc; }
 
       // actions -----------------------------------------------------------------------------------------
       //heuristic value should be signed to allow for negative numbers - some states might be really baddddd
       node_value_t heuristic_value() override;
       bool is_terminal() override;
       std::vector<MinimaxNode> find_legal_countermoves(bool is_max) override;
+      void print_node(index_t max_depth) override;
   };
 }
 
