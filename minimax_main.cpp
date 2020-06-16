@@ -137,6 +137,9 @@ namespace minimax {
     }
 
     //otherwise, if there are no cards left in the hand, it's a terminal node
+    //wait, is this always so? On min nodes too? Maybe on min nodes we need to be looking at if there
+    //are any rankcards left...???
+    // FIGURE THIS OUT ********************************************************************************
     if(handcards.empty()) return true;
 
     return false;
@@ -188,7 +191,6 @@ namespace minimax {
       // remaining rank counts will be the same for all children, same as this's
       std::copy(remainingRankCounts.begin(), remainingRankCounts.end(), nu_rrc.begin());
 
-      // it's a min node, generate the max nodes that follow.
       // iterate through handcards and create nodes that have each one as card_to_play
       // and that card removed from handcards
       for(auto i = 0; i < handcards.size(); i++) {
@@ -201,9 +203,9 @@ namespace minimax {
     } else {
       //hand going in is this's hand, opponent is playing
       nu_hand.clear();
-      std::copy(handcards.begin(), handcards.end(), nu_hand.begin());
+      std::copy(handcards.begin(), handcards.end(), std::back_inserter(nu_hand));
 
-      // it's a max node, we're generating the min nodes that follow.
+      //generate the moves that this min node can make
       // so our loop is over the 13 ranks, and if any of that rank is left in remainingRankCounts,
       // play it and hand in a rankcounts with its count decremented.
       for(card_t j = 0; j< 13; j++) {
