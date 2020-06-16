@@ -180,4 +180,5 @@ void CardUtils::cut(std::vector<card_t> &deck, card_t index) {
   deck.erase(deck.begin(), deck.begin() + numpop);
   deck.insert(deck.end(), tempdeck.begin(), tempdeck.begin() + numpop);
 }
+
 }  // namespace cardutils

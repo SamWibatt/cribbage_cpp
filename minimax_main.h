@@ -7,6 +7,7 @@
 #include "cribbage_core.h"
 #include "cribbage_player.h"
 #include "plat_io.h"
+#include <memory>
 #include "plat_minimax_main.h"
 
 
@@ -23,16 +24,22 @@ namespace minimax {
   class MinimaxNode {
 
     protected:
+      //it has to know if it's a max or min for score evaluation
+      bool max_node;
+   
       //depth, as in move/countermove depth. starts at max_depth and counts down
       index_t depth;
 
 
     public:
-      MinimaxNode() { plprintf("Hey in MinimaxNode"); }
+      MinimaxNode() { /* plprintf("Hey in MinimaxNode\n");*/ }
       MinimaxNode(index_t dep) : MinimaxNode() { depth = dep; } 
       virtual ~MinimaxNode() {} 
 
       //accessors ----------------------------------------------------------------------------------------------
+      bool is_max_node() { return max_node; }
+      void set_max_node(bool numax) { max_node = numax; }
+
       index_t get_depth() { return depth; }
       void set_depth(index_t d) { depth = d; }
 
@@ -41,8 +48,8 @@ namespace minimax {
       virtual bool is_terminal() { return true; }
       
       //find all the legal countermoves to this state - should it be all *possible* countermoves?
-      virtual std::vector<MinimaxNode> find_legal_countermoves(bool is_max) { 
-        return std::vector<MinimaxNode>();
+      virtual void find_legal_countermoves(bool is_max, std::vector<std::unique_ptr<MinimaxNode>> &rv) { 
+        rv.clear();
       }
 
       // for debugging and testing
@@ -67,11 +74,9 @@ namespace minimax {
       virtual node_value_t alphabeta(MinimaxNode &node, index_t depth, node_value_t alpha, node_value_t beta, bool is_max);
   };
 
-  class CribbageCountNode : MinimaxNode {
+  class CribbageCountNode : public MinimaxNode {
     protected:
       //what goes in a node?
-      //it has to know if it's a max or min for score evaluation
-      bool max_node;
 
       // cumulative score leading up to this point...? I guess so. If we can carry along the cards
       // and stack, and could carry along the previous board states in Othello, we can carry this and not be cheating
@@ -116,9 +121,6 @@ namespace minimax {
       virtual ~CribbageCountNode();
 
       // accessors ---------------------------------------------------------------------------------------
-      bool is_max_node() { return max_node; }
-      void set_max_node(bool numax) { max_node = numax; }
-
       node_value_t get_cumulative_score() { return cumulativeScore; }
       void set_cumulative_score(node_value_t s) { cumulativeScore = s; }
 
@@ -141,7 +143,7 @@ namespace minimax {
       //heuristic value should be signed to allow for negative numbers - some states might be really baddddd
       node_value_t heuristic_value() override;
       bool is_terminal() override;
-      std::vector<MinimaxNode> find_legal_countermoves(bool is_max) override;
+      void find_legal_countermoves(bool is_max, std::vector<std::unique_ptr<MinimaxNode>> &rv) override;
       void print_node(index_t max_depth) override;
   };
 }

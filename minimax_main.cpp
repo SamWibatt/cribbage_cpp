@@ -57,7 +57,8 @@ namespace minimax {
     if(depth == 0 || node.is_terminal()) { return node.heuristic_value(); }
 
     // slightly confused here - if this is a max node, the children are min nodes & vv, yes? hence !is_max
-    std::vector<MinimaxNode> children = node.find_legal_countermoves(!is_max);
+    std::vector<std::unique_ptr<MinimaxNode>> children;
+    node.find_legal_countermoves(!is_max,children);
 
     // if maximizingPlayer then
     if(is_max) {
@@ -69,12 +70,12 @@ namespace minimax {
       //         α := max(α, value)
       //         if α ≥ β then
       //             break (* β cut-off *)
-      for(MinimaxNode n : children) {
+      for(auto j = 0; j < children.size(); j++) {
         // **************************************************************************************************
         // HEY IN HERE SOMEWHERE DO A PLATSPEC CALL TO BUILD A GRAPH? or do like with build_lists in scoring?
         // **************************************************************************************************
         // do we need to pass alpha and beta back? I'm going to try not.
-        val = std::max(alpha, alphabeta(n, depth-1, alpha, beta, false));
+        val = std::max(alpha, alphabeta(*(children[j]), depth-1, alpha, beta, false));
         alpha = std::max(alpha, val);
         if(alpha >= beta) break;    //beta cutoff
       }
@@ -90,12 +91,12 @@ namespace minimax {
       //         β := min(β, value)
       //         if β ≤ α then
       //             break (* α cut-off *)
-      for(MinimaxNode n : children) {
+      for(auto j = 0; j < children.size(); j++) {
         // **************************************************************************************************
         // HEY IN HERE SOMEWHERE DO A PLATSPEC CALL TO BUILD A GRAPH? or do like with build_lists in scoring?
         // **************************************************************************************************
         // do we need to pass alpha and beta back? I'm going to try not.
-        val = std::min(beta, alphabeta(n, depth-1, alpha, beta, true));
+        val = std::min(beta, alphabeta(*(children[j]), depth-1, alpha, beta, true));
         alpha = std::min(alpha, val);
         if(alpha >= beta) break;    //beta cutoff
       }
@@ -120,38 +121,19 @@ namespace minimax {
     //max node's children are the results of max plays - see https://www.neverstopbuilding.com/blog/minimax
     //so I think I can stick with card_to_play and just change how they enumerate.
 
-    //what makes a terminal node? When a node is terminal, we return its heuristic value,
-    //so there needs to be a card to play and no cards left in the hand.
-    //return handcards.empty();
-    //wait, rethink. That's still true, but not the only condition
-    //this is always called before heuristic_value, so we could have other conditions;
-    //could do the call to play_card here and if it's an error, then what?
-    // **************************************************************************************
-    // **************************************************************************************
-    //let's say that's a terminal node. That doesn't let us play all the way to the end,
-    //just to 31, and... let's go with that
-    // **************************************************************************************
-    // **************************************************************************************
-    // LATER DO A VERSION THAT CAN PLAY ALL THE WAY PAST GOES
+    //what makes a terminal node? 
 
     //we have a card to play, a stack to play it on.
-    //we don't want score lists, do we want to add to stack? Prolly not
-    index_t playscore = cr.play_card(stackcards,card_to_play,nullptr,false,false);  
-
-    //so if that isn't a legal move, this is a terminal node, no change to cumulative score
-    if(playscore == cr.ERROR_SCORE_VAL) return true;
-
-    //HERE DO SOMETHING WITH CUMULATIVE_SCORE...............
-    //add if we're maxing, subtract if we're minning?
-    //or does that even make sense?
-    //FIGURE THIS OUT ************************************************************************
-    //make it so that returning cumulative value is the heuristic value
-    //we have to know if this is a max or min node. if max, add to cumulative
-    //if min, subtract from it
-    if(max_node) {
-      cumulativeScore += playscore;
-    } else {
-      cumulativeScore -= playscore;
+    //error_card_val is root case - assume that's not terminal?
+    if(card_to_play == cu.ERROR_CARD_VAL) return false;
+    
+    //otherwise - figure out total of stack so far - same way as in play_card
+    index_t curtotal = std::accumulate(
+      stackcards.begin(), stackcards.end(), 0,
+      [this](index_t a, card_t b) { return a + index_t(cu.val(b)); });
+    if(curtotal + cu.val(card_to_play) > 31) {
+      //total with card to play being > 31 means it's illegal
+      return true;
     }
 
     //otherwise, if there are no cards left in the hand, it's a terminal node
@@ -162,14 +144,28 @@ namespace minimax {
 
   node_value_t CribbageCountNode::heuristic_value() {
     //ok! So what's the value of a cribbage count node?
-    //since is_terminal did the calc, cumulativeScore is all we need
+    index_t playscore = 0;
+    if(card_to_play != cu.ERROR_CARD_VAL) {
+      playscore = cr.play_card(stackcards,card_to_play,nullptr,false,false);
+      if(playscore != cu.ERROR_CARD_VAL) {
+        //we have to know if this is a max or min node. if max, add to cumulative
+        //if min, subtract from it
+        if(max_node) {
+          cumulativeScore += playscore;
+        } else {
+          cumulativeScore -= playscore;
+        }
+      }
+    }
+
     return cumulativeScore;
   }
 
   //WOULD BE NICE TO DO THIS AS A GENERATOR AND NOT NEED TO CREATE ALL THE NODES
   //but in this game's case the fan-out is never worse than 13
-  std::vector<MinimaxNode> CribbageCountNode::find_legal_countermoves(bool is_max) {
-    std::vector<MinimaxNode> rv;
+  void CribbageCountNode::find_legal_countermoves(bool is_max, std::vector<std::unique_ptr<MinimaxNode>> &rv) {
+    //std::vector<MinimaxNode> rv;
+    rv.clear();
     std::vector<card_t> nu_stack, nu_hand;
     std::array<index_t,13> nu_rrc;
     nu_stack.reserve(8);      //shouldn't get longer than 8
@@ -197,9 +193,10 @@ namespace minimax {
       // and that card removed from handcards
       for(auto i = 0; i < handcards.size(); i++) {
         nu_hand.clear();
-        std::copy(handcards.begin(),handcards.end(),nu_hand.begin());
+        std::copy(handcards.begin(),handcards.end(), std::back_inserter(nu_hand));
         nu_hand.erase(nu_hand.begin()+i);   // hand with ith card removed
-        rv.push_back(CribbageCountNode(depth-1, false,cumulativeScore,nu_stack,nu_hand, nu_rrc, handcards[i]));
+        //beware object slicing! https://stackoverflow.com/questions/8777724/store-derived-class-objects-in-base-class-variables
+        rv.emplace_back(new CribbageCountNode(depth-1, false,cumulativeScore,nu_stack,nu_hand, nu_rrc, handcards[i]));
       }
     } else {
       //hand going in is this's hand, opponent is playing
@@ -216,18 +213,22 @@ namespace minimax {
           //COULD DO THE LEGAL CHECK HERE AND NOT EVEN PROPOSE ILLEGAL NODES but see about that
           nu_rrc[j]--;  //lower next generation's count of this card by 1
           //card value is j<<2 so it acts like a rank (suit is unimportant)
-          rv.push_back(CribbageCountNode(depth-1, true,cumulativeScore,nu_stack,nu_hand, nu_rrc, j<<2));
+          //beware object slicing! https://stackoverflow.com/questions/8777724/store-derived-class-objects-in-base-class-variables
+          rv.emplace_back(new CribbageCountNode(depth-1, true,cumulativeScore,nu_stack,nu_hand, nu_rrc, j<<2));
         }
       }
     }
 
-    return rv;
+
+    //return rv;
   }
 
   void CribbageCountNode::print_node(index_t max_depth) {
     std::string indent((max_depth - depth)*2,' ');
-    plprintf("%smax: %s cscore: %2d card_to_play: %s\n",indent.c_str(), max_node?"Y":"N",int(cumulativeScore),
-             (cu.cardstring(card_to_play)).c_str());
+    bool term = is_terminal();      //ugh, side effect sets cumulative value - let's fix that
+    node_value_t val = heuristic_value();
+    plprintf("%smax: %s depth: %d term: %s cscore: %2d card_to_play: %s\n",indent.c_str(), max_node?"Y":"N", depth, 
+              term?"Y":"N", int(cumulativeScore), card_to_play == cu.ERROR_CARD_VAL?"(root)":(cu.cardstring(card_to_play)).c_str());
     //print rank headings, then stack
     plprintf("%sA234567890JQK stack: ",indent.c_str());
     if(stackcards.empty())
@@ -242,7 +243,7 @@ namespace minimax {
       plprintf("empty");
     else
       for(auto j = 0; j < handcards.size(); j++) plprintf("%s ", (cu.cardstring(handcards[j])).c_str());
-    plprintf("\n");
+    plprintf("\n%s---------------------------------------------------------------------------------------\n",indent.c_str());
   }
 }
 
@@ -280,6 +281,21 @@ void run() {
 
   plprintf("Root node:\n");
   root.print_node(max_depth);
+
+  std::vector<std::unique_ptr<MinimaxNode>> kids;
+  plprintf("Children of root:\n");
+  root.find_legal_countermoves(root.is_max_node(),kids);
+  for(auto j = 0; j < kids.size(); j++) {
+    kids[j]->print_node(max_depth);
+  }
+
+  //let's look at children of last kid
+  std::vector<std::unique_ptr<MinimaxNode>> kids2;
+  plprintf("Children of first child of root:\n");
+  kids[0]->find_legal_countermoves(kids[0]->is_max_node(),kids2);
+  for(auto j = 0; j < kids2.size(); j++) {
+    kids2[j]->print_node(max_depth);
+  }
 
   // end GENERALIZE INTO A SCENARIO BUILDING FUNCTION ===================================================================
 }
