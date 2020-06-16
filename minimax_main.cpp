@@ -21,6 +21,7 @@ namespace minimax {
     if(depth == 0 || node.is_terminal()) { return node.heuristic_value(); }
 
     // slightly confused here - if this is a max node, the children are min nodes & vv, yes? hence !is_max
+    // or does this make everything backwards?
     std::vector<std::unique_ptr<MinimaxNode>> children;
     node.find_legal_countermoves(!is_max,children);
 
