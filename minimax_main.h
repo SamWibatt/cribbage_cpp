@@ -82,6 +82,9 @@ namespace minimax {
       // where max player X is generating the next layer of nodes, the next layer shows after X has made their
       // move and the score is from X's point of view.
 
+      // winning the game is worth a lot. We'll decide how much
+      node_value_t GAME_WIN_VALUE = 10000;
+
       // so:
       // our state is
       // - cards left in max player's hand (handcards) - all in hearts suit bc suits don't matter
@@ -101,6 +104,11 @@ namespace minimax {
       // - stack total so far, for ease of computing legality of countermoves
       index_t stackTotal;
 
+      // - actual game scores of the max player and min player to this point! if a move makes a player's
+      //   score go over 120, they win the game.
+      index_t max_player_gamescore;
+      index_t min_player_gamescore;
+
       // flag for whether we've already calculated cumulative score, so we don't call play_card more than once
       // for a given node and don't need to call it during child expansion
       bool calculated_score_yet;
@@ -108,14 +116,20 @@ namespace minimax {
       // ctor / dtor -------------------------------------------------------------------------------------
 
       CribbageCountNode() { 
+        cumulativeScore = 0;
         calculated_score_yet = false;
         stackTotal = 0; 
+        max_player_gamescore = 0;
+        min_player_gamescore = 0;
       }
-      CribbageCountNode(index_t dp, bool mn, node_value_t cs, index_t st, std::vector<card_t> &sc, std::vector<card_t> &hc, 
+      CribbageCountNode(index_t dp, bool mn, node_value_t cs, index_t st, index_t mxpgs, index_t mnpgs,
+                        std::vector<card_t> &sc, std::vector<card_t> &hc, 
                         std::array<index_t,13> &rrc) : CribbageCountNode() {
         depth = dp;
         max_node = mn;
         cumulativeScore = cs;
+        max_player_gamescore = mxpgs;
+        min_player_gamescore = mnpgs;
         stackcards = sc;
         stackTotal = st;
         handcards = hc;

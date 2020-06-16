@@ -111,6 +111,23 @@ namespace minimax {
       //last flag true to add the card back on to the stack - gross, but wev
       playscore = cr.play_card(stackcards,card_to_play,nullptr,false,true);
       if(playscore != cu.ERROR_CARD_VAL) {
+        //check to see if this puts the player over the line!
+        if(max_node) {
+          //it's the result of a min player's play, yes? so the playscore gets added to min player's score
+          min_player_gamescore += playscore;
+          //if that wins the game for min player, BIG YIKES
+          if(min_player_gamescore > 120) {
+            cumulativeScore -= GAME_WIN_VALUE;
+          }
+        } else {
+          // yay, it was a max play that did it and max wins if score over 120
+          max_player_gamescore += playscore;
+          //if that wins the game for max player, BIG YAY
+          if(max_player_gamescore > 120) {
+            cumulativeScore += GAME_WIN_VALUE;
+          }
+        }
+
         //we have to know if this is a max or min node. if max, add to cumulative
         //if min, subtract from it - this might be backwards - indeed it seems to be.
         //so - if *this* is a max node, the *move* came from a min node... yes? Will figure out soon
@@ -167,7 +184,8 @@ namespace minimax {
           nu_hand.erase(nu_hand.begin()+i);   // hand with ith card removed
           nu_stack.push_back(handcards[i]);   // add card being played to the stack
           //beware object slicing! https://stackoverflow.com/questions/8777724/store-derived-class-objects-in-base-class-variables
-          rv.emplace_back(new CribbageCountNode(depth-1, false,cumulativeScore, playTotal, nu_stack,nu_hand, nu_rrc));
+          rv.emplace_back(new CribbageCountNode(depth-1, false,cumulativeScore, playTotal, max_player_gamescore, min_player_gamescore,
+              nu_stack,nu_hand, nu_rrc));
           nu_stack.pop_back();                // restore stack for next child along
         }
       }
@@ -192,7 +210,8 @@ namespace minimax {
             nu_stack.push_back(j<<2);
 
             //beware object slicing! https://stackoverflow.com/questions/8777724/store-derived-class-objects-in-base-class-variables
-            rv.emplace_back(new CribbageCountNode(depth-1, true,cumulativeScore, playTotal,nu_stack,nu_hand, nu_rrc));
+            rv.emplace_back(new CribbageCountNode(depth-1, true,cumulativeScore, playTotal, max_player_gamescore, min_player_gamescore,
+              nu_stack,nu_hand, nu_rrc));
             nu_stack.pop_back();                // restore stack for next child along
           }
         }
@@ -205,8 +224,8 @@ namespace minimax {
     bool term = is_terminal();      //ugh, side effect sets cumulative value - let's fix that
     node_value_t val = heuristic_value();
     //print rank headings and some vitals
-    plprintf("%sA234567890JQK max: %s dep: %d trm: %s stot: %2d val: %2d\n", 
-            indent.c_str(), max_node?"Y":"N", depth, term?"Y":"N", stackTotal, val);
+    plprintf("%sA234567890JQK max: %s dep: %d trm: %s stot: %2d val: %2d mxs: %3d mns: %3d\n", 
+            indent.c_str(), max_node?"Y":"N", depth, term?"Y":"N", stackTotal, val, max_player_gamescore, min_player_gamescore);
     //print rank counts, hand, stack
     plprintf("%s",indent.c_str());
     for(auto j = 0; j < 13; j++) plprintf("%d",remainingRankCounts[j]);
@@ -220,7 +239,7 @@ namespace minimax {
       plprintf("empty");
     else
       for(auto j = 0; j < stackcards.size(); j++) plprintf("%s ", (cu.cardstring(stackcards[j])).c_str());
-    plprintf("\n%s-----------------------------------------------------\n",indent.c_str());
+    plprintf("\n%s-----------------------------------------------------------------------\n",indent.c_str());
   }
 }
 
@@ -230,7 +249,8 @@ using namespace minimax;
 //returns false if the scenario is inconsistent, like there are five kings among the hand and stack
 //also more subtle illegalities like too long a hand or stack
 //...this should be a method in one of the classes maybe
-bool build_scenario(bool max, index_t depth, node_value_t cumuscore, std::vector<std::string> player_cardstrings, 
+bool build_scenario(bool max, index_t depth, node_value_t cumuscore, index_t maxplayer_gscore, index_t minplayer_gscore,
+                    std::vector<std::string> player_cardstrings, 
                     std::vector<std::string> stack_cardstrings, CribbageCountNode &node) {
 
   //check for illegal length of hand or stack
@@ -241,6 +261,17 @@ bool build_scenario(bool max, index_t depth, node_value_t cumuscore, std::vector
 
   if(stack_cardstrings.size() > 8) {
     //too long a stack
+    return false;
+  }
+
+  //check that player positions are legal
+  if(maxplayer_gscore > 120) {
+    //...is this wrong?
+    return false;
+  }
+
+  if(minplayer_gscore > 120) {
+    //...is this wrong?
     return false;
   }
 
@@ -292,7 +323,7 @@ bool build_scenario(bool max, index_t depth, node_value_t cumuscore, std::vector
   }
 
   //and so finally, build our node
-  node = CribbageCountNode(depth, max, cumuscore, curtotal, stackcards, handcards, start_rrc);  
+  node = CribbageCountNode(depth, max, cumuscore, curtotal, maxplayer_gscore, minplayer_gscore, stackcards, handcards, start_rrc);  
 
 
   return true;
@@ -313,7 +344,8 @@ void run() {
   std::vector<std::string> player_cardstrings = { "5d", "6s", "Qh", "Jc" };
   std::vector<std::string> stack_cardstrings;   //empty
   CribbageCountNode root;
-  bool res = build_scenario(true, mr.get_max_depth(), 0, player_cardstrings, stack_cardstrings, root); 
+  //say that the max player is at 50 points, min player at 117
+  bool res = build_scenario(true, mr.get_max_depth(), 0, 50, 117, player_cardstrings, stack_cardstrings, root); 
   if(res == true) {
 
     plprintf("Root node:\n");
