@@ -245,11 +245,76 @@ namespace minimax {
       plprintf("empty");
     else
       for(auto j = 0; j < handcards.size(); j++) plprintf("%s ", (cu.cardstring(handcards[j])).c_str());
-    plprintf("\n%s---------------------------------------------------------------------------------------\n",indent.c_str());
+    plprintf("\n%s---------------------------------------------------\n",indent.c_str());
   }
 }
 
 using namespace minimax;
+
+//builds a CribbageCountNode to act as a root in tests
+//returns false if the scenario is inconsistent, like there are five kings among the hand and stack
+//also more subtle illegalities like too long a hand or stack
+//...this should be a method in one of the classes maybe
+bool build_scenario(bool max, index_t depth, node_value_t cumuscore, std::string playcardstr, 
+                    std::vector<std::string> player_cardstrings, 
+                    std::vector<std::string> stack_cardstrings, CribbageCountNode &node) {
+
+  //check for illegal length of hand or stack
+  if(player_cardstrings.size() > 4) {
+    //too long a hand
+    return false;
+  }
+
+  if(stack_cardstrings.size() > 8) {
+    //too long a stack
+    return false;
+  }
+
+  //convert playcardstr into a card value; ok if it's illegal - that means root
+  card_t playcard = cu.stringcard(playcardstr);
+
+  //start with full deck remaining in 
+  std::array<index_t,13> start_rrc = { 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4 };
+  // convert the player card strings to cards, then to ranks, likewise stack cards
+  // actually we want ranks << 2, to align with play_card's expectation of cards with suits
+  std::vector<card_t> handcards(player_cardstrings.size());
+  std::transform(player_cardstrings.begin(), player_cardstrings.end(), handcards.begin(),
+                [](std::string c) { return cu.rank(cu.stringcard(c)) << 2; });
+
+  std::vector<card_t> stackcards(stack_cardstrings.size());
+  std::transform(stack_cardstrings.begin(), stack_cardstrings.end(), stackcards.begin(),
+                [](std::string c) { return cu.rank(cu.stringcard(c)) << 2; });
+
+  //if there are any ERROR_CARD_VAL in those, fail
+  if(std::find(std::begin(handcards), std::end(handcards), cu.ERROR_CARD_VAL) != std::end(handcards)) {
+    //illegal card in hand
+    return false;
+  }
+
+  if(std::find(std::begin(stackcards), std::end(stackcards), cu.ERROR_CARD_VAL) != std::end(stackcards)) {
+    //illegal card in stack
+    return false;
+  }
+
+  // take the ranks currently used by handcards and stackcards out of start_rrc
+  for(card_t c : handcards) start_rrc[cu.rank(c)]--;
+  for(card_t c : stackcards) start_rrc[cu.rank(c)]--;
+
+  //check to see if any ranks have gone negative (more than 4 cards of one rank in the scenario)
+  for(index_t ct : start_rrc) {
+    if(ct < 0 || ct > 4) {
+      //the > 4 case is bc index_t can be unsigned
+      return false;
+    }
+  }
+
+  //and so finally, build our node
+  node = CribbageCountNode(depth, max, cumuscore, stackcards, handcards, start_rrc, playcard);  
+
+
+  return true;
+
+}
 
 // main method ------------------------------------------------------------------------------------------
 void run() {
@@ -264,6 +329,9 @@ void run() {
   //5, 6, Q, J - which is 4, 5, 11, 10 in zero-relative rank, and shift left by 2 to align as though they had suits
   //just at a guess
   // GENERALIZE INTO A SCENARIO BUILDING FUNCTION ===================================================================
+
+
+  /* original by-hand way
   std::vector<card_t> player_hand = { 4 << 2, 5 << 2, 11 << 2, 10 << 2 };
   
   //here's the list of remaining (zero-rel) ranks - all 13 have 4 cards left except for 4, 5, 10, 11
@@ -280,24 +348,112 @@ void run() {
   std::vector<card_t> stackcards;    //starts empty
   CribbageCountNode root = CribbageCountNode(mr.get_max_depth(), true, node_value_t(0), 
                                               stackcards, player_hand, start_rrc, cu.ERROR_CARD_VAL);
+  which got
+  Root node:
+  max: Y depth: 9 term: N cscore:  0 card_to_play: (root)
+  A234567890JQK stack: empty
+  4444334444334 hand: 5h 6h Qh Jh 
+  ---------------------------------------------------
+  Children of root:
+    max: N depth: 8 term: N cscore:  0 card_to_play: 5h
+    A234567890JQK stack: empty
+    4444334444334 hand: 6h Qh Jh 
+    ---------------------------------------------------
+    max: N depth: 8 term: N cscore:  0 card_to_play: 6h
+    A234567890JQK stack: empty
+    4444334444334 hand: 5h Qh Jh 
+    ---------------------------------------------------
+    max: N depth: 8 term: N cscore:  0 card_to_play: Qh
+    A234567890JQK stack: empty
+    4444334444334 hand: 5h 6h Jh 
+    ---------------------------------------------------
+    max: N depth: 8 term: N cscore:  0 card_to_play: Jh
+    A234567890JQK stack: empty
+    4444334444334 hand: 5h 6h Qh 
+    ---------------------------------------------------
+  Children of first child of root:
+      max: Y depth: 7 term: N cscore:  0 card_to_play: Ah
+      A234567890JQK stack: 5h 
+      3444334444334 hand: 6h Qh Jh 
+      ---------------------------------------------------
+      max: Y depth: 7 term: N cscore:  0 card_to_play: 2h
+      A234567890JQK stack: 5h 
+      4344334444334 hand: 6h Qh Jh 
+      ---------------------------------------------------
+      max: Y depth: 7 term: N cscore:  0 card_to_play: 3h
+      A234567890JQK stack: 5h 
+      4434334444334 hand: 6h Qh Jh 
+      ---------------------------------------------------
+      max: Y depth: 7 term: N cscore:  0 card_to_play: 4h
+      A234567890JQK stack: 5h 
+      4443334444334 hand: 6h Qh Jh 
+      ---------------------------------------------------
+      max: Y depth: 7 term: N cscore:  2 card_to_play: 5h
+      A234567890JQK stack: 5h 
+      4444234444334 hand: 6h Qh Jh 
+      ---------------------------------------------------
+      max: Y depth: 7 term: N cscore:  0 card_to_play: 6h
+      A234567890JQK stack: 5h 
+      4444324444334 hand: 6h Qh Jh 
+      ---------------------------------------------------
+      max: Y depth: 7 term: N cscore:  0 card_to_play: 7h
+      A234567890JQK stack: 5h 
+      4444333444334 hand: 6h Qh Jh 
+      ---------------------------------------------------
+      max: Y depth: 7 term: N cscore:  0 card_to_play: 8h
+      A234567890JQK stack: 5h 
+      4444334344334 hand: 6h Qh Jh 
+      ---------------------------------------------------
+      max: Y depth: 7 term: N cscore:  0 card_to_play: 9h
+      A234567890JQK stack: 5h 
+      4444334434334 hand: 6h Qh Jh 
+      ---------------------------------------------------
+      max: Y depth: 7 term: N cscore:  2 card_to_play: 0h
+      A234567890JQK stack: 5h 
+      4444334443334 hand: 6h Qh Jh 
+      ---------------------------------------------------
+      max: Y depth: 7 term: N cscore:  2 card_to_play: Jh
+      A234567890JQK stack: 5h 
+      4444334444234 hand: 6h Qh Jh 
+      ---------------------------------------------------
+      max: Y depth: 7 term: N cscore:  2 card_to_play: Qh
+      A234567890JQK stack: 5h 
+      4444334444324 hand: 6h Qh Jh 
+      ---------------------------------------------------
+      max: Y depth: 7 term: N cscore:  2 card_to_play: Kh
+      A234567890JQK stack: 5h 
+      4444334444333 hand: 6h Qh Jh 
+      ---------------------------------------------------                                                
+  */
 
-  plprintf("Root node:\n");
-  root.print_node(max_depth);
+  //CribbageCountNode root = CribbageCountNode(mr.get_max_depth(), true, node_value_t(0), 
+  //                                            stackcards, player_hand, start_rrc, cu.ERROR_CARD_VAL);
 
-  std::vector<std::unique_ptr<MinimaxNode>> kids;
-  plprintf("Children of root:\n");
-  root.find_legal_countermoves(root.is_max_node(),kids);
-  for(auto j = 0; j < kids.size(); j++) {
-    kids[j]->print_node(max_depth);
+  std::vector<std::string> player_cardstrings = { "5d", "6s", "Qh", "Jc" };
+  std::vector<std::string> stack_cardstrings;   //empty
+  CribbageCountNode root;
+  bool res = build_scenario(true, mr.get_max_depth(), 0, "", player_cardstrings, 
+                            stack_cardstrings, root); 
+  if(res == true) {
+
+    plprintf("Root node:\n");
+    root.print_node(max_depth);
+
+    std::vector<std::unique_ptr<MinimaxNode>> kids;
+    plprintf("Children of root:\n");
+    root.find_legal_countermoves(root.is_max_node(),kids);
+    for(auto j = 0; j < kids.size(); j++) {
+      kids[j]->print_node(max_depth);
+    }
+
+    //let's look at children of last kid
+    std::vector<std::unique_ptr<MinimaxNode>> kids2;
+    plprintf("Children of first child of root:\n");
+    kids[0]->find_legal_countermoves(kids[0]->is_max_node(),kids2);
+    for(auto j = 0; j < kids2.size(); j++) {
+      kids2[j]->print_node(max_depth);
+    }
+  } else {
+    plprintf("Failed to set up root scenario!");
   }
-
-  //let's look at children of last kid
-  std::vector<std::unique_ptr<MinimaxNode>> kids2;
-  plprintf("Children of first child of root:\n");
-  kids[0]->find_legal_countermoves(kids[0]->is_max_node(),kids2);
-  for(auto j = 0; j < kids2.size(); j++) {
-    kids2[j]->print_node(max_depth);
-  }
-
-  // end GENERALIZE INTO A SCENARIO BUILDING FUNCTION ===================================================================
 }
