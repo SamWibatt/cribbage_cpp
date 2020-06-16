@@ -98,19 +98,26 @@ namespace minimax {
       // - score so far, from max's point of view
       node_value_t cumulativeScore;
 
+      // - stack total so far, for ease of computing legality of countermoves
+      index_t stackTotal;
+
       // flag for whether we've already calculated cumulative score, so we don't call play_card more than once
       // for a given node and don't need to call it during child expansion
       bool calculated_score_yet;
     public:
       // ctor / dtor -------------------------------------------------------------------------------------
 
-      CribbageCountNode() { calculated_score_yet = false; }
-      CribbageCountNode(index_t dp, bool mn, node_value_t cs, std::vector<card_t> &sc, std::vector<card_t> &hc, 
+      CribbageCountNode() { 
+        calculated_score_yet = false;
+        stackTotal = 0; 
+      }
+      CribbageCountNode(index_t dp, bool mn, node_value_t cs, index_t st, std::vector<card_t> &sc, std::vector<card_t> &hc, 
                         std::array<index_t,13> &rrc) : CribbageCountNode() {
         depth = dp;
         max_node = mn;
         cumulativeScore = cs;
         stackcards = sc;
+        stackTotal = st;
         handcards = hc;
         remainingRankCounts = rrc;
       }

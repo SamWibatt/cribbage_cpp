@@ -82,6 +82,9 @@ namespace minimax {
     //max node's children are the results of max plays - see https://www.neverstopbuilding.com/blog/minimax
 
     //what makes a terminal node? If the stack total is > 31, it should never have existed
+    //if total is == 31, this is terminal regardless of player
+    if(stackTotal == 31) return true;
+
     //if it's a max node and there are no cards left in hand, it's terminal
     //if it's a min node and there is nothing left in remaining ranks, it's terminal
     if(is_max_node()) return handcards.empty();
@@ -109,11 +112,12 @@ namespace minimax {
       playscore = cr.play_card(stackcards,card_to_play,nullptr,false,true);
       if(playscore != cu.ERROR_CARD_VAL) {
         //we have to know if this is a max or min node. if max, add to cumulative
-        //if min, subtract from it - this might be backwards
+        //if min, subtract from it - this might be backwards - indeed it seems to be.
+        //so - if *this* is a max node, the *move* came from a min node... yes? Will figure out soon
         if(max_node) {
-          cumulativeScore += playscore;
-        } else {
           cumulativeScore -= playscore;
+        } else {
+          cumulativeScore += playscore;
         }
       } else {
         //card was an illegal play! Should this be possible? Let's say not
@@ -146,12 +150,6 @@ namespace minimax {
     std::copy(stackcards.begin(), stackcards.end(), std::back_inserter(nu_stack));
 
     // find out current value of stack to spot legal moves - no move that makes total > 31 is legal
-    index_t curtotal = std::accumulate(
-        stackcards.begin(), stackcards.end(), 0,
-        [this](index_t a, card_t b) { return a + index_t(cu.val(b)); });
-
-
-
 
     if(is_max) {
       //generate the moves that max player can make
@@ -162,13 +160,14 @@ namespace minimax {
       // and that card removed from handcards
       for(auto i = 0; i < handcards.size(); i++) {
         //figure out if handcards[i] is a legal play: any card that makes the total > 31 is illegal
-        if (curtotal + index_t(cu.val(handcards[i])) <= 31) {
+        index_t playTotal = stackTotal + index_t(cu.val(handcards[i]));
+        if (playTotal <= 31) {
           nu_hand.clear();
           std::copy(handcards.begin(),handcards.end(), std::back_inserter(nu_hand));
           nu_hand.erase(nu_hand.begin()+i);   // hand with ith card removed
           nu_stack.push_back(handcards[i]);   // add card being played to the stack
           //beware object slicing! https://stackoverflow.com/questions/8777724/store-derived-class-objects-in-base-class-variables
-          rv.emplace_back(new CribbageCountNode(depth-1, false,cumulativeScore,nu_stack,nu_hand, nu_rrc));
+          rv.emplace_back(new CribbageCountNode(depth-1, false,cumulativeScore, playTotal, nu_stack,nu_hand, nu_rrc));
           nu_stack.pop_back();                // restore stack for next child along
         }
       }
@@ -185,14 +184,15 @@ namespace minimax {
         if(remainingRankCounts[j] > 0) {
           //figure out if j<<2 is a legal play: any card that makes the total > 31 is illegal
           //card value is j<<2 so it acts like a rank (suit is unimportant)
-          if (curtotal + index_t(cu.val(j<<2)) <= 31) {
+          index_t playTotal = stackTotal + index_t(cu.val(j << 2));
+          if (playTotal <= 31) {
             std::copy(remainingRankCounts.begin(),remainingRankCounts.end(),nu_rrc.begin());
             nu_rrc[j]--;  //lower next generation's count of this card by 1
 
             nu_stack.push_back(j<<2);
 
             //beware object slicing! https://stackoverflow.com/questions/8777724/store-derived-class-objects-in-base-class-variables
-            rv.emplace_back(new CribbageCountNode(depth-1, true,cumulativeScore,nu_stack,nu_hand, nu_rrc));
+            rv.emplace_back(new CribbageCountNode(depth-1, true,cumulativeScore, playTotal,nu_stack,nu_hand, nu_rrc));
             nu_stack.pop_back();                // restore stack for next child along
           }
         }
@@ -205,7 +205,8 @@ namespace minimax {
     bool term = is_terminal();      //ugh, side effect sets cumulative value - let's fix that
     node_value_t val = heuristic_value();
     //print rank headings and some vitals
-    plprintf("%sA234567890JQK max: %s depth: %d term: %s value: %2d\n", indent.c_str(), max_node?"Y":"N", depth, term?"Y":"N", val);
+    plprintf("%sA234567890JQK max: %s dep: %d trm: %s stot: %2d val: %2d\n", 
+            indent.c_str(), max_node?"Y":"N", depth, term?"Y":"N", stackTotal, val);
     //print rank counts, hand, stack
     plprintf("%s",indent.c_str());
     for(auto j = 0; j < 13; j++) plprintf("%d",remainingRankCounts[j]);
@@ -219,7 +220,7 @@ namespace minimax {
       plprintf("empty");
     else
       for(auto j = 0; j < stackcards.size(); j++) plprintf("%s ", (cu.cardstring(stackcards[j])).c_str());
-    plprintf("\n%s---------------------------------------------------\n",indent.c_str());
+    plprintf("\n%s-----------------------------------------------------\n",indent.c_str());
   }
 }
 
@@ -266,6 +267,18 @@ bool build_scenario(bool max, index_t depth, node_value_t cumuscore, std::vector
     return false;
   }
 
+  // calculate initial stack total
+  index_t curtotal = std::accumulate(
+    stackcards.begin(), stackcards.end(), 0,
+    [](index_t a, card_t b) { return a + index_t(cu.val(b)); });
+  
+  //if it's > 31, this is an illegal node
+  if(curtotal > 31) {
+    //total over 31
+    return false;
+  }
+
+
   // take the ranks currently used by handcards and stackcards out of start_rrc
   for(card_t c : handcards) start_rrc[cu.rank(c)]--;
   for(card_t c : stackcards) start_rrc[cu.rank(c)]--;
@@ -279,7 +292,7 @@ bool build_scenario(bool max, index_t depth, node_value_t cumuscore, std::vector
   }
 
   //and so finally, build our node
-  node = CribbageCountNode(depth, max, cumuscore, stackcards, handcards, start_rrc);  
+  node = CribbageCountNode(depth, max, cumuscore, curtotal, stackcards, handcards, start_rrc);  
 
 
   return true;
