@@ -76,47 +76,43 @@ namespace minimax {
 
   class CribbageCountNode : public MinimaxNode {
     protected:
-      //what goes in a node?
+      //what goes in a node representing a cribbage count state?
+      // It should reflect a *state*. Initial version had this card_to_play thing which makes it look weird.
+      // see the tic-tac-toe example at https://www.neverstopbuilding.com/blog/minimax - given an initial state
+      // where max player X is generating the next layer of nodes, the next layer shows after X has made their
+      // move and the score is from X's point of view.
 
-      // cumulative score leading up to this point...? I guess so. If we can carry along the cards
-      // and stack, and could carry along the previous board states in Othello, we can carry this and not be cheating
-      node_value_t cumulativeScore;
-
-      //stack so far - in terms of ranks. Is it misleading to use card_t?
-      //no, let's ignore suit by considering everything to have suit 0, hearts.
-      //that way, they will still work with the cardutils val() and rank() and therefore
-      //the cribbage_core play_card.
-      std::vector<card_t> stackcards;
-
-      //cards in hand after the one being played, for finding children
+      // so:
+      // our state is
+      // - cards left in max player's hand (handcards) - all in hearts suit bc suits don't matter
       std::vector<card_t> handcards;
 
-      //card that was played to get to this state
-      card_t card_to_play;
+      // - cards already played in the stack (stackcards) - all in hearts suit bc suits don't matter
+      std::vector<card_t> stackcards;
 
-      //ranks of cards remaining in deck - this is how we can impose the constraint that there be only 4
+      // - count of ranks left in the deck (suits don't matter, doing it by ranks stops big fanout, write up)
       //cards of each rank represented. initialize to all 4s, then subtract 1 as a card of that rank
       //is used in either dealing the max player's hand or proposing a min player's countermove.
-      //SO IF I WANT TO TRY A TOY VERSION, HOW ABOUT HAVING THE OPPONENT'S HAND IN HERE RATHER THAN THE 
-      //WHOLE REST OF THE DECK?
-      //or how about those are the same thing? 
-      //let's just call it opponentcards - of course, it'll be just hearts
-      //no the rank thing was better
       std::array<index_t,13> remainingRankCounts;
 
+      // - score so far, from max's point of view
+      node_value_t cumulativeScore;
+
+      // flag for whether we've already calculated cumulative score, so we don't call play_card more than once
+      // for a given node and don't need to call it during child expansion
+      bool calculated_score_yet;
     public:
       // ctor / dtor -------------------------------------------------------------------------------------
 
-      CribbageCountNode();
+      CribbageCountNode() { calculated_score_yet = false; }
       CribbageCountNode(index_t dp, bool mn, node_value_t cs, std::vector<card_t> &sc, std::vector<card_t> &hc, 
-                        std::array<index_t,13> &rrc, card_t ctp) : CribbageCountNode() {
+                        std::array<index_t,13> &rrc) : CribbageCountNode() {
         depth = dp;
         max_node = mn;
         cumulativeScore = cs;
         stackcards = sc;
         handcards = hc;
         remainingRankCounts = rrc;
-        card_to_play = ctp;
       }
       virtual ~CribbageCountNode();
 
@@ -131,9 +127,6 @@ namespace minimax {
       //do we want a ref here?
       std::vector<card_t> &get_handcards() { return handcards; }
       void set_handcards(std::vector<card_t> sc) { handcards = sc; }
-
-      card_t get_card_to_play() { return card_to_play; }
-      void set_card_to_play(card_t ctp) { card_to_play = ctp; }
 
       //do we want a ref here?
       std::array<index_t,13> &get_remaining_rank_counts() { return remainingRankCounts; }

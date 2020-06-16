@@ -71,9 +71,6 @@ namespace minimax {
 
 
   //CribbageCountNode implementations =================================================================================================
-  CribbageCountNode::CribbageCountNode() {
-    //ctor stuff
-  }
 
   CribbageCountNode::~CribbageCountNode() {
     //dtor stuff
@@ -83,46 +80,46 @@ namespace minimax {
   bool CribbageCountNode::is_terminal() {
     //ok, so think about this.
     //max node's children are the results of max plays - see https://www.neverstopbuilding.com/blog/minimax
-    //so I think I can stick with card_to_play and just change how they enumerate.
 
-    //what makes a terminal node? 
-
-    //we have a card to play, a stack to play it on.
-    //error_card_val is root case - assume that's not terminal?
-    if(card_to_play == cu.ERROR_CARD_VAL) return false;
-    
-    //otherwise - figure out total of stack so far - same way as in play_card
-    index_t curtotal = std::accumulate(
-      stackcards.begin(), stackcards.end(), 0,
-      [this](index_t a, card_t b) { return a + index_t(cu.val(b)); });
-    if(curtotal + cu.val(card_to_play) > 31) {
-      //total with card to play being > 31 means it's illegal
-      return true;
-    }
-
-    //otherwise, if there are no cards left in the hand, it's a terminal node
-    //wait, is this always so? On min nodes too? Maybe on min nodes we need to be looking at if there
-    //are any rankcards left...???
-    // FIGURE THIS OUT ********************************************************************************
-    if(handcards.empty()) return true;
-
-    return false;
+    //what makes a terminal node? If the stack total is > 31, it should never have existed
+    //if it's a max node and there are no cards left in hand, it's terminal
+    //if it's a min node and there is nothing left in remaining ranks, it's terminal
+    if(is_max_node()) return handcards.empty();
+    //so if max element in remainingRankCounts has a value of 0, they're all 0 and therefore nothing left
+    auto maxy = std::max_element(remainingRankCounts.begin(), remainingRankCounts.end());
+    return *maxy == 0;
   }
 
   node_value_t CribbageCountNode::heuristic_value() {
     //ok! So what's the value of a cribbage count node?
-    index_t playscore = 0;
-    if(card_to_play != cu.ERROR_CARD_VAL) {
-      playscore = cr.play_card(stackcards,card_to_play,nullptr,false,false);
+    //post card-to-play, I think it's just the cumulative score
+    // OR,
+    // could do the heuristic evaluation by treating the last member of the stack as card_to_play
+    // if there is no stack, return 0
+    if(stackcards.empty()) return 0;
+
+    // CACHE THIS SO WE DON'T END UP CALLING THE PLAY_CARD MORE THAN ONCE
+    // ...also bc this is destructive and would change the node's value!
+    if(calculated_score_yet == false) {
+      card_t card_to_play = stackcards.back();
+      //remember then the stack it's playing ONTO doesn't include it
+      stackcards.pop_back();
+      index_t playscore = 0;
+      //last flag true to add the card back on to the stack - gross, but wev
+      playscore = cr.play_card(stackcards,card_to_play,nullptr,false,true);
       if(playscore != cu.ERROR_CARD_VAL) {
         //we have to know if this is a max or min node. if max, add to cumulative
-        //if min, subtract from it
+        //if min, subtract from it - this might be backwards
         if(max_node) {
           cumulativeScore += playscore;
         } else {
           cumulativeScore -= playscore;
         }
+      } else {
+        //card was an illegal play! Should this be possible? Let's say not
+        //ERROR
       }
+      calculated_score_yet = true;
     }
 
     return cumulativeScore;
@@ -138,18 +135,24 @@ namespace minimax {
     nu_stack.reserve(8);      //shouldn't get longer than 8
     nu_hand.reserve(4);       //player's hand no more than 4
 
-    //stack all children will play on to will be this's stack + this's card_to_play
-    //wait not sure re: that
-    std::copy(stackcards.begin(), stackcards.end(), nu_stack.begin());
-    //root condition: card_to_play is none...???
-    if(card_to_play != cu.ERROR_CARD_VAL) nu_stack.push_back(card_to_play);
-
     //create the child nodes! This is all possible, not all legal.
-    //so wait - if we're at a max node, the children are the nodes that arise from each of max's moves, yes?
+    //should we do only legal? Sounds like a good idea
+
+    //if we're at a max node, the children are the nodes that arise from each of max's moves, yes?
     //so we want the state that arises from playing card 1, card 2, card 3, card 4
     //at the root.
-    //so maybe the thing to do is not have a card_to_play but a card_played
-    
+
+    //stack all children will play on to will be this's stack, each will add its own card
+    std::copy(stackcards.begin(), stackcards.end(), std::back_inserter(nu_stack));
+
+    // find out current value of stack to spot legal moves - no move that makes total > 31 is legal
+    index_t curtotal = std::accumulate(
+        stackcards.begin(), stackcards.end(), 0,
+        [this](index_t a, card_t b) { return a + index_t(cu.val(b)); });
+
+
+
+
     if(is_max) {
       //generate the moves that max player can make
       // remaining rank counts will be the same for all children, same as this's
@@ -158,11 +161,16 @@ namespace minimax {
       // iterate through handcards and create nodes that have each one as card_to_play
       // and that card removed from handcards
       for(auto i = 0; i < handcards.size(); i++) {
-        nu_hand.clear();
-        std::copy(handcards.begin(),handcards.end(), std::back_inserter(nu_hand));
-        nu_hand.erase(nu_hand.begin()+i);   // hand with ith card removed
-        //beware object slicing! https://stackoverflow.com/questions/8777724/store-derived-class-objects-in-base-class-variables
-        rv.emplace_back(new CribbageCountNode(depth-1, false,cumulativeScore,nu_stack,nu_hand, nu_rrc, handcards[i]));
+        //figure out if handcards[i] is a legal play: any card that makes the total > 31 is illegal
+        if (curtotal + index_t(cu.val(handcards[i])) <= 31) {
+          nu_hand.clear();
+          std::copy(handcards.begin(),handcards.end(), std::back_inserter(nu_hand));
+          nu_hand.erase(nu_hand.begin()+i);   // hand with ith card removed
+          nu_stack.push_back(handcards[i]);   // add card being played to the stack
+          //beware object slicing! https://stackoverflow.com/questions/8777724/store-derived-class-objects-in-base-class-variables
+          rv.emplace_back(new CribbageCountNode(depth-1, false,cumulativeScore,nu_stack,nu_hand, nu_rrc));
+          nu_stack.pop_back();                // restore stack for next child along
+        }
       }
     } else {
       //hand going in is this's hand, opponent is playing
@@ -175,40 +183,42 @@ namespace minimax {
       for(card_t j = 0; j< 13; j++) {
         //if any cards of rank j remain, add one as a possible countermove
         if(remainingRankCounts[j] > 0) {
-          std::copy(remainingRankCounts.begin(),remainingRankCounts.end(),nu_rrc.begin());
-          //COULD DO THE LEGAL CHECK HERE AND NOT EVEN PROPOSE ILLEGAL NODES but see about that
-          nu_rrc[j]--;  //lower next generation's count of this card by 1
+          //figure out if j<<2 is a legal play: any card that makes the total > 31 is illegal
           //card value is j<<2 so it acts like a rank (suit is unimportant)
-          //beware object slicing! https://stackoverflow.com/questions/8777724/store-derived-class-objects-in-base-class-variables
-          rv.emplace_back(new CribbageCountNode(depth-1, true,cumulativeScore,nu_stack,nu_hand, nu_rrc, j<<2));
+          if (curtotal + index_t(cu.val(j<<2)) <= 31) {
+            std::copy(remainingRankCounts.begin(),remainingRankCounts.end(),nu_rrc.begin());
+            nu_rrc[j]--;  //lower next generation's count of this card by 1
+
+            nu_stack.push_back(j<<2);
+
+            //beware object slicing! https://stackoverflow.com/questions/8777724/store-derived-class-objects-in-base-class-variables
+            rv.emplace_back(new CribbageCountNode(depth-1, true,cumulativeScore,nu_stack,nu_hand, nu_rrc));
+            nu_stack.pop_back();                // restore stack for next child along
+          }
         }
       }
     }
-
-
-    //return rv;
   }
 
   void CribbageCountNode::print_node(index_t max_depth) {
     std::string indent((max_depth - depth)*2,' ');
     bool term = is_terminal();      //ugh, side effect sets cumulative value - let's fix that
     node_value_t val = heuristic_value();
-    plprintf("%smax: %s depth: %d term: %s cscore: %2d card_to_play: %s\n",indent.c_str(), max_node?"Y":"N", depth, 
-              term?"Y":"N", int(cumulativeScore), card_to_play == cu.ERROR_CARD_VAL?"(root)":(cu.cardstring(card_to_play)).c_str());
-    //print rank headings, then stack
-    plprintf("%sA234567890JQK stack: ",indent.c_str());
-    if(stackcards.empty())
-      plprintf("empty");
-    else
-      for(auto j = 0; j < stackcards.size(); j++) plprintf("%s ", (cu.cardstring(stackcards[j])).c_str());
-    //print rank counts, then hand
-    plprintf("\n%s",indent.c_str());
+    //print rank headings and some vitals
+    plprintf("%sA234567890JQK max: %s depth: %d term: %s value: %2d\n", indent.c_str(), max_node?"Y":"N", depth, term?"Y":"N", val);
+    //print rank counts, hand, stack
+    plprintf("%s",indent.c_str());
     for(auto j = 0; j < 13; j++) plprintf("%d",remainingRankCounts[j]);
     plprintf(" hand: ");
     if(handcards.empty()) 
       plprintf("empty");
     else
       for(auto j = 0; j < handcards.size(); j++) plprintf("%s ", (cu.cardstring(handcards[j])).c_str());
+    plprintf(" stack: ",indent.c_str());
+    if(stackcards.empty())
+      plprintf("empty");
+    else
+      for(auto j = 0; j < stackcards.size(); j++) plprintf("%s ", (cu.cardstring(stackcards[j])).c_str());
     plprintf("\n%s---------------------------------------------------\n",indent.c_str());
   }
 }
@@ -219,8 +229,7 @@ using namespace minimax;
 //returns false if the scenario is inconsistent, like there are five kings among the hand and stack
 //also more subtle illegalities like too long a hand or stack
 //...this should be a method in one of the classes maybe
-bool build_scenario(bool max, index_t depth, node_value_t cumuscore, std::string playcardstr, 
-                    std::vector<std::string> player_cardstrings, 
+bool build_scenario(bool max, index_t depth, node_value_t cumuscore, std::vector<std::string> player_cardstrings, 
                     std::vector<std::string> stack_cardstrings, CribbageCountNode &node) {
 
   //check for illegal length of hand or stack
@@ -233,9 +242,6 @@ bool build_scenario(bool max, index_t depth, node_value_t cumuscore, std::string
     //too long a stack
     return false;
   }
-
-  //convert playcardstr into a card value; ok if it's illegal - that means root
-  card_t playcard = cu.stringcard(playcardstr);
 
   //start with full deck remaining in 
   std::array<index_t,13> start_rrc = { 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4 };
@@ -273,7 +279,7 @@ bool build_scenario(bool max, index_t depth, node_value_t cumuscore, std::string
   }
 
   //and so finally, build our node
-  node = CribbageCountNode(depth, max, cumuscore, stackcards, handcards, start_rrc, playcard);  
+  node = CribbageCountNode(depth, max, cumuscore, stackcards, handcards, start_rrc);  
 
 
   return true;
@@ -290,114 +296,11 @@ void run() {
 
   //OK! So set up a cribbage hand in this thing's terms and see what it thinks the best play is!
   //let's start with our hand is ... and we only care about ranks ...
-  //5, 6, Q, J - which is 4, 5, 11, 10 in zero-relative rank, and shift left by 2 to align as though they had suits
-  //just at a guess
-  // GENERALIZE INTO A SCENARIO BUILDING FUNCTION ===================================================================
-
-
-  /* original by-hand way
-  std::vector<card_t> player_hand = { 4 << 2, 5 << 2, 11 << 2, 10 << 2 };
-  
-  //here's the list of remaining (zero-rel) ranks - all 13 have 4 cards left except for 4, 5, 10, 11
-  std::array<index_t,13> start_rrc = { 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4 };
-  start_rrc[4]--;
-  start_rrc[5]--;
-  start_rrc[10]--;
-  start_rrc[11]--;
-
-  //OK ONE WEIRDNESS, ROOT NODE DOESN'T REALLY HAVE A CARD TO PLAY
-  //THINK RE HOW TO DO THIS ************************************************************************** 
-  //    CribbageCountNode(bool mn, node_value_t cs, std::vector<card_t> &sc, std::vector<card_t> &hc, 
-  //                      std::array<index_t,13> &rrc, card_t ctp) : CribbageCountNode() 
-  std::vector<card_t> stackcards;    //starts empty
-  CribbageCountNode root = CribbageCountNode(mr.get_max_depth(), true, node_value_t(0), 
-                                              stackcards, player_hand, start_rrc, cu.ERROR_CARD_VAL);
-  which got
-  Root node:
-  max: Y depth: 9 term: N cscore:  0 card_to_play: (root)
-  A234567890JQK stack: empty
-  4444334444334 hand: 5h 6h Qh Jh 
-  ---------------------------------------------------
-  Children of root:
-    max: N depth: 8 term: N cscore:  0 card_to_play: 5h
-    A234567890JQK stack: empty
-    4444334444334 hand: 6h Qh Jh 
-    ---------------------------------------------------
-    max: N depth: 8 term: N cscore:  0 card_to_play: 6h
-    A234567890JQK stack: empty
-    4444334444334 hand: 5h Qh Jh 
-    ---------------------------------------------------
-    max: N depth: 8 term: N cscore:  0 card_to_play: Qh
-    A234567890JQK stack: empty
-    4444334444334 hand: 5h 6h Jh 
-    ---------------------------------------------------
-    max: N depth: 8 term: N cscore:  0 card_to_play: Jh
-    A234567890JQK stack: empty
-    4444334444334 hand: 5h 6h Qh 
-    ---------------------------------------------------
-  Children of first child of root:
-      max: Y depth: 7 term: N cscore:  0 card_to_play: Ah
-      A234567890JQK stack: 5h 
-      3444334444334 hand: 6h Qh Jh 
-      ---------------------------------------------------
-      max: Y depth: 7 term: N cscore:  0 card_to_play: 2h
-      A234567890JQK stack: 5h 
-      4344334444334 hand: 6h Qh Jh 
-      ---------------------------------------------------
-      max: Y depth: 7 term: N cscore:  0 card_to_play: 3h
-      A234567890JQK stack: 5h 
-      4434334444334 hand: 6h Qh Jh 
-      ---------------------------------------------------
-      max: Y depth: 7 term: N cscore:  0 card_to_play: 4h
-      A234567890JQK stack: 5h 
-      4443334444334 hand: 6h Qh Jh 
-      ---------------------------------------------------
-      max: Y depth: 7 term: N cscore:  2 card_to_play: 5h
-      A234567890JQK stack: 5h 
-      4444234444334 hand: 6h Qh Jh 
-      ---------------------------------------------------
-      max: Y depth: 7 term: N cscore:  0 card_to_play: 6h
-      A234567890JQK stack: 5h 
-      4444324444334 hand: 6h Qh Jh 
-      ---------------------------------------------------
-      max: Y depth: 7 term: N cscore:  0 card_to_play: 7h
-      A234567890JQK stack: 5h 
-      4444333444334 hand: 6h Qh Jh 
-      ---------------------------------------------------
-      max: Y depth: 7 term: N cscore:  0 card_to_play: 8h
-      A234567890JQK stack: 5h 
-      4444334344334 hand: 6h Qh Jh 
-      ---------------------------------------------------
-      max: Y depth: 7 term: N cscore:  0 card_to_play: 9h
-      A234567890JQK stack: 5h 
-      4444334434334 hand: 6h Qh Jh 
-      ---------------------------------------------------
-      max: Y depth: 7 term: N cscore:  2 card_to_play: 0h
-      A234567890JQK stack: 5h 
-      4444334443334 hand: 6h Qh Jh 
-      ---------------------------------------------------
-      max: Y depth: 7 term: N cscore:  2 card_to_play: Jh
-      A234567890JQK stack: 5h 
-      4444334444234 hand: 6h Qh Jh 
-      ---------------------------------------------------
-      max: Y depth: 7 term: N cscore:  2 card_to_play: Qh
-      A234567890JQK stack: 5h 
-      4444334444324 hand: 6h Qh Jh 
-      ---------------------------------------------------
-      max: Y depth: 7 term: N cscore:  2 card_to_play: Kh
-      A234567890JQK stack: 5h 
-      4444334444333 hand: 6h Qh Jh 
-      ---------------------------------------------------                                                
-  */
-
-  //CribbageCountNode root = CribbageCountNode(mr.get_max_depth(), true, node_value_t(0), 
-  //                                            stackcards, player_hand, start_rrc, cu.ERROR_CARD_VAL);
-
+  //5, 6, Q, J, any rank is fine
   std::vector<std::string> player_cardstrings = { "5d", "6s", "Qh", "Jc" };
   std::vector<std::string> stack_cardstrings;   //empty
   CribbageCountNode root;
-  bool res = build_scenario(true, mr.get_max_depth(), 0, "", player_cardstrings, 
-                            stack_cardstrings, root); 
+  bool res = build_scenario(true, mr.get_max_depth(), 0, player_cardstrings, stack_cardstrings, root); 
   if(res == true) {
 
     plprintf("Root node:\n");
@@ -410,13 +313,30 @@ void run() {
       kids[j]->print_node(max_depth);
     }
 
-    //let's look at children of last kid
+    //let's look at children of first kid
     std::vector<std::unique_ptr<MinimaxNode>> kids2;
     plprintf("Children of first child of root:\n");
     kids[0]->find_legal_countermoves(kids[0]->is_max_node(),kids2);
     for(auto j = 0; j < kids2.size(); j++) {
       kids2[j]->print_node(max_depth);
     }
+
+    //let's look at children of 2nd to last grandkid
+    std::vector<std::unique_ptr<MinimaxNode>> kids3;
+    plprintf("Children of 2nd to last child of first child of root:\n");
+    kids2[kids2.size()-2]->find_legal_countermoves(kids2[kids2.size()-2]->is_max_node(),kids3);
+    for(auto j = 0; j < kids3.size(); j++) {
+      kids3[j]->print_node(max_depth);
+    }
+
+    //let's look at children of last great grandkid
+    std::vector<std::unique_ptr<MinimaxNode>> kids4;
+    plprintf("Children of last child of 2nd to last child of first child of root:\n");
+    kids3[kids3.size()-1]->find_legal_countermoves(kids3[kids3.size()-1]->is_max_node(),kids4);
+    for(auto j = 0; j < kids4.size(); j++) {
+      kids4[j]->print_node(max_depth);
+    }
+
   } else {
     plprintf("Failed to set up root scenario!");
   }
