@@ -16,16 +16,24 @@ namespace minimax {
   node_value_t MinimaxRunner::alphabeta(MinimaxNode &node, index_t depth, node_value_t alpha, node_value_t beta, bool is_max) {
     node_value_t val;
 
+    std::string indent((max_depth - depth)*2,' ');    //DEBUG
+
     // if depth = 0 or node is a terminal node then
     //     return the heuristic value of node
-    if(depth == 0 || node.is_terminal()) { return node.heuristic_value(); }
+    if(depth == 0 || node.is_terminal()) {
+      node.print_node(max_depth);
+      plprintf("%sTerminal node! value %d\n",indent.c_str(),node.heuristic_value()); 
+      return node.heuristic_value(); 
+    }
 
     // slightly confused here - if this is a max node, the children are min nodes & vv, yes? hence !is_max
     // or does this make everything backwards?
     std::vector<std::unique_ptr<MinimaxNode>> children;
-    node.find_legal_countermoves(!is_max,children);
+    //let's try not negating is_max !!!!!!!!!!!!!!!!!!!!!!!!! that seems to get the stack in the right order
+    node.find_legal_countermoves(is_max,children);
 
     // if maximizingPlayer then
+    // ...urgh, I think I have this backwards again
     if(is_max) {
       //     value := −∞
       val = min_node_value; 
@@ -35,14 +43,26 @@ namespace minimax {
       //         α := max(α, value)
       //         if α ≥ β then
       //             break (* β cut-off *)
+      plprintf("%sMaxnode depth %d #kids %d\n",indent.c_str(),depth,children.size());
+      // see what we're getting down at the leaves - I think I'm screwing up the is_terminal spotting
+      if(children.empty()){
+        node.print_node(max_depth);
+        plprintf("%sreached no-legal-moves leaf, val %d\n",indent.c_str(),node.heuristic_value());
+        return node.heuristic_value();
+      }
       for(auto j = 0; j < children.size(); j++) {
         // **************************************************************************************************
         // HEY IN HERE SOMEWHERE DO A PLATSPEC CALL TO BUILD A GRAPH? or do like with build_lists in scoring?
         // **************************************************************************************************
         // do we need to pass alpha and beta back? I'm going to try not.
         val = std::max(alpha, alphabeta(*(children[j]), depth-1, alpha, beta, false));
+        plprintf("%sMaxnode Val %d: %d\n",indent.c_str(),j,val);
         alpha = std::max(alpha, val);
-        if(alpha >= beta) break;    //beta cutoff
+        plprintf("%sMax node! Alpha now %d, beta %d\n",indent.c_str(),int(alpha), int(beta));
+        if(alpha >= beta) {
+          plprintf("%sbeta cutoff!\n",indent.c_str());
+          break;    //beta cutoff
+        }
       }
 
       //     return value
@@ -56,14 +76,28 @@ namespace minimax {
       //         β := min(β, value)
       //         if β ≤ α then
       //             break (* α cut-off *)
+      plprintf("%sMinnode depth %d #kids %d\n",indent.c_str(),depth,children.size());
+      // see what we're getting down at the leaves - I think I'm screwing up the is_terminal spotting
+      // sure enough, *this* is a case of a terminal that is_terminal doesn't catch. bc it doesn't want to
+      // calculate how many children a node will have
+      if(children.empty()){
+        node.print_node(max_depth);
+        plprintf("%sreached no-legal-moves leaf, val %d\n",indent.c_str(),node.heuristic_value());
+        return node.heuristic_value();
+      }
       for(auto j = 0; j < children.size(); j++) {
         // **************************************************************************************************
         // HEY IN HERE SOMEWHERE DO A PLATSPEC CALL TO BUILD A GRAPH? or do like with build_lists in scoring?
         // **************************************************************************************************
         // do we need to pass alpha and beta back? I'm going to try not.
         val = std::min(beta, alphabeta(*(children[j]), depth-1, alpha, beta, true));
-        alpha = std::min(alpha, val);
-        if(alpha >= beta) break;    //beta cutoff
+        plprintf("%sMinnode Val %d: %d\n",indent.c_str(),j,val);
+        beta = std::min(beta, val);
+        plprintf("%sMin node! Alpha now %d, beta %d\n",indent.c_str(),int(alpha), int(beta));
+        if(beta <= alpha) {
+          plprintf("%salpha cutoff!\n",indent.c_str());
+          break;    //alpha cutoff
+        }
       }
     }
     //shouldn't be reachable, but this shuts compiler warning up
@@ -88,10 +122,13 @@ namespace minimax {
 
     //if it's a max node and there are no cards left in hand, it's terminal
     //if it's a min node and there is nothing left in remaining ranks, it's terminal
+    //or perhaps that's backwards
     if(is_max_node()) return handcards.empty();
     //so if max element in remainingRankCounts has a value of 0, they're all 0 and therefore nothing left
     auto maxy = std::max_element(remainingRankCounts.begin(), remainingRankCounts.end());
     return *maxy == 0;
+
+    //THIS DOESN'T CATCH THE CASE THAT THERE ARE NO LEGAL MOVES FROM HERE - the runner itself will have to look for that!
   }
 
   node_value_t CribbageCountNode::heuristic_value() {
@@ -113,7 +150,8 @@ namespace minimax {
       playscore = cr.play_card(stackcards,card_to_play,nullptr,false,true);
       if(playscore != cu.ERROR_CARD_VAL) {
         //check to see if this puts the player over the line!
-        if(max_node) {
+        //used to have opposite sense of max and min
+        if(!max_node) {
           //it's the result of a min player's play, yes? so the playscore gets added to min player's score
           min_player_gamescore += playscore;
           //if that wins the game for min player, BIG YIKES
@@ -132,6 +170,8 @@ namespace minimax {
         //we have to know if this is a max or min node. if max, add to cumulative
         //if min, subtract from it - this might be backwards - indeed it seems to be.
         //so - if *this* is a max node, the *move* came from a min node... yes? Will figure out soon
+        //gone back on that, the runner was getting the sense backwards, see if this is better
+        //nope, back again
         if(max_node) {
           cumulativeScore -= playscore;
         } else {
@@ -336,7 +376,7 @@ void run() {
   plprintf("Hello and welcome to MINIMAX_MAIN, the minty minimax fiddlement utility.\n");
 
   //try a max depth of 9 - should never reach that far
-  index_t max_depth = 9;
+  index_t max_depth = 3; //try a 3 for easier reading - was 9;
   MinimaxRunner mr = MinimaxRunner(max_depth);
 
   //OK! So set up a cribbage hand in this thing's terms and see what it thinks the best play is!
@@ -352,6 +392,14 @@ void run() {
     plprintf("Root node:\n");
     root.print_node(max_depth);
 
+    //so let's do an actual minimax! What happens?
+    // (* Initial call *)
+    // alphabeta(origin, depth, −∞, +∞, TRUE)
+    node_value_t bestscore = mr.alphabeta(root, max_depth, min_node_value, max_node_value, true);
+
+    plprintf("Best minimax score found: %d\n",int(bestscore));
+
+    /* old noodle tests
     std::vector<std::unique_ptr<MinimaxNode>> kids;
     plprintf("Children of root:\n");
     root.find_legal_countermoves(root.is_max_node(),kids);
@@ -382,7 +430,7 @@ void run() {
     for(auto j = 0; j < kids4.size(); j++) {
       kids4[j]->print_node(max_depth);
     }
-
+    */
   } else {
     plprintf("Failed to set up root scenario!");
   }
