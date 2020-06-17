@@ -264,6 +264,45 @@ namespace minimax {
     }
   }
 
+  std::string CribbageCountNode::to_string() {
+    char buf[128];
+    std::string outstr;
+    sprintf(buf,"id: %u max: %s dep: %d trm: %s\nstot: %2d val: %2d mxs: %3d mns: %3d\n", 
+            uint32_t(node_id), max_node?"Y":"N", depth, is_terminal()?"Y":"N", stackTotal, 
+            heuristic_value(), max_player_gamescore, min_player_gamescore);
+    outstr.append(buf);
+
+    //hand and stack
+    outstr.append("hand: ");
+    if(handcards.empty()) 
+      outstr.append("empty");
+    else
+      for(auto j = 0; j < handcards.size(); j++) {
+        outstr.append(cu.cardstring(handcards[j]));
+        outstr += ' ';
+      }
+
+    outstr.append(" stack: ");
+    if(stackcards.empty())
+      outstr.append("empty");
+    else
+      for(auto j = 0; j < stackcards.size(); j++) {
+        outstr.append(cu.cardstring(stackcards[j]));
+        outstr += ' ';
+      }
+    outstr += '\n';
+
+    //remaining rank counts
+    std::string ranks = "A234567890JQK";
+    for(auto j = 0; j < 13; j++) {
+      outstr += ranks[j];
+      outstr += '0' + remainingRankCounts[j];
+      outstr += ' ';
+    }
+
+    return outstr;
+  }
+
   void CribbageCountNode::print_node(index_t max_depth) {
     std::string indent((max_depth - depth)*2,' ');
     bool term = is_terminal();      //ugh, side effect sets cumulative value - let's fix that
@@ -393,6 +432,8 @@ void run() {
   //say that the max player is at 50 points, min player at 117
   bool res = build_scenario(true, mr.get_max_depth(), 0, 50, 117, player_cardstrings, stack_cardstrings, root); 
   if(res == true) {
+
+    plprintf("Root node string:\n%s\n",root.to_string().c_str());
 
     plprintf("Root node:\n");
     root.print_node(max_depth);

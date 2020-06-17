@@ -4,7 +4,7 @@ strict digraph {
   a -> b
   b -> a [color=blue]
   R[label = 17] 
-  R -> { A, B, C }
+  R1234 -> { A, B, C }
   A -> { D, E }
   B -> { F }
   // min level nodes

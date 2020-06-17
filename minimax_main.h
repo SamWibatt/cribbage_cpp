@@ -52,7 +52,7 @@ namespace minimax {
       index_t get_depth() { return depth; }
       void set_depth(index_t d) { depth = d; }
 
-      uint32_t get_node_id() { return node_id; }
+      node_id_t get_node_id() { return node_id; }
 
     public:
       virtual node_value_t heuristic_value() { return 0; }
@@ -64,13 +64,40 @@ namespace minimax {
       }
 
       // for debugging and testing
+      virtual std::string to_string() { return ""; }
       virtual void print_node(index_t max_depth) {}
 
   };
 
   class MinimaxGraphNode {
-    //HERE THINK UP WHAT WE NEED
-  }
+    public:
+      //show this node's relationship to children with e.g.
+      //N11 -> { N17, N18, N19 }
+      bool max;
+      node_id_t id;
+      std::vector<node_id_t> children;
+      index_t depth;
+      std::string tooltip;
+    
+    public:
+      MinimaxGraphNode() {}
+      MinimaxGraphNode(node_id_t nid, bool mx, index_t dep) : MinimaxGraphNode() {
+        id = nid;
+        max = mx;
+        depth = dep;
+      }
+
+      std::string get_name() {
+        char nam[32]; 
+        sprintf(nam,"N%d",id);
+        return std::string(nam);
+      }
+
+      //I expect to fill this in with node.to_string()
+      void set_tooltip(std::string tip) { tooltip = tip; }
+
+      void add_child(node_id_t kid) { children.push_back(kid); }
+  };
 
   class MinimaxRunner {
     protected:
@@ -79,6 +106,7 @@ namespace minimax {
 
       // build a DOT (graphviz) graph if this is true - for debugging
       bool building_graph = false;
+      std::vector<MinimaxGraphNode> graphnodes;
       
 
     public:
@@ -180,6 +208,7 @@ namespace minimax {
       node_value_t heuristic_value() override;
       bool is_terminal() override;
       void find_legal_countermoves(bool is_max, std::vector<std::unique_ptr<MinimaxNode>> &rv) override;
+      std::string to_string() override;
       void print_node(index_t max_depth) override;
   };
 }
