@@ -13,6 +13,9 @@
 
 namespace minimax {
   // types
+  // node_id_t needs to be able to hold all possible node IDs uniquely
+  typedef uint16_t node_id_t;
+
   //node_value_t should be a signed type
   typedef int32_t node_value_t;
 
@@ -30,9 +33,15 @@ namespace minimax {
       //depth, as in move/countermove depth. starts at max_depth and counts down
       index_t depth;
 
+      //node ID, for making graphs and stuff
+      node_id_t node_id;
 
     public:
-      MinimaxNode() { /* plprintf("Hey in MinimaxNode\n");*/ }
+      static node_id_t next_node_id;
+
+
+    public:
+      MinimaxNode() { node_id = MinimaxNode::next_node_id++; }   //probably a better and thread-safe way to do ID
       MinimaxNode(index_t dep) : MinimaxNode() { depth = dep; } 
       virtual ~MinimaxNode() {} 
 
@@ -42,6 +51,8 @@ namespace minimax {
 
       index_t get_depth() { return depth; }
       void set_depth(index_t d) { depth = d; }
+
+      uint32_t get_node_id() { return node_id; }
 
     public:
       virtual node_value_t heuristic_value() { return 0; }

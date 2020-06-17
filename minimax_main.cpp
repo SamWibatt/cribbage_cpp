@@ -13,6 +13,9 @@ Cribbage cr;
 
 namespace minimax {
 
+  //initialize static member of minimaxnode
+  node_id_t MinimaxNode::next_node_id = 0;
+
   node_value_t MinimaxRunner::alphabeta(MinimaxNode &node, index_t depth, node_value_t alpha, node_value_t beta, bool is_max) {
     node_value_t val;
 
@@ -22,7 +25,7 @@ namespace minimax {
     //     return the heuristic value of node
     if(depth == 0 || node.is_terminal()) {
       node.print_node(max_depth);
-      plprintf("%sTerminal node! value %d\n",indent.c_str(),node.heuristic_value()); 
+      plprintf("%sTerminal node! id %lu value %d\n",indent.c_str(),node.get_node_id(), node.heuristic_value()); 
       return node.heuristic_value(); 
     }
 
@@ -47,7 +50,7 @@ namespace minimax {
       // see what we're getting down at the leaves - I think I'm screwing up the is_terminal spotting
       if(children.empty()){
         node.print_node(max_depth);
-        plprintf("%sreached no-legal-moves leaf, val %d\n",indent.c_str(),node.heuristic_value());
+        plprintf("%sreached no-legal-moves leaf, id %lu val %d\n",indent.c_str(), node.get_node_id(), node.heuristic_value());
         return node.heuristic_value();
       }
       for(auto j = 0; j < children.size(); j++) {
@@ -56,7 +59,7 @@ namespace minimax {
         // **************************************************************************************************
         // do we need to pass alpha and beta back? I'm going to try not.
         val = std::max(alpha, alphabeta(*(children[j]), depth-1, alpha, beta, false));
-        plprintf("%sMaxnode Val %d: %d\n",indent.c_str(),j,val);
+        plprintf("%sMaxnode id %lu child %d val: %d\n",indent.c_str(), node.get_node_id(), j,val);
         alpha = std::max(alpha, val);
         plprintf("%sMax node! Alpha now %d, beta %d\n",indent.c_str(),int(alpha), int(beta));
         if(alpha >= beta) {
@@ -66,6 +69,7 @@ namespace minimax {
       }
 
       //     return value
+      plprintf("%sMaxnode id %lu final val %d\n",indent.c_str(), node.get_node_id(), val);
       return val; 
     } else {
       //     value := +∞
@@ -82,7 +86,7 @@ namespace minimax {
       // calculate how many children a node will have
       if(children.empty()){
         node.print_node(max_depth);
-        plprintf("%sreached no-legal-moves leaf, val %d\n",indent.c_str(),node.heuristic_value());
+        plprintf("%sreached no-legal-moves leaf, id %lu val %d\n",indent.c_str(),node.get_node_id(),node.heuristic_value());
         return node.heuristic_value();
       }
       for(auto j = 0; j < children.size(); j++) {
@@ -91,7 +95,7 @@ namespace minimax {
         // **************************************************************************************************
         // do we need to pass alpha and beta back? I'm going to try not.
         val = std::min(beta, alphabeta(*(children[j]), depth-1, alpha, beta, true));
-        plprintf("%sMinnode Val %d: %d\n",indent.c_str(),j,val);
+        plprintf("%sMinnode id %lu child %d val: %d\n",indent.c_str(),node.get_node_id(),j,val);
         beta = std::min(beta, val);
         plprintf("%sMin node! Alpha now %d, beta %d\n",indent.c_str(),int(alpha), int(beta));
         if(beta <= alpha) {
@@ -99,9 +103,9 @@ namespace minimax {
           break;    //alpha cutoff
         }
       }
+      plprintf("%sMinnode id %lu final val %d\n",indent.c_str(), node.get_node_id(), val);
+      return val;
     }
-    //shouldn't be reachable, but this shuts compiler warning up
-    return val;
   }
 
 
@@ -265,8 +269,8 @@ namespace minimax {
     bool term = is_terminal();      //ugh, side effect sets cumulative value - let's fix that
     node_value_t val = heuristic_value();
     //print rank headings and some vitals
-    plprintf("%sA234567890JQK max: %s dep: %d trm: %s stot: %2d val: %2d mxs: %3d mns: %3d\n", 
-            indent.c_str(), max_node?"Y":"N", depth, term?"Y":"N", stackTotal, val, max_player_gamescore, min_player_gamescore);
+    plprintf("%sA234567890JQK id: %lu max: %s dep: %d trm: %s stot: %2d val: %2d mxs: %3d mns: %3d\n", 
+            indent.c_str(), node_id, max_node?"Y":"N", depth, term?"Y":"N", stackTotal, val, max_player_gamescore, min_player_gamescore);
     //print rank counts, hand, stack
     plprintf("%s",indent.c_str());
     for(auto j = 0; j < 13; j++) plprintf("%d",remainingRankCounts[j]);
