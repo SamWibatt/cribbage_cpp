@@ -68,14 +68,25 @@ namespace minimax {
 
   };
 
+  class MinimaxGraphNode {
+    //HERE THINK UP WHAT WE NEED
+  }
+
   class MinimaxRunner {
     protected:
       //maximum depth of descent, huge or known larger than max possible depth for unlimited
       index_t max_depth = 0;
 
+      // build a DOT (graphviz) graph if this is true - for debugging
+      bool building_graph = false;
+      
+
     public:
       MinimaxRunner() {}
-      MinimaxRunner(index_t md) : MinimaxRunner() { max_depth = md; }
+      MinimaxRunner(index_t md, bool bg) : MinimaxRunner() { 
+        max_depth = md; 
+        building_graph = true; 
+      }
       virtual ~MinimaxRunner() {}
 
       index_t get_max_depth() { return max_depth; }

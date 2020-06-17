@@ -1,0 +1,26 @@
+// export as svg and view in browser to see tooltips
+strict digraph { 
+  a -> b
+  a -> b
+  b -> a [color=blue]
+  R[label = 17] 
+  R -> { A, B, C }
+  A -> { D, E }
+  B -> { F }
+  // min level nodes
+  subgraph { 
+    rank = same; 
+      A[shape = box label = 3 
+        tooltip = "riggle\ndiggle\ndumtree"]; 
+      B[shape = box label = -10004]; 
+      C[shape = box label = 17]; 
+  } 
+  //next max level nodes
+  subgraph { 
+    rank = same; 
+      D[shape = ellipse label = 3 
+        tooltip = "pig\nblart"]; 
+      E[shape = ellipse label = 31]; 
+      F[shape = ellipse label = -10004];
+  }   
+} 

@@ -381,7 +381,8 @@ void run() {
 
   //try a max depth of 9 - should never reach that far
   index_t max_depth = 3; //try a 3 for easier reading - was 9;
-  MinimaxRunner mr = MinimaxRunner(max_depth);
+  //also the "true" means emit DOT graph
+  MinimaxRunner mr = MinimaxRunner(max_depth, true);
 
   //OK! So set up a cribbage hand in this thing's terms and see what it thinks the best play is!
   //let's start with our hand is ... and we only care about ranks ...
