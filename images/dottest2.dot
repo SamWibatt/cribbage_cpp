@@ -57,7 +57,7 @@ strict digraph diggy { bgcolor = darkgreen;
   subgraph minrank1 { 
     //hm example on graphviz uses this but
     //fontcolor, bgcolor, and label don't apply
-    //to subgraphs. Version?
+    //to subgraphs. Version? Got the latest and dunt work
     fontcolor=red; 
     bgcolor=blue; 
     A[shape = box style = filled color=pink label = Q tooltip = "riggle\ndiggle\ndumtree"];
