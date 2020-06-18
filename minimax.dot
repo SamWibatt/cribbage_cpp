@@ -1,14 +1,20 @@
 // export as svg and view in browser to see tooltips
 strict digraph {
 subgraph {
-N1 [ shape=hexagon ]
+N1 [ shape=hexagon label = -2 tooltip = "id: 1 max: Y dep: 2 trm: N
+stot:  0 val: -2 hv: 0 mxs:  50 mns: 117
+hand: 5h 6h Qh Jh  stack: empty
+A4 24 34 44 53 63 74 84 94 04 J3 Q3 K4 " ]
 N1 -> N2
 N1 -> N3
 N1 -> N4
 N1 -> N5
 }
 subgraph {
-N2 [ shape=box ]
+N2 [ shape=box label = -2 tooltip = "id: 2 max: N dep: 1 trm: N
+stot:  5 val: -2 hv: 0 mxs:  50 mns: 117
+hand: 6h Qh Jh  stack: 5h 
+A4 24 34 44 53 63 74 84 94 04 J3 Q3 K4 " ]
 N2 -> N6
 N2 -> N7
 N2 -> N8
@@ -22,81 +28,151 @@ N2 -> N15
 N2 -> N16
 N2 -> N17
 N2 -> N18
-N3 [ shape=box ]
-N3 -> N58
-N4 [ shape=box ]
-N4 -> N74
-N5 [ shape=box ]
-N5 -> N90
+N3 [ shape=box label = -2 tooltip = "id: 3 max: N dep: 1 trm: N
+stot:  6 val: -2 hv: 0 mxs:  50 mns: 117
+hand: 5h Qh Jh  stack: 6h 
+A4 24 34 44 53 63 74 84 94 04 J3 Q3 K4 " ]
+N3 -> N19
+N3 -> N20
+N3 -> N21
+N3 -> N22
+N3 -> N23
+N3 -> N24
+N4 [ shape=box label = -2 tooltip = "id: 4 max: N dep: 1 trm: N
+stot: 10 val: -2 hv: 0 mxs:  50 mns: 117
+hand: 5h 6h Jh  stack: Qh 
+A4 24 34 44 53 63 74 84 94 04 J3 Q3 K4 " ]
+N4 -> N32
+N4 -> N33
+N4 -> N34
+N4 -> N35
+N4 -> N36
+N5 [ shape=box label = -2 tooltip = "id: 5 max: N dep: 1 trm: N
+stot: 10 val: -2 hv: 0 mxs:  50 mns: 117
+hand: 5h 6h Qh  stack: Jh 
+A4 24 34 44 53 63 74 84 94 04 J3 Q3 K4 " ]
+N5 -> N45
+N5 -> N46
+N5 -> N47
+N5 -> N48
+N5 -> N49
 }
 subgraph {
-N6 [ shape=hexagon ]
-N6 -> N19
-N6 -> N20
-N6 -> N21
-N7 [ shape=hexagon ]
-N7 -> N22
-N8 [ shape=hexagon ]
-N8 -> N25
-N9 [ shape=hexagon ]
-N9 -> N28
-N9 -> N29
-N10 [ shape=hexagon ]
-N10 -> N31
-N11 [ shape=hexagon ]
-N11 -> N34
-N12 [ shape=hexagon ]
-N12 -> N37
-N13 [ shape=hexagon ]
-N13 -> N40
-N14 [ shape=hexagon ]
-N14 -> N43
-N15 [ shape=hexagon ]
-N15 -> N46
-N16 [ shape=hexagon ]
-N16 -> N49
-N17 [ shape=hexagon ]
-N17 -> N52
-N18 [ shape=hexagon ]
-N18 -> N55
-N58 [ shape=hexagon ]
-N58 -> N71
-N58 -> N72
-N58 -> N73
-N74 [ shape=hexagon ]
-N74 -> N87
-N74 -> N88
-N74 -> N89
-N90 [ shape=hexagon ]
-N90 -> N103
-N90 -> N104
-N90 -> N105
-}
-subgraph {
-N19 [ shape=box ]
-N20 [ shape=box ]
-N21 [ shape=box ]
-N22 [ shape=box ]
-N25 [ shape=box ]
-N28 [ shape=box ]
-N29 [ shape=box ]
-N31 [ shape=box ]
-N34 [ shape=box ]
-N37 [ shape=box ]
-N40 [ shape=box ]
-N43 [ shape=box ]
-N46 [ shape=box ]
-N49 [ shape=box ]
-N52 [ shape=box ]
-N55 [ shape=box ]
-N71 [ shape=box ]
-N72 [ shape=box ]
-N73 [ shape=box ]
-N87 [ shape=box ]
-N88 [ shape=box ]
-N89 [ shape=box ]
-N103 [ shape=box ]
-N104 [ shape=box ]
-N105 [ shape=box ]
+N6 [ shape=hexagon label = 0 tooltip = "id: 6 max: Y dep: 0 trm: N
+stot:  6 val:  0 hv: 0 mxs:  50 mns: 117
+hand: 6h Qh Jh  stack: 5h Ah 
+A3 24 34 44 53 63 74 84 94 04 J3 Q3 K4 " ]
+N7 [ shape=hexagon label = 0 tooltip = "id: 7 max: Y dep: 0 trm: N
+stot:  7 val:  0 hv: 0 mxs:  50 mns: 117
+hand: 6h Qh Jh  stack: 5h 2h 
+A4 23 34 44 53 63 74 84 94 04 J3 Q3 K4 " ]
+N8 [ shape=hexagon label = 0 tooltip = "id: 8 max: Y dep: 0 trm: N
+stot:  8 val:  0 hv: 0 mxs:  50 mns: 117
+hand: 6h Qh Jh  stack: 5h 3h 
+A4 24 33 44 53 63 74 84 94 04 J3 Q3 K4 " ]
+N9 [ shape=hexagon label = 0 tooltip = "id: 9 max: Y dep: 0 trm: N
+stot:  9 val:  0 hv: 0 mxs:  50 mns: 117
+hand: 6h Qh Jh  stack: 5h 4h 
+A4 24 34 43 53 63 74 84 94 04 J3 Q3 K4 " ]
+N10 [ shape=hexagon label = -2 tooltip = "id: 10 max: Y dep: 0 trm: N
+stot: 10 val: -2 hv: -2 mxs:  52 mns: 117
+hand: 6h Qh Jh  stack: 5h 5h 
+A4 24 34 44 52 63 74 84 94 04 J3 Q3 K4 " ]
+N11 [ shape=hexagon label = 0 tooltip = "id: 11 max: Y dep: 0 trm: N
+stot: 11 val:  0 hv: 0 mxs:  50 mns: 117
+hand: 6h Qh Jh  stack: 5h 6h 
+A4 24 34 44 53 62 74 84 94 04 J3 Q3 K4 " ]
+N12 [ shape=hexagon label = 0 tooltip = "id: 12 max: Y dep: 0 trm: N
+stot: 12 val:  0 hv: 0 mxs:  50 mns: 117
+hand: 6h Qh Jh  stack: 5h 7h 
+A4 24 34 44 53 63 73 84 94 04 J3 Q3 K4 " ]
+N13 [ shape=hexagon label = 0 tooltip = "id: 13 max: Y dep: 0 trm: N
+stot: 13 val:  0 hv: 0 mxs:  50 mns: 117
+hand: 6h Qh Jh  stack: 5h 8h 
+A4 24 34 44 53 63 74 83 94 04 J3 Q3 K4 " ]
+N14 [ shape=hexagon label = 0 tooltip = "id: 14 max: Y dep: 0 trm: N
+stot: 14 val:  0 hv: 0 mxs:  50 mns: 117
+hand: 6h Qh Jh  stack: 5h 9h 
+A4 24 34 44 53 63 74 84 93 04 J3 Q3 K4 " ]
+N15 [ shape=hexagon label = -2 tooltip = "id: 15 max: Y dep: 0 trm: N
+stot: 15 val: -2 hv: -2 mxs:  52 mns: 117
+hand: 6h Qh Jh  stack: 5h 0h 
+A4 24 34 44 53 63 74 84 94 03 J3 Q3 K4 " ]
+N16 [ shape=hexagon label = -2 tooltip = "id: 16 max: Y dep: 0 trm: N
+stot: 15 val: -2 hv: -2 mxs:  52 mns: 117
+hand: 6h Qh Jh  stack: 5h Jh 
+A4 24 34 44 53 63 74 84 94 04 J2 Q3 K4 " ]
+N17 [ shape=hexagon label = -2 tooltip = "id: 17 max: Y dep: 0 trm: N
+stot: 15 val: -2 hv: -2 mxs:  52 mns: 117
+hand: 6h Qh Jh  stack: 5h Qh 
+A4 24 34 44 53 63 74 84 94 04 J3 Q2 K4 " ]
+N18 [ shape=hexagon label = -2 tooltip = "id: 18 max: Y dep: 0 trm: N
+stot: 15 val: -2 hv: -2 mxs:  52 mns: 117
+hand: 6h Qh Jh  stack: 5h Kh 
+A4 24 34 44 53 63 74 84 94 04 J3 Q3 K3 " ]
+N19 [ shape=hexagon label = 0 tooltip = "id: 19 max: Y dep: 0 trm: N
+stot:  7 val:  0 hv: 0 mxs:  50 mns: 117
+hand: 5h Qh Jh  stack: 6h Ah 
+A3 24 34 44 53 63 74 84 94 04 J3 Q3 K4 " ]
+N20 [ shape=hexagon label = 0 tooltip = "id: 20 max: Y dep: 0 trm: N
+stot:  8 val:  0 hv: 0 mxs:  50 mns: 117
+hand: 5h Qh Jh  stack: 6h 2h 
+A4 23 34 44 53 63 74 84 94 04 J3 Q3 K4 " ]
+N21 [ shape=hexagon label = 0 tooltip = "id: 21 max: Y dep: 0 trm: N
+stot:  9 val:  0 hv: 0 mxs:  50 mns: 117
+hand: 5h Qh Jh  stack: 6h 3h 
+A4 24 33 44 53 63 74 84 94 04 J3 Q3 K4 " ]
+N22 [ shape=hexagon label = 0 tooltip = "id: 22 max: Y dep: 0 trm: N
+stot: 10 val:  0 hv: 0 mxs:  50 mns: 117
+hand: 5h Qh Jh  stack: 6h 4h 
+A4 24 34 43 53 63 74 84 94 04 J3 Q3 K4 " ]
+N23 [ shape=hexagon label = 0 tooltip = "id: 23 max: Y dep: 0 trm: N
+stot: 11 val:  0 hv: 0 mxs:  50 mns: 117
+hand: 5h Qh Jh  stack: 6h 5h 
+A4 24 34 44 52 63 74 84 94 04 J3 Q3 K4 " ]
+N24 [ shape=hexagon label = -2 tooltip = "id: 24 max: Y dep: 0 trm: N
+stot: 12 val: -2 hv: -2 mxs:  52 mns: 117
+hand: 5h Qh Jh  stack: 6h 6h 
+A4 24 34 44 53 62 74 84 94 04 J3 Q3 K4 " ]
+N32 [ shape=hexagon label = 0 tooltip = "id: 32 max: Y dep: 0 trm: N
+stot: 11 val:  0 hv: 0 mxs:  50 mns: 117
+hand: 5h 6h Jh  stack: Qh Ah 
+A3 24 34 44 53 63 74 84 94 04 J3 Q3 K4 " ]
+N33 [ shape=hexagon label = 0 tooltip = "id: 33 max: Y dep: 0 trm: N
+stot: 12 val:  0 hv: 0 mxs:  50 mns: 117
+hand: 5h 6h Jh  stack: Qh 2h 
+A4 23 34 44 53 63 74 84 94 04 J3 Q3 K4 " ]
+N34 [ shape=hexagon label = 0 tooltip = "id: 34 max: Y dep: 0 trm: N
+stot: 13 val:  0 hv: 0 mxs:  50 mns: 117
+hand: 5h 6h Jh  stack: Qh 3h 
+A4 24 33 44 53 63 74 84 94 04 J3 Q3 K4 " ]
+N35 [ shape=hexagon label = 0 tooltip = "id: 35 max: Y dep: 0 trm: N
+stot: 14 val:  0 hv: 0 mxs:  50 mns: 117
+hand: 5h 6h Jh  stack: Qh 4h 
+A4 24 34 43 53 63 74 84 94 04 J3 Q3 K4 " ]
+N36 [ shape=hexagon label = -2 tooltip = "id: 36 max: Y dep: 0 trm: N
+stot: 15 val: -2 hv: -2 mxs:  52 mns: 117
+hand: 5h 6h Jh  stack: Qh 5h 
+A4 24 34 44 52 63 74 84 94 04 J3 Q3 K4 " ]
+N45 [ shape=hexagon label = 0 tooltip = "id: 45 max: Y dep: 0 trm: N
+stot: 11 val:  0 hv: 0 mxs:  50 mns: 117
+hand: 5h 6h Qh  stack: Jh Ah 
+A3 24 34 44 53 63 74 84 94 04 J3 Q3 K4 " ]
+N46 [ shape=hexagon label = 0 tooltip = "id: 46 max: Y dep: 0 trm: N
+stot: 12 val:  0 hv: 0 mxs:  50 mns: 117
+hand: 5h 6h Qh  stack: Jh 2h 
+A4 23 34 44 53 63 74 84 94 04 J3 Q3 K4 " ]
+N47 [ shape=hexagon label = 0 tooltip = "id: 47 max: Y dep: 0 trm: N
+stot: 13 val:  0 hv: 0 mxs:  50 mns: 117
+hand: 5h 6h Qh  stack: Jh 3h 
+A4 24 33 44 53 63 74 84 94 04 J3 Q3 K4 " ]
+N48 [ shape=hexagon label = 0 tooltip = "id: 48 max: Y dep: 0 trm: N
+stot: 14 val:  0 hv: 0 mxs:  50 mns: 117
+hand: 5h 6h Qh  stack: Jh 4h 
+A4 24 34 43 53 63 74 84 94 04 J3 Q3 K4 " ]
+N49 [ shape=hexagon label = -2 tooltip = "id: 49 max: Y dep: 0 trm: N
+stot: 15 val: -2 hv: -2 mxs:  52 mns: 117
+hand: 5h 6h Qh  stack: Jh 5h 
+A4 24 34 44 52 63 74 84 94 04 J3 Q3 K4 " ]
 }
 }

@@ -32,10 +32,11 @@ namespace minimax {
     //how do I avoid creating this if we're not building graph? default ctor isn't much faster
     //work that out - ok, we'll make it so that we use pointers
     std::shared_ptr<MinimaxGraphNode> cur_graph_node_ptr;
-    //and finally, add current graph node to our list of nodes if we're doing that - do it here to get the kids to stick? newp
+    //add current graph node to our list of nodes if we're doing that
     if(building_graph) {
+      //ugh, have to start with a 0 value bc we don't know it yet
       graphnodes.emplace(std::make_pair(node.get_node_id(),
-                          new MinimaxGraphNode(node.get_node_id(), node.is_max_node(), max_depth-depth)));
+                          new MinimaxGraphNode(node.get_node_id(), node.is_max_node(), max_depth-depth, 0)));
       cur_graph_node_ptr = graphnodes[node.get_node_id()]; 
     }
 
@@ -44,7 +45,13 @@ namespace minimax {
     if(depth == 0 || node.is_terminal()) {
       node.print_node(max_depth);
       plprintf("%sTerminal node! id %lu value %d\n",indent.c_str(),node.get_node_id(), node.heuristic_value()); 
-      return node.heuristic_value(); 
+      // set node's value to val...? sure
+      node.set_value(node.heuristic_value());
+      if(building_graph) {
+        cur_graph_node_ptr->set_value(node.get_value());
+        cur_graph_node_ptr->set_tooltip(node.to_string());
+      }
+      return node.get_value(); 
     }
 
     // slightly confused here - if this is a max node, the children are min nodes & vv, yes? hence !is_max
@@ -79,6 +86,12 @@ namespace minimax {
 
         // do we need to pass alpha and beta back? i.e., make them references? I'm going to try not.
         val = std::max(alpha, alphabeta(*(children[j]), depth-1, alpha, beta, false));
+        // set node's value to val...? sure
+        node.set_value(val);
+        if(building_graph) { 
+          cur_graph_node_ptr->set_value(val);
+          cur_graph_node_ptr->set_tooltip(node.to_string());
+        }
         plprintf("%sMaxnode id %lu child %d val: %d\n",indent.c_str(), node.get_node_id(), j,val);
         alpha = std::max(alpha, val);
         plprintf("%sMax node! Alpha now %d, beta %d\n",indent.c_str(),int(alpha), int(beta));
@@ -116,6 +129,12 @@ namespace minimax {
 
         // do we need to pass alpha and beta back? I'm going to try not.
         val = std::min(beta, alphabeta(*(children[j]), depth-1, alpha, beta, true));
+        // set node's value to val...? sure
+        node.set_value(val);
+        if(building_graph) { 
+          cur_graph_node_ptr->set_value(val);
+          cur_graph_node_ptr->set_tooltip(node.to_string());
+        }
         plprintf("%sMinnode id %lu child %d val: %d\n",indent.c_str(),node.get_node_id(),j,val);
         beta = std::min(beta, val);
         plprintf("%sMin node! Alpha now %d, beta %d\n",indent.c_str(),int(alpha), int(beta));
@@ -171,6 +190,15 @@ namespace minimax {
       //to set any bc ellipse is default
       if(gnp-> max) attrs.append(" shape=hexagon ");
       else attrs.append(" shape=box ");
+
+      // add label of node value and tooltip of node's to_string
+      // label = 3
+      attrs.append("label = ");
+      attrs.append(std::to_string(gnp->get_value()));
+      // tooltip = "riggle\ndiggle\ndumtree"
+      attrs.append(" tooltip = \"");
+      attrs.append(gnp->get_tooltip());
+      attrs.append("\" ");
 
       //emit node name and attrs
       fprintf(fp,"%s [%s]\n",gnp->get_name().c_str(),attrs.c_str());
@@ -273,9 +301,10 @@ namespace minimax {
       if(playscore != cu.ERROR_CARD_VAL) {
         //check to see if this puts the player over the line!
         //used to have opposite sense of max and min
-        if(!max_node) {
+        //no, wait, I think I'm wrong again
+        if(max_node) {
           //it's the result of a min player's play, yes? so the playscore gets added to min player's score
-          min_player_gamescore += playscore;
+          max_player_gamescore += playscore;
           //if that wins the game for min player, BIG YIKES
           if(min_player_gamescore > 120) {
             cumulativeScore -= GAME_WIN_VALUE;
@@ -390,9 +419,9 @@ namespace minimax {
   std::string CribbageCountNode::to_string() {
     char buf[128];
     std::string outstr;
-    sprintf(buf,"id: %u max: %s dep: %d trm: %s\nstot: %2d val: %2d mxs: %3d mns: %3d\n", 
+    sprintf(buf,"id: %u max: %s dep: %d trm: %s\nstot: %2d val: %2d hv: %d mxs: %3d mns: %3d\n", 
             uint32_t(node_id), max_node?"Y":"N", depth, is_terminal()?"Y":"N", stackTotal, 
-            heuristic_value(), max_player_gamescore, min_player_gamescore);
+            value, heuristic_value(), max_player_gamescore, min_player_gamescore);
     outstr.append(buf);
 
     //hand and stack
@@ -429,10 +458,10 @@ namespace minimax {
   void CribbageCountNode::print_node(index_t max_depth) {
     std::string indent((max_depth - depth)*2,' ');
     bool term = is_terminal();      //ugh, side effect sets cumulative value - let's fix that
-    node_value_t val = heuristic_value();
+    node_value_t hval = heuristic_value();
     //print rank headings and some vitals
-    plprintf("%sA234567890JQK id: %lu max: %s dep: %d trm: %s stot: %2d val: %2d mxs: %3d mns: %3d\n", 
-            indent.c_str(), node_id, max_node?"Y":"N", depth, term?"Y":"N", stackTotal, val, max_player_gamescore, min_player_gamescore);
+    plprintf("%sA234567890JQK id: %lu max: %s dep: %d trm: %s stot: %2d val: %2d hval: %2d mxs: %3d mns: %3d\n", 
+            indent.c_str(), node_id, max_node?"Y":"N", depth, term?"Y":"N", stackTotal, value, hval, max_player_gamescore, min_player_gamescore);
     //print rank counts, hand, stack
     plprintf("%s",indent.c_str());
     for(auto j = 0; j < 13; j++) plprintf("%d",remainingRankCounts[j]);
@@ -542,7 +571,7 @@ void run() {
   plprintf("Hello and welcome to MINIMAX_MAIN, the minty minimax fiddlement utility.\n");
 
   //try a max depth of 9 - should never reach that far
-  index_t max_depth = 3; //try a 3 for easier reading - was 9;
+  index_t max_depth = 2; //try a 3 for easier reading - was 9;
   //also the "true" means emit DOT graph
   MinimaxRunner mr = MinimaxRunner(max_depth, true);
 

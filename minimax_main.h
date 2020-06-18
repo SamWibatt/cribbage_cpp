@@ -37,6 +37,10 @@ namespace minimax {
       //node ID, for making graphs and stuff
       node_id_t node_id;
 
+      //node value, passed up from minimax calls on children
+      //not the same as heuristic value unless it's a leaf!
+      node_value_t value;
+
     public:
       static node_id_t next_node_id;
 
@@ -54,6 +58,9 @@ namespace minimax {
       void set_depth(index_t d) { depth = d; }
 
       node_id_t get_node_id() { return node_id; }
+
+      node_value_t get_value() { return value; }
+      void set_value(node_value_t v) { value = v; }
 
     public:
       virtual node_value_t heuristic_value() { return 0; }
@@ -78,14 +85,16 @@ namespace minimax {
       node_id_t id;
       std::vector<node_id_t> children;
       index_t depth;
+      node_value_t value;
       std::string tooltip;
     
     public:
       MinimaxGraphNode() {}
-      MinimaxGraphNode(node_id_t nid, bool mx, index_t dep) : MinimaxGraphNode() {
+      MinimaxGraphNode(node_id_t nid, bool mx, index_t dep, node_value_t val) : MinimaxGraphNode() {
         id = nid;
         max = mx;
         depth = dep;
+        value = val;
       }
 
       std::string get_name() {
@@ -95,10 +104,14 @@ namespace minimax {
       }
 
       //I expect to fill this in with node.to_string()
+      std::string get_tooltip() { return tooltip; }
       void set_tooltip(std::string tip) { tooltip = tip; }
 
       void add_child(node_id_t kid) { children.push_back(kid); }
       std::vector<node_id_t> &get_children() { return children; }
+
+      node_value_t get_value() { return value; }
+      void set_value(node_value_t v) { value = v; }
   };
 
   class MinimaxRunner {
