@@ -26,6 +26,19 @@ namespace minimax {
 
     std::string indent((max_depth - depth)*2,' ');    //DEBUG
 
+    //ok so if we're building a graph, record this node. Will add its children as and if they're explored - will reflect pruning
+    //is node's is_max_node the same as is_max?
+    //also not sure about the depth here; goes like the indent when printing nodes, 0 = root, think that's ok
+    //how do I avoid creating this if we're not building graph? default ctor isn't much faster
+    //work that out - ok, we'll make it so that we use pointers
+    std::shared_ptr<MinimaxGraphNode> cur_graph_node_ptr;
+    //and finally, add current graph node to our list of nodes if we're doing that - do it here to get the kids to stick? newp
+    if(building_graph) {
+      graphnodes.emplace(std::make_pair(node.get_node_id(),
+                          new MinimaxGraphNode(node.get_node_id(), node.is_max_node(), max_depth-depth)));
+      cur_graph_node_ptr = graphnodes[node.get_node_id()]; 
+    }
+
     // if depth = 0 or node is a terminal node then
     //     return the heuristic value of node
     if(depth == 0 || node.is_terminal()) {
@@ -40,12 +53,6 @@ namespace minimax {
     //let's try not negating is_max !!!!!!!!!!!!!!!!!!!!!!!!! that seems to get the stack in the right order
     node.find_legal_countermoves(is_max,children);
 
-    //ok so if we're building a graph, record this node. Will add its children as and if they're explored - will reflect pruning
-    //is node's is_max_node the same as is_max?
-    //also not sure about the depth here; goes like the indent when printing nodes, 0 = root, think that's ok
-    //how do I avoid creating this if we're not building graph? default ctor isn't much faster
-    //work that out
-    MinimaxGraphNode cur_graph_node(node.get_node_id(), node.is_max_node(), depth-max_depth);
 
     // if maximizingPlayer then
     // ...urgh, I think I have this backwards again
@@ -68,7 +75,7 @@ namespace minimax {
       for(auto j = 0; j < children.size(); j++) {
         // here do like with build_lists in scoring to generate a graph node for debugging - actually here all we
         // need is to associate the child with current node
-        if(building_graph) cur_graph_node.add_child(children[j]->get_node_id());
+        if(building_graph) cur_graph_node_ptr->add_child(children[j]->get_node_id());
 
         // do we need to pass alpha and beta back? i.e., make them references? I'm going to try not.
         val = std::max(alpha, alphabeta(*(children[j]), depth-1, alpha, beta, false));
@@ -105,7 +112,7 @@ namespace minimax {
       for(auto j = 0; j < children.size(); j++) {
         // here do like with build_lists in scoring to generate a graph node for debugging - actually here all we
         // need is to associate the child with current node
-        if(building_graph) cur_graph_node.add_child(children[j]->get_node_id());
+        if(building_graph) cur_graph_node_ptr->add_child(children[j]->get_node_id());
 
         // do we need to pass alpha and beta back? I'm going to try not.
         val = std::min(beta, alphabeta(*(children[j]), depth-1, alpha, beta, true));
@@ -119,11 +126,67 @@ namespace minimax {
       }
       plprintf("%sMinnode id %lu final val %d\n",indent.c_str(), node.get_node_id(), val);
 
-      //and finally, add current graph node to our list of nodes if we're doing that
-      if(building_graph) graphnodes[node.get_node_id()] = cur_graph_node;
 
       return val;
     }
+  }
+
+  //we want to do breadth first, not depth first, right?
+  void MinimaxRunner::render_graph_aux(std::vector<node_id_t> &gnids, FILE *fp) {
+    std::shared_ptr<MinimaxGraphNode> gnp;
+    std::vector<node_id_t> kidgnids;
+
+    //depth first - emit all nodes and edges at this level.
+    //ordering isn't important, or is it? Let's preserve. could push_back and reverse iterate
+    //...or something. Let's do one level here
+    std::string attrs, eattrs;    //attributes of node and edges
+    // so - all the nodes at this level will have the same attrs, yes?
+    // not necessarily, their color might differ
+    /* so this works
+    strict digraph {
+    subgraph {
+    N1 [ shape=hexagon ]
+    N1 -> N2
+    N1 -> N3
+    N1 -> N4
+    N1 -> N5
+    }
+    //next call emits the kids with their node shapes and that will make them right
+    //make sure this gets done for the leaves
+    subgraph {
+    N2[shape=box]
+    N3[shape=box]
+    N4[shape=box]
+    N5[shape=box]
+    //kids go here
+    }
+    }
+    */
+    fprintf(fp,"subgraph {\n");
+    for(node_id_t gnid : gnids) {
+      gnp = graphnodes[gnid];
+      //rebuild string every time - we're not super worried re: performance here
+      attrs.clear();
+      //I plan to use ellipse instead of hexagon but for now this will show if we forget
+      //to set any bc ellipse is default
+      if(gnp-> max) attrs.append(" shape=hexagon ");
+      else attrs.append(" shape=box ");
+
+      //emit node name and attrs
+      fprintf(fp,"%s [%s]\n",gnp->get_name().c_str(),attrs.c_str());
+      for(node_id_t chid : gnp->get_children()) {
+        //add child node to the list of all kids
+        kidgnids.push_back(chid);
+        //emit edge, later attrs too
+        fprintf(fp,"%s -> %s\n",gnp->get_name().c_str(), graphnodes[chid]->get_name().c_str());
+        //add child to next iteration's gnids
+        //do this!
+        //later there will be subgraphs n stuff!
+      }
+    }
+    fprintf(fp,"}\n");
+    //then the recursive call for the kiddies, if there are any. If not, we're done!
+    if(!kidgnids.empty()) render_graph_aux(kidgnids,fp);
   }
 
   //if alphabeta was called with build_graph true, 
@@ -143,15 +206,22 @@ namespace minimax {
         return;
     }
 
+    //header
+    fprintf(fp,"// export as svg and view in browser to see tooltips\n");
+    fprintf(fp,"strict digraph {\n");
+
+
     // so how to traverse?
-    // sounds like recurse!
-    node_id_t cur_node_id = root_node_id;
+    // sounds like recurse...sorta
+    std::vector<node_id_t> gnids = { root_node_id };
+    render_graph_aux(gnids,fp);
 
-    // WRITE THE GUTS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    // WRITE THE GUTS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    // WRITE THE GUTS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    //footer
+    fprintf(fp,"}\n");
 
+    // and close it on up!
     std::fclose(fp);
+    plprintf("Wrote: %s\n",filepath.c_str());
   }
 
 
@@ -497,9 +567,15 @@ void run() {
     bool build_graph = true;      //for debugging with DOT/svg graph
 
     mr.set_building_graph(build_graph);     //need to set that before running
+    mr.set_root_node_id(root.get_node_id());    // and this - consolidate
     node_value_t bestscore = mr.alphabeta(root, max_depth, min_node_value, max_node_value, true);
 
     plprintf("Best minimax score found: %d\n",int(bestscore));
+
+    if(build_graph) {
+      plprintf("Writing graph to minimax.dot file\n");
+      mr.render_graph("minimax.dot");
+    }
 
     /* old noodle tests
     std::vector<std::unique_ptr<MinimaxNode>> kids;

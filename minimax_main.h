@@ -98,6 +98,7 @@ namespace minimax {
       void set_tooltip(std::string tip) { tooltip = tip; }
 
       void add_child(node_id_t kid) { children.push_back(kid); }
+      std::vector<node_id_t> &get_children() { return children; }
   };
 
   class MinimaxRunner {
@@ -107,7 +108,7 @@ namespace minimax {
 
       // build a DOT (graphviz) graph if this is true - for debugging
       bool building_graph = false;
-      std::unordered_map<node_id_t,MinimaxGraphNode> graphnodes;
+      std::unordered_map<node_id_t,std::shared_ptr<MinimaxGraphNode>> graphnodes;
       node_id_t root_node_id;     //need to memorize this to fish it out of graphnodes to start the graph
       
       
@@ -126,12 +127,16 @@ namespace minimax {
       bool is_building_graph() { return building_graph; }
       void set_building_graph(bool bg) { building_graph = bg; }
 
+      node_id_t get_root_node_id() { return root_node_id; }
+      void set_root_node_id(node_id_t rni) { root_node_id = rni; }
+
     public:
       virtual node_value_t alphabeta(MinimaxNode &node, index_t depth, node_value_t alpha, 
                                       node_value_t beta, bool is_max);
       // emit alpha-beta graph to a file - default implementation to a .dot file for graphviz to make
       // an svg with mouseover tooltips. set_building_graph(true) has to have been called before
       // alphabeta for this to work
+      virtual void render_graph_aux(std::vector<node_id_t> &gnids, FILE *fp);    //recursive auxiliary function
       virtual void render_graph(std::string filepath);                                      
   };
 

@@ -1,0 +1,102 @@
+// export as svg and view in browser to see tooltips
+strict digraph {
+subgraph {
+N1 [ shape=hexagon ]
+N1 -> N2
+N1 -> N3
+N1 -> N4
+N1 -> N5
+}
+subgraph {
+N2 [ shape=box ]
+N2 -> N6
+N2 -> N7
+N2 -> N8
+N2 -> N9
+N2 -> N10
+N2 -> N11
+N2 -> N12
+N2 -> N13
+N2 -> N14
+N2 -> N15
+N2 -> N16
+N2 -> N17
+N2 -> N18
+N3 [ shape=box ]
+N3 -> N58
+N4 [ shape=box ]
+N4 -> N74
+N5 [ shape=box ]
+N5 -> N90
+}
+subgraph {
+N6 [ shape=hexagon ]
+N6 -> N19
+N6 -> N20
+N6 -> N21
+N7 [ shape=hexagon ]
+N7 -> N22
+N8 [ shape=hexagon ]
+N8 -> N25
+N9 [ shape=hexagon ]
+N9 -> N28
+N9 -> N29
+N10 [ shape=hexagon ]
+N10 -> N31
+N11 [ shape=hexagon ]
+N11 -> N34
+N12 [ shape=hexagon ]
+N12 -> N37
+N13 [ shape=hexagon ]
+N13 -> N40
+N14 [ shape=hexagon ]
+N14 -> N43
+N15 [ shape=hexagon ]
+N15 -> N46
+N16 [ shape=hexagon ]
+N16 -> N49
+N17 [ shape=hexagon ]
+N17 -> N52
+N18 [ shape=hexagon ]
+N18 -> N55
+N58 [ shape=hexagon ]
+N58 -> N71
+N58 -> N72
+N58 -> N73
+N74 [ shape=hexagon ]
+N74 -> N87
+N74 -> N88
+N74 -> N89
+N90 [ shape=hexagon ]
+N90 -> N103
+N90 -> N104
+N90 -> N105
+}
+subgraph {
+N19 [ shape=box ]
+N20 [ shape=box ]
+N21 [ shape=box ]
+N22 [ shape=box ]
+N25 [ shape=box ]
+N28 [ shape=box ]
+N29 [ shape=box ]
+N31 [ shape=box ]
+N34 [ shape=box ]
+N37 [ shape=box ]
+N40 [ shape=box ]
+N43 [ shape=box ]
+N46 [ shape=box ]
+N49 [ shape=box ]
+N52 [ shape=box ]
+N55 [ shape=box ]
+N71 [ shape=box ]
+N72 [ shape=box ]
+N73 [ shape=box ]
+N87 [ shape=box ]
+N88 [ shape=box ]
+N89 [ shape=box ]
+N103 [ shape=box ]
+N104 [ shape=box ]
+N105 [ shape=box ]
+}
+}
