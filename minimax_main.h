@@ -8,6 +8,7 @@
 #include "cribbage_player.h"
 #include "plat_io.h"
 #include <memory>
+#include <unordered_map>
 #include "plat_minimax_main.h"
 
 
@@ -106,22 +107,32 @@ namespace minimax {
 
       // build a DOT (graphviz) graph if this is true - for debugging
       bool building_graph = false;
-      std::vector<MinimaxGraphNode> graphnodes;
+      std::unordered_map<node_id_t,MinimaxGraphNode> graphnodes;
+      node_id_t root_node_id;     //need to memorize this to fish it out of graphnodes to start the graph
+      
       
 
     public:
       MinimaxRunner() {}
       MinimaxRunner(index_t md, bool bg) : MinimaxRunner() { 
         max_depth = md; 
-        building_graph = true; 
+        building_graph = bg; 
       }
       virtual ~MinimaxRunner() {}
 
       index_t get_max_depth() { return max_depth; }
       void set_max_depth(index_t nm) { max_depth = nm; }
 
+      bool is_building_graph() { return building_graph; }
+      void set_building_graph(bool bg) { building_graph = bg; }
+
     public:
-      virtual node_value_t alphabeta(MinimaxNode &node, index_t depth, node_value_t alpha, node_value_t beta, bool is_max);
+      virtual node_value_t alphabeta(MinimaxNode &node, index_t depth, node_value_t alpha, 
+                                      node_value_t beta, bool is_max);
+      // emit alpha-beta graph to a file - default implementation to a .dot file for graphviz to make
+      // an svg with mouseover tooltips. set_building_graph(true) has to have been called before
+      // alphabeta for this to work
+      virtual void render_graph(std::string filepath);                                      
   };
 
   class CribbageCountNode : public MinimaxNode {

@@ -7,6 +7,11 @@
 #include "minimax_main.h"
 #include "plat_minimax_main.h"
 
+//TEMP! until I refactor file printing for graph into platform-specific, which will 
+//almost certainly be stubbed to nothing on arduino - but MAYBE NOT. I suppose I could write
+//things to spi flash or some such.
+#include <cstdio>
+
 CardUtils cu;
 Cribbage cr;
 
@@ -35,6 +40,13 @@ namespace minimax {
     //let's try not negating is_max !!!!!!!!!!!!!!!!!!!!!!!!! that seems to get the stack in the right order
     node.find_legal_countermoves(is_max,children);
 
+    //ok so if we're building a graph, record this node. Will add its children as and if they're explored - will reflect pruning
+    //is node's is_max_node the same as is_max?
+    //also not sure about the depth here; goes like the indent when printing nodes, 0 = root, think that's ok
+    //how do I avoid creating this if we're not building graph? default ctor isn't much faster
+    //work that out
+    MinimaxGraphNode cur_graph_node(node.get_node_id(), node.is_max_node(), depth-max_depth);
+
     // if maximizingPlayer then
     // ...urgh, I think I have this backwards again
     if(is_max) {
@@ -54,10 +66,11 @@ namespace minimax {
         return node.heuristic_value();
       }
       for(auto j = 0; j < children.size(); j++) {
-        // **************************************************************************************************
-        // HEY IN HERE SOMEWHERE DO A PLATSPEC CALL TO BUILD A GRAPH? or do like with build_lists in scoring?
-        // **************************************************************************************************
-        // do we need to pass alpha and beta back? I'm going to try not.
+        // here do like with build_lists in scoring to generate a graph node for debugging - actually here all we
+        // need is to associate the child with current node
+        if(building_graph) cur_graph_node.add_child(children[j]->get_node_id());
+
+        // do we need to pass alpha and beta back? i.e., make them references? I'm going to try not.
         val = std::max(alpha, alphabeta(*(children[j]), depth-1, alpha, beta, false));
         plprintf("%sMaxnode id %lu child %d val: %d\n",indent.c_str(), node.get_node_id(), j,val);
         alpha = std::max(alpha, val);
@@ -90,9 +103,10 @@ namespace minimax {
         return node.heuristic_value();
       }
       for(auto j = 0; j < children.size(); j++) {
-        // **************************************************************************************************
-        // HEY IN HERE SOMEWHERE DO A PLATSPEC CALL TO BUILD A GRAPH? or do like with build_lists in scoring?
-        // **************************************************************************************************
+        // here do like with build_lists in scoring to generate a graph node for debugging - actually here all we
+        // need is to associate the child with current node
+        if(building_graph) cur_graph_node.add_child(children[j]->get_node_id());
+
         // do we need to pass alpha and beta back? I'm going to try not.
         val = std::min(beta, alphabeta(*(children[j]), depth-1, alpha, beta, true));
         plprintf("%sMinnode id %lu child %d val: %d\n",indent.c_str(),node.get_node_id(),j,val);
@@ -104,8 +118,40 @@ namespace minimax {
         }
       }
       plprintf("%sMinnode id %lu final val %d\n",indent.c_str(), node.get_node_id(), val);
+
+      //and finally, add current graph node to our list of nodes if we're doing that
+      if(building_graph) graphnodes[node.get_node_id()] = cur_graph_node;
+
       return val;
     }
+  }
+
+  //if alphabeta was called with build_graph true, 
+  void MinimaxRunner::render_graph(std::string filepath) {
+    //let's only do this if there is a graph
+    if(graphnodes.empty()) {
+      plprintf("render_graph: No graph nodes found!\n");
+      return;
+    }
+
+    // ok now here's a thing - do I write platspec I/O for files, too? I suppose I should :P
+    // put that in as an issue - let's just do it linux-style for now and then refactor into platspec, like I did with printf
+    // here, pop open the file we're writing to
+    FILE* fp = std::fopen(filepath.c_str(), "wt");
+    if(fp == nullptr) {
+        plprintf("Graph file opening failed\n");
+        return;
+    }
+
+    // so how to traverse?
+    // sounds like recurse!
+    node_id_t cur_node_id = root_node_id;
+
+    // WRITE THE GUTS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    // WRITE THE GUTS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    // WRITE THE GUTS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+    std::fclose(fp);
   }
 
 
@@ -133,6 +179,8 @@ namespace minimax {
     return *maxy == 0;
 
     //THIS DOESN'T CATCH THE CASE THAT THERE ARE NO LEGAL MOVES FROM HERE - the runner itself will have to look for that!
+    //or if I rewrite the find_legal_countermoves to be the stripped down version that doesn't build out the states, this could
+    //run that or rely on its having been run elsewhere?
   }
 
   node_value_t CribbageCountNode::heuristic_value() {
@@ -193,6 +241,11 @@ namespace minimax {
 
   //WOULD BE NICE TO DO THIS AS A GENERATOR AND NOT NEED TO CREATE ALL THE NODES
   //but in this game's case the fan-out is never worse than 13
+  //COULD DO THAT where this is a thing that returns a list of the
+  //actual *moves* but doesn't generate the states, and there's
+  //a get-state-from-move function that generates the states as needed.
+  //not a huge problem but would be an efficiency thing for speed a little bit
+  //and space somewhat more
   void CribbageCountNode::find_legal_countermoves(bool is_max, std::vector<std::unique_ptr<MinimaxNode>> &rv) {
     //std::vector<MinimaxNode> rv;
     rv.clear();
@@ -441,6 +494,9 @@ void run() {
     //so let's do an actual minimax! What happens?
     // (* Initial call *)
     // alphabeta(origin, depth, −∞, +∞, TRUE)
+    bool build_graph = true;      //for debugging with DOT/svg graph
+
+    mr.set_building_graph(build_graph);     //need to set that before running
     node_value_t bestscore = mr.alphabeta(root, max_depth, min_node_value, max_node_value, true);
 
     plprintf("Best minimax score found: %d\n",int(bestscore));

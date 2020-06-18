@@ -6,7 +6,50 @@ strict digraph {
   R[label = 17] 
   R1234 -> { A, B, C }
   A -> { D, E }
-  B -> { F }
+  B -> { F } // G H I J K L M N O P Q R S T U V}
+  //edge length for staggering - minlen uses an int. kinda works
+  AAA[shape=box color=blue fontcolor=blue]
+  BBB[shape=box color=blue fontcolor=blue]
+  CCC[shape=box color=blue fontcolor=blue]
+  DDD[shape=box color=green fontcolor=green]
+  EEE[shape=box color=green fontcolor=green]
+  FFF[shape=box color=green fontcolor=green]
+  GGG[shape=box color=green fontcolor=green]
+  HHH[shape=box color=red fontcolor=red]
+  III[shape=box color=red fontcolor=red]
+  JJJ[shape=box color=red fontcolor=red]
+  KJK[shape=box color=red fontcolor=red]
+  C -> W [minlen=1]
+    // from minlen=1 nodes, do 2 3 2 3
+    W -> HHH[minlen=2]
+    W -> III[minlen=3]
+    W -> JJJ[minlen=2]
+    W -> KJK[minlen=3]
+  C -> X [minlen=2]
+  C -> Y [minlen=1]
+  C -> Z [minlen=2]
+    //from minlen=2 nodes, do 1 2 1 2
+    Z -> DDD[minlen=1]
+    Z -> EEE[minlen=2]
+    Z -> FFF[minlen=1]
+    Z -> GGG[minlen=2]
+  C -> AA [minlen=1]
+    // from minlen=1 nodes, do 2 3 2 3
+    AA -> AAA[minlen=2]
+    AA -> BBB[minlen=3]
+    AA -> CCC[minlen=2]
+  C -> BB [minlen=2]
+  C -> CC [minlen=1]
+  C -> DD [minlen=2]
+  C -> EE [minlen=1]
+  C -> FF [minlen=2]
+  C -> GG [minlen=1]
+  C -> HH [minlen=2]
+  C -> II [minlen=1]
+  //preferred length doesn't seem to do much
+  //C -> W [len=1.0]
+  //C -> X [len=2.0]
+  //C -> Y [len=1.0]
   // min level nodes
   subgraph { 
     rank = same; 
@@ -18,9 +61,34 @@ strict digraph {
   //next max level nodes
   subgraph { 
     rank = same; 
-      D[shape = ellipse label = 3 
-        tooltip = "pig\nblart"]; 
-      E[shape = ellipse label = 31]; 
-      F[shape = ellipse label = -10004];
-  }   
+    D[shape = ellipse label = 3 
+      tooltip = "pig\nblart"]; 
+    E[shape = ellipse label = 31]; 
+  } 
+  /*see if can get nodes to stagger - this kinda works
+  subgraph {
+    rank = same;
+    G;
+    I;
+    K;
+    M;
+    O;
+    Q;
+    S;
+    U;
+  }
+  subgraph {
+    rank = sink;
+    F[shape = ellipse label = -10004];
+    H;
+    J; 
+    L; 
+    N;
+    P;
+    R;
+    T;
+    V;     
+  } 
+  */ 
+
 } 
