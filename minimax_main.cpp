@@ -42,7 +42,8 @@ namespace minimax {
 
     // if depth = 0 or node is a terminal node then
     //     return the heuristic value of node
-    if(depth == 0 || node.is_terminal()) {
+    if(depth == 0 || 
+      node.is_terminal()) {
       node.print_node(max_depth);
       plprintf("%sTerminal node! id %lu value %d\n",indent.c_str(),node.get_node_id(), node.heuristic_value()); 
       // set node's value to val...? sure
@@ -292,7 +293,16 @@ namespace minimax {
     //ok, so think about this.
     //max node's children are the results of max plays - see https://www.neverstopbuilding.com/blog/minimax
 
-    //what makes a terminal node? If the stack total is > 31, it should never have existed
+    //what makes a terminal node? 
+    //if either player has won the game, doy!
+    //THIS DOESN'T WORK IF SCORE HASN'T BEEN CALCULATED YET.
+    //let's do that here and worry about the efficency later.
+    if(!calculated_score_yet) node_value_t nv = heuristic_value();    //side effects, ew
+    if(max_player_gamescore > 120 || min_player_gamescore > 120) {
+      return true;
+    }
+    
+    //If the stack total is > 31, it should never have existed
     //if total is == 31, this is terminal regardless of player
     if(stackTotal == 31) return true;
 
@@ -330,9 +340,10 @@ namespace minimax {
         //check to see if this puts the player over the line!
         //used to have opposite sense of max and min
         //no, wait, I think I'm wrong again
+        // and again... or just was always adding to max player's score teppo
         if(max_node) {
           //it's the result of a min player's play, yes? so the playscore gets added to min player's score
-          max_player_gamescore += playscore;
+          min_player_gamescore += playscore;
           //if that wins the game for min player, BIG YIKES
           if(min_player_gamescore > 120) {
             cumulativeScore -= GAME_WIN_VALUE;
@@ -380,6 +391,16 @@ namespace minimax {
     std::array<index_t,13> nu_rrc;
     nu_stack.reserve(8);      //shouldn't get longer than 8
     nu_hand.reserve(4);       //player's hand no more than 4
+
+    //if this is a terminal node, don't return anything.
+    //this shouldn't arise, but it does :P
+    //that seems to be happening bc is_terminal doesn't always work - if heuristic value hasn't been
+    //calculated, it fails the check for players having won the game, and it isn't capable of finding
+    //terminals who are that bc they have no children. In this case, that's OK bc we're finding out about the kids.
+    //though perhaps HERE we could mark it terminal? - we'll see
+    if(is_terminal()) {
+      return;
+    }
 
     //create the child nodes! This is all possible, not all legal.
     //should we do only legal? Sounds like a good idea
@@ -599,18 +620,28 @@ void run() {
   plprintf("Hello and welcome to MINIMAX_MAIN, the minty minimax fiddlement utility.\n");
 
   //try a max depth of 9 - should never reach that far
-  index_t max_depth = 7; //try a 3 for easier reading - was 9;
+  index_t max_depth = 4; //try a 3 for easier reading - was 9;
   //also the "true" means emit DOT graph
   MinimaxRunner mr = MinimaxRunner(max_depth, true);
+  CribbageCountNode root;
 
   //OK! So set up a cribbage hand in this thing's terms and see what it thinks the best play is!
   //let's start with our hand is ... and we only care about ranks ...
   //5, 6, Q, J, any rank is fine
+  /* no good outcomes in this one! not surprising with such a strong lead in min player
   std::vector<std::string> player_cardstrings = { "5d", "6s", "Qh", "Jc" };
   std::vector<std::string> stack_cardstrings;   //empty
-  CribbageCountNode root;
-  //say that the max player is at 50 points, min player at 117
   bool res = build_scenario(true, mr.get_max_depth(), 0, 50, 117, player_cardstrings, stack_cardstrings, root); 
+  */
+
+  //let's try a little more obvious one, player one move from winning
+  /**/
+  std::vector<std::string> player_cardstrings = { "5d", "6s", "Qh", "Jc" };
+  std::vector<std::string> stack_cardstrings = {"Jh"};
+  bool res = build_scenario(true, mr.get_max_depth(), 0, 119, 117, player_cardstrings, stack_cardstrings, root); 
+  /**/
+
+  //say that the max player is at 50 points, min player at 117
   if(res == true) {
 
     plprintf("Root node string:\n%s\n",root.to_string().c_str());
@@ -625,6 +656,7 @@ void run() {
 
     mr.set_building_graph(build_graph);     //need to set that before running
     mr.set_root_node_id(root.get_node_id());    // and this - consolidate
+    mr.set_fanout_limit(20);
     node_value_t bestscore = mr.alphabeta(root, max_depth, min_node_value, max_node_value, true);
 
     plprintf("Best minimax score found: %d\n",int(bestscore));
