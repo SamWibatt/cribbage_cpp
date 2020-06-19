@@ -202,7 +202,35 @@ namespace minimax {
 
       //emit node name and attrs
       fprintf(fp,"%s [%s]\n",gnp->get_name().c_str(),attrs.c_str());
-      for(node_id_t chid : gnp->get_children()) {
+
+      //limit fan-out - if there are more than maxfanout children, pick the maxext or minnest ones
+      //- whichever gave parent node its value, that end
+      std::vector<node_id_t> topkids;
+      if(!gnp->get_children().empty())
+        std::copy(gnp->get_children().begin(),gnp->get_children().end(),std::back_inserter(topkids));
+      if(topkids.size() > fanout_limit) {
+        //choose the 3 most important: if this is a max node, the 3 kids with highest val
+        //else the 3 with lowest 
+        //preserve ordering... use stable_sort
+        //comparison lambda a la bool cmp(const Type1 &a, const Type2 &b)
+
+        if(gnp->max) {
+          //maxing so this sorts by decreasing value
+          std::stable_sort(topkids.begin(),topkids.end(),
+            [this](node_id_t a, node_id_t b) 
+              { return this->graphnodes[a]->get_value() > this->graphnodes[b]->get_value(); });
+        } else {
+          //minning, so this sorts by increasing value
+          std::stable_sort(topkids.begin(),topkids.end(),
+            [this](node_id_t a, node_id_t b) 
+              { return this->graphnodes[a]->get_value() < this->graphnodes[b]->get_value(); });
+        }
+        //keep first fanout_limit nodes from topkids
+        topkids.erase(topkids.begin()+fanout_limit,topkids.end());
+
+      } 
+
+      for(node_id_t chid : topkids) {
         //add child node to the list of all kids
         kidgnids.push_back(chid);
         //emit edge, later attrs too
@@ -571,7 +599,7 @@ void run() {
   plprintf("Hello and welcome to MINIMAX_MAIN, the minty minimax fiddlement utility.\n");
 
   //try a max depth of 9 - should never reach that far
-  index_t max_depth = 2; //try a 3 for easier reading - was 9;
+  index_t max_depth = 7; //try a 3 for easier reading - was 9;
   //also the "true" means emit DOT graph
   MinimaxRunner mr = MinimaxRunner(max_depth, true);
 

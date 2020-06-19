@@ -123,8 +123,7 @@ namespace minimax {
       bool building_graph = false;
       std::unordered_map<node_id_t,std::shared_ptr<MinimaxGraphNode>> graphnodes;
       node_id_t root_node_id;     //need to memorize this to fish it out of graphnodes to start the graph
-      
-      
+      index_t fanout_limit = 3;   //more than this many children won't get shown, just show most significant fanout_limit
 
     public:
       MinimaxRunner() {}
@@ -142,6 +141,9 @@ namespace minimax {
 
       node_id_t get_root_node_id() { return root_node_id; }
       void set_root_node_id(node_id_t rni) { root_node_id = rni; }
+
+      index_t get_fanout_limit() { return fanout_limit; }
+      void set_fanout_limit(index_t flim) { fanout_limit = flim; }
 
     public:
       virtual node_value_t alphabeta(MinimaxNode &node, index_t depth, node_value_t alpha, 
