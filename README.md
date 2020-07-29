@@ -1,6 +1,6 @@
 # MIGRATION NOTE:
 
-Moving this repository to https://gitlab.com/SamWibatt/cribbage_cpp and that will be the official (and at some point only) one. Please see it.
+Moving github repository to https://gitlab.com/SamWibatt/cribbage_cpp and that will be the official (and at some point only) one. Please see it (unless you're already there.)
 
 # cribbage_cpp
 C++11 implementation of cribbage scoring and strategy, with googletest unit testing
